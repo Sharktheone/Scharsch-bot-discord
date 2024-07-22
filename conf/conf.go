@@ -1,6 +1,7 @@
 package conf
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/config"
 	"github.com/Sharktheone/ScharschBot/flags"
@@ -11,13 +12,14 @@ import (
 
 var (
 	confPath = flags.String("configPath")
-	Config   Format
+	Config   *Format
 )
 
 func init() {
 	GetConf()
 }
-func GetConf() Format {
+
+func GetConf() *Format {
 	ymlConf, err := os.ReadFile(*confPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -36,5 +38,13 @@ func GetConf() Format {
 	if err := yaml.Unmarshal(ymlConf, &Config); err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
+
+	configJSON, err := json.MarshalIndent(Config, "", "  ")
+	if err != nil {
+		log.Fatalf("Failed to marshal config: %v", err)
+	}
+
+	log.Println("Config loaded:\n", string(configJSON))
+
 	return Config
 }

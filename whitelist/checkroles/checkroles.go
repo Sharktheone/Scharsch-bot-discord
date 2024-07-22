@@ -3,6 +3,7 @@ package checkroles
 import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/database/mongodb"
 	"github.com/Sharktheone/ScharschBot/discord/bot"
 	"github.com/Sharktheone/ScharschBot/pterodactyl"
@@ -50,117 +51,92 @@ func CheckRoles() {
 		}
 	}
 	if removeWithout {
-		entries, found := mongodb.Read(whitelistCollection, bson.M{
-			"dcUserID":  bson.M{"$exists": true},
-			"mcAccount": bson.M{"$exists": true},
-		})
+		//entries, found := mongodb.Read(whitelistCollection, bson.M{
+		//	"dcUserID":  bson.M{"$exists": true},
+		//	"mcAccount": bson.M{"$exists": true},
+		//})
 
-		if found {
-			session := bot.Session
-			var removedIDs []string
-			for _, entry := range entries {
-				userID := fmt.Sprintf("%v", entry["dcUserID"])
+		entries := database.DB.AllWhitelists()
 
-				checkID := true
-				for _, removeID := range removedIDs {
-					if removeID == userID {
-						checkID = false
-					}
+		session := bot.Session
+		var removedIDs []string
+		for _, entry := range entries {
+			userID := fmt.Sprintf("%v", entry.ID)
+
+			checkID := true
+			for _, removeID := range removedIDs {
+				if removeID == userID {
+					checkID = false
 				}
-				if checkID {
-					user, _ := session.GuildMember(config.Discord.ServerID, userID)
-					if user == nil {
+			}
+			if checkID {
+				user, _ := session.GuildMember(config.Discord.ServerID, userID)
+				if user == nil {
 
-						removedIDs = append(removedIDs, userID)
-						mongodb.Remove(whitelistCollection, bson.M{
-							"dcUserID": userID,
-						})
-						mongodb.Write(reWhitelistCollection, bson.D{
-							{"dcUserID", userID},
-							{"mcAccount", entry["mcAccount"]},
-						})
-					} else {
-						serverPerms := false
-						for _, role := range user.Roles {
-							for _, neededRole := range config.Whitelist.Roles.ServerRoleID {
-								if role == neededRole {
-									serverPerms = true
-									break
-								}
+					removedIDs = append(removedIDs, userID)
+					database.DB.MoveToReWhitelist(entry.ID)
+
+				} else {
+					serverPerms := false
+					for _, role := range user.Roles {
+						for _, neededRole := range config.Whitelist.Roles.ServerRoleID {
+							if role == neededRole {
+								serverPerms = true
+								break
 							}
 						}
-						if serverPerms == false {
-							removedIDs = append(removedIDs, userID)
+					}
+					if serverPerms == false {
+						removedIDs = append(removedIDs, userID)
 
-							mongodb.Remove(whitelistCollection, bson.M{
-								"dcUserID": userID,
-							})
-							mongodb.Write(reWhitelistCollection, bson.D{
-								{"dcUserID", userID},
-								{"mcAccount", entry["mcAccount"]},
-							})
-
-						}
+						database.DB.MoveToReWhitelist(entry.ID)
 					}
 				}
-
 			}
-			if len(removedIDs) > 0 {
-				log.Printf("Removing accounts of the id(s) %v from whitelist because they have not the server role", removedIDs)
-			}
+		}
+		if len(removedIDs) > 0 {
+			log.Printf("Removing accounts of the id(s) %v from whitelist because they have not the server role", removedIDs)
 		}
 	}
 	if reWhitelist {
-		entries, found := mongodb.Read(reWhitelistCollection, bson.M{
-			"dcUserID":  bson.M{"$exists": true},
-			"mcAccount": bson.M{"$exists": true},
-		})
+		entries := database.DB.AllReWhitelists()
 
-		if found {
-			session := bot.Session
-			var addedIDs []string
-			for _, entry := range entries {
-				userID := fmt.Sprintf("%v", entry["dcUserID"])
+		session := bot.Session
+		var addedIDs []string
+		for _, entry := range entries {
+			userID := fmt.Sprintf("%v", entry.ID)
 
-				checkID := true
-				for _, addID := range addedIDs {
-					if addID == userID {
-						checkID = false
-					}
+			checkID := true
+			for _, addID := range addedIDs {
+				if addID == userID {
+					checkID = false
 				}
-				if checkID {
-					user, _ := session.GuildMember(config.Discord.ServerID, userID)
-					if user != nil {
-						serverPerms := false
-						for _, role := range user.Roles {
-							for _, neededRole := range config.Whitelist.Roles.ServerRoleID {
-								if role == neededRole {
-									serverPerms = true
-									break
-								}
+			}
+			if checkID {
+				user, _ := session.GuildMember(config.Discord.ServerID, userID)
+				if user != nil {
+					serverPerms := false
+					for _, role := range user.Roles {
+						for _, neededRole := range config.Whitelist.Roles.ServerRoleID {
+							if role == neededRole {
+								serverPerms = true
+								break
 							}
 						}
-						if serverPerms == true {
+					}
+					if serverPerms == true {
 
-							addedIDs = append(addedIDs, userID)
+						addedIDs = append(addedIDs, userID)
 
-							mongodb.Remove(reWhitelistCollection, bson.M{
-								"dcUserID":  userID,
-								"mcAccount": entry["mcAccount"],
-							})
-							mongodb.Write(whitelistCollection, bson.D{
-								{"dcUserID", userID},
-								{"mcAccount", entry["mcAccount"]},
-							})
-
-						}
+						database.DB.ReWhitelist(entry.ID, []database.Role{}) //TODO: get user roles here
 					}
 				}
 			}
-			if len(addedIDs) > 0 {
-				log.Printf("Adding accounts of the id(s) %v to whitelist because they have the server role again", addedIDs)
-			}
-
+		}
+		if len(addedIDs) > 0 {
+			log.Printf("Adding accounts of the id(s) %v to whitelist because they have the server role again", addedIDs)
 		}
 	}
+
+	//TODO: We need to check here if we need to execute role obtain & loose commands
 }

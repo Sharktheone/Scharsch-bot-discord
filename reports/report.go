@@ -3,6 +3,7 @@ package reports
 import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/database/mongodb"
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/bwmarrin/discordgo"
@@ -47,11 +48,8 @@ func Report(name string, reason string, i *discordgo.InteractionCreate, s *sessi
 				"reportedPlayer": name,
 			})
 			if !dataFound {
-				mongodb.Write(reportCollection, bson.D{
-					{"reporterID", i.Member.User.ID},
-					{"reportedPlayer", name},
-					{"reason", reason},
-				})
+				database.DB.Report(database.UserID(i.Member.User.ID), database.Player(name), reason)
+
 				var roleMessage string
 				for _, role := range config.Whitelist.Report.PingRoleID {
 					ping := fmt.Sprintf("<@&%s> ", role)
@@ -177,9 +175,7 @@ func Accept(name string, i *discordgo.InteractionCreate, s *session.Session, not
 }
 
 func DeleteReport(name string) {
-	mongodb.Remove(reportCollection, bson.M{
-		"reportedPlayer": name,
-	})
+	database.DB.DeleteReport(database.Player(name))
 }
 func GetReport(name string) (report ReportData, reportFound bool) {
 	data, dataFound := mongodb.Read(reportCollection, bson.M{

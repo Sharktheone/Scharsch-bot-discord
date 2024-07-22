@@ -3,6 +3,7 @@ package whitelist
 import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/database/mongodb"
 	"github.com/Sharktheone/ScharschBot/discord/embed/banEmbed"
 	"github.com/Sharktheone/ScharschBot/discord/session"
@@ -63,10 +64,7 @@ func Add(username string, userID string, roles []string) (alreadyListed bool, ex
 		})
 		if !found {
 
-			mongodb.Write(whitelistCollection, bson.D{
-				{"dcUserID", userID},
-				{"mcAccount", username},
-			})
+			database.DB.WhitelistPlayer(database.UserID(userID), database.Player(username), []database.Role{}) //TODO: Add Roles
 			if pterodactylEnabled {
 				// TODO: Update to use new pterodactyl package (WS)
 				// TODO: Add Waitlist if server is offline
@@ -311,15 +309,12 @@ func BanUserID(userID string, roles []string, banID string, banAccounts bool, re
 		} else {
 
 			log.Printf("%v is banning %v", userID, banID)
-			mongodb.Write(banCollection, bson.D{
-				{"dcUserID", banID},
-				{"reason", reason},
-			})
+
+			database.DB.BanUser(database.UserID(banID), reason)
+
 			if banAccounts {
 				for _, account := range listedAccounts {
-					mongodb.Remove(whitelistCollection, bson.M{
-						"mcAccount": account,
-					})
+					database.DB.UnWhitelistPlayer(database.Player(account))
 					if pterodactylEnabled {
 						command := fmt.Sprintf(removeCommand, account)
 						for _, listedServer := range config.Whitelist.Servers {
@@ -332,10 +327,8 @@ func BanUserID(userID string, roles []string, banID string, banAccounts bool, re
 							}
 						}
 					}
-					mongodb.Write(banCollection, bson.D{
-						{"mcAccount", account},
-						{"dcUserID", banID},
-					})
+
+					database.DB.BanUser(database.UserID(banID), reason)
 				}
 				messageEmbedDM := banEmbed.DMBan(false, banID, reason, s)
 				messageEmbedDMFailed := banEmbed.DMBan(true, banID, reason, s)
@@ -376,14 +369,10 @@ func BanAccount(userID string, roles []string, account string, reason string, s 
 
 		if banAllowed && !alreadyBanned {
 			log.Printf("%v is banning %v", userID, account)
-			mongodb.Write(banCollection, bson.D{
-				{"mcAccount", account},
-				{"dcUserID", owner.ID},
-				{"reason", reason},
-			})
-			mongodb.Remove(whitelistCollection, bson.M{
-				"mcAccount": account,
-			})
+			database.DB.BanPlayer(database.UserID(owner.ID), database.Player(account), reason)
+
+			database.DB.UnWhitelistPlayer(database.Player(account))
+
 			messageEmbedDM := banEmbed.DMBanAccount(account, false, owner.ID, reason, s)
 			messageEmbedDMFailed := banEmbed.DMBanAccount(account, true, owner.ID, reason, s)
 			if err := s.SendDM(owner.ID, &discordgo.MessageSend{
