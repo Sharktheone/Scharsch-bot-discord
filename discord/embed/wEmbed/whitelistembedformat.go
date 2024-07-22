@@ -657,7 +657,7 @@ func WhitelistRemoveAllSure(i *discordgo.InteractionCreate) (embed discordgo.Mes
 			},
 		}
 		Button = discordgo.Button{
-			Emoji: discordgo.ComponentEmoji{
+			Emoji: &discordgo.ComponentEmoji{
 				Name: "✅",
 			},
 			Label:    "Yes, I want to remove all accounts",
