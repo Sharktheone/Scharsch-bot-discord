@@ -3,8 +3,8 @@ package wEmbed
 import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/discord/session"
-	"github.com/Sharktheone/ScharschBot/reports"
 	"github.com/Sharktheone/ScharschBot/whitelist/whitelist"
 	"github.com/bwmarrin/discordgo"
 	"log"
@@ -1255,28 +1255,28 @@ func NewReport(PlayerName string, reason string, i *discordgo.InteractionCreate)
 
 func ListReports(i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 	var (
-		username           = i.Member.User.String()
-		avatarURL          = i.Member.User.AvatarURL("40")
-		Title              = "List of reported players"
-		Description        = "Here is a list of all reported players"
-		Fields             []*discordgo.MessageEmbedField
-		report, anyReports = reports.GetReports()
+		username    = i.Member.User.String()
+		avatarURL   = i.Member.User.AvatarURL("40")
+		Title       = "List of reported players"
+		Description = "Here is a list of all reported players"
+		Fields      []*discordgo.MessageEmbedField
+		reports     = database.DB.GetReports()
 	)
 
-	if anyReports {
+	if len(reports) > 0 {
 
-		for _, Report := range report {
-			banned, _, reason := whitelist.CheckBanned(Report["reportedPlayer"].(string), "")
+		for _, r := range reports {
+			banned, _, reason := whitelist.CheckBanned(string(r.ReportedPlayer), "")
 			if banned {
-				value := fmt.Sprintf("%v (banned, reason: %v)", Report["reason"].(string), reason)
+				value := fmt.Sprintf("%v (banned, reason: %v)", r.Reason, reason)
 				Fields = append(Fields, &discordgo.MessageEmbedField{
-					Name:  Report["reportedPlayer"].(string),
+					Name:  string(r.ReportedPlayer),
 					Value: value,
 				})
 			} else {
 				Fields = append(Fields, &discordgo.MessageEmbedField{
-					Name:  Report["reportedPlayer"].(string),
-					Value: Report["reason"].(string),
+					Name:  string(r.ReportedPlayer),
+					Value: r.Reason,
 				})
 			}
 

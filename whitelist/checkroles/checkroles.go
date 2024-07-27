@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
-	"github.com/Sharktheone/ScharschBot/database/mongodb"
 	"github.com/Sharktheone/ScharschBot/discord/bot"
 	"github.com/Sharktheone/ScharschBot/pterodactyl"
-	"go.mongodb.org/mongo-driver/bson"
 	"log"
 )
 
@@ -24,18 +22,15 @@ func CheckRoles() {
 	if kickUnWhitelisted {
 		for _, server := range pterodactyl.Servers {
 			for _, player := range server.OnlinePlayers.Players {
-				_, found := mongodb.Read(whitelistCollection, bson.M{
-					"dcUserID":  bson.M{"$exists": true},
-					"mcAccount": player,
-				})
+				found := database.DB.IsWhitelisted(database.Player(*player))
 				if !found {
 					command := fmt.Sprintf(config.Whitelist.KickCommand, player)
 					if err := pterodactyl.SendCommand(command, server.Config.ServerID); err != nil {
 						log.Printf("Failed to kick %v from server %v: %v", player, server.Config.ServerID, err)
 					} else {
 						server.OnlinePlayers.Mu.Lock()
-						for i, player := range server.OnlinePlayers.Players {
-							if player == player {
+						for i, p := range server.OnlinePlayers.Players {
+							if player == p {
 								players := server.OnlinePlayers.Players
 								if i == len(players)-1 {
 									server.OnlinePlayers.Players = players[:i]

@@ -4,29 +4,19 @@ import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
-	"github.com/Sharktheone/ScharschBot/database/mongodb"
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/bwmarrin/discordgo"
-	"go.mongodb.org/mongo-driver/bson"
 	"log"
 )
 
 var (
-	config           = conf.GetConf()
-	reportCollection = config.Whitelist.Mongodb.MongodbReportCollectionName
+	config = conf.GetConf()
 )
 
 type ReportData struct {
 	ReporterID     string `bson:"reporterID"`
 	ReportedPlayer string `bson:"reportedPlayer"`
 	Reason         string `bson:"reason"`
-}
-
-func GetReports() (reports []bson.M, anyReports bool) {
-	report, dataFound := mongodb.Read(reportCollection, bson.M{
-		"reportedPlayer": bson.M{"$exists": true},
-	})
-	return report, dataFound
 }
 
 func Report(name string, reason string, i *discordgo.InteractionCreate, s *session.Session, messageEmbed discordgo.MessageEmbed) (reportAllowed bool, alreadyReported bool, enabled bool) {
@@ -44,9 +34,8 @@ func Report(name string, reason string, i *discordgo.InteractionCreate, s *sessi
 			}
 		}
 		if allowed {
-			_, dataFound = mongodb.Read(reportCollection, bson.M{
-				"reportedPlayer": name,
-			})
+			dataFound = database.DB.IsAlreadyReported(database.Player(name)) //TODO: Probably we should still accept the report and allow persons to be reported multiple times
+
 			if !dataFound {
 				database.DB.Report(database.UserID(i.Member.User.ID), database.Player(name), reason)
 
@@ -87,11 +76,11 @@ func Reject(name string, i *discordgo.InteractionCreate, s *session.Session, not
 	}
 
 	if allowed {
-		report, reportFound := GetReport(name)
+		report, reportFound := database.DB.GetReportedPlayer(database.Player(name))
 		if reportFound {
 			if notifyDM {
 				if notifyReporter {
-					channel, err := s.UserChannelCreate(report.ReporterID)
+					channel, err := s.UserChannelCreate(string(report.ReporterID))
 					if err != nil {
 						log.Printf("Failed to create DM with reporter: %v", err)
 
@@ -141,11 +130,11 @@ func Accept(name string, i *discordgo.InteractionCreate, s *session.Session, not
 		}
 	}
 	if allowed {
-		report, reportFound := GetReport(name)
+		report, reportFound := database.DB.GetReportedPlayer(database.Player(name))
 		if reportFound {
 			if notifyDM {
 				if notifyreporter {
-					if err := s.SendDM(report.ReporterID, &discordgo.MessageSend{
+					if err := s.SendDM(string(report.ReporterID), &discordgo.MessageSend{
 						Embed: messageEmbed,
 					},
 						&discordgo.MessageSend{
@@ -176,18 +165,4 @@ func Accept(name string, i *discordgo.InteractionCreate, s *session.Session, not
 
 func DeleteReport(name string) {
 	database.DB.DeleteReport(database.Player(name))
-}
-func GetReport(name string) (report ReportData, reportFound bool) {
-	data, dataFound := mongodb.Read(reportCollection, bson.M{
-		"reportedPlayer": name,
-	})
-	var reportData ReportData
-	// TODO Convert with bson.NewDecoder
-	if dataFound {
-		reportData.ReportedPlayer = data[0]["reportedPlayer"].(string)
-		reportData.ReporterID = data[0]["reporterID"].(string)
-		reportData.Reason = data[0]["reason"].(string)
-	}
-
-	return reportData, dataFound
 }

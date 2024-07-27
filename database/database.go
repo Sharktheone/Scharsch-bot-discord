@@ -14,6 +14,22 @@ type PlayerData struct {
 	Roles   []Role
 }
 
+type WhitelistedPlayerData struct {
+	ID   UserID
+	Name Player
+}
+
+type ReportData struct {
+	ReporterID     UserID
+	ReportedPlayer Player
+	Reason         string
+}
+
+type PlayerBan struct {
+	ID     UserID
+	Reason string
+}
+
 type Connection interface {
 	Connect()
 	Disconnect()
@@ -25,11 +41,12 @@ type Connection interface {
 	RemoveAll()
 	RemoveAllFrom(user UserID)
 	Owner(player Player) UserID
-	AccountsOf(user UserID) []Player
+	Players(user UserID) []Player
 	BanUser(user UserID, reason string)
 	BanPlayer(user UserID, player Player, reason string)
 	UnBanUser(user UserID)
 	UnBanPlayer(player Player)
+	UnBanPlayerFrom(user UserID, player Player)
 	IsUserBanned(user UserID) bool
 	IsPlayerBanned(player Player) bool
 	BannedPlayers(user UserID) []Player
@@ -40,4 +57,16 @@ type Connection interface {
 	AllWhitelists() []PlayerData
 	AllReWhitelists() []PlayerData
 	DeleteReport(reported Player)
+	RemoveAccount(player Player)
+	IsWhitelisted(player Player) bool
+	IsWhitelistedBy(user UserID, player Player) bool
+	GetReports() []ReportData
+	IsAlreadyReported(reported Player) bool
+	GetReportedPlayer(reported Player) (ReportData, bool)
+	NumberWhitelistedPlayers(user UserID) int
+	GetWhitelistedPlayer(player Player) (WhitelistedPlayerData, bool)
+	GetAllWhitelistedPlayers() []WhitelistedPlayerData
+	GetAccountsOf(user UserID) []Player
+	GetBan(user UserID) (string, bool)
+	GetPlayerBan(player Player) (PlayerBan, bool)
 }
