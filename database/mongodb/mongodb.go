@@ -14,7 +14,7 @@ import (
 
 var (
 	config             = conf.GetConf()
-	uri                = fmt.Sprintf("mongodb://%v:%v@%v:%v", url.QueryEscape(config.Whitelist.Mongodb.MongodbUser), url.QueryEscape(config.Whitelist.Mongodb.MongodbPass), config.Whitelist.Mongodb.MongodbHost, config.Whitelist.Mongodb.MongodbPort)
+	uri                = fmt.Sprintf("mongodb://%v:%v@%v:%v", url.QueryEscape(config.Whitelist.Database.User), url.QueryEscape(config.Whitelist.Database.Pass), config.Whitelist.Database.Host, config.Whitelist.Database.Port)
 	Client, connectErr = mongo.NewClient(options.Client().ApplyURI(uri))
 	Cancel             context.CancelFunc
 	connected          = false
@@ -41,7 +41,7 @@ func Connect() *mongo.Database {
 		log.Fatalf("Failed to ping MongoDB: %v", err)
 	}
 	log.Println("Connected to MongoDB")
-	db = Client.Database(config.Whitelist.Mongodb.MongodbDatabaseName)
+	db = Client.Database(config.Whitelist.Database.DatabaseName)
 	Ready = true
 	log.Printf("Using datbase %v", db.Name())
 

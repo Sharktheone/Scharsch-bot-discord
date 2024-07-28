@@ -48,17 +48,19 @@ type Format struct {
 		KickUnWhitelisted        bool     `yaml:"kickUnWhitelisted"`
 		KickCommand              string   `yaml:"kickCommand"`
 		Servers                  []string `yaml:"serverNames"`
-		Mongodb                  struct {
-			MongodbHost                      string `yaml:"mongodbHost"`
-			MongodbPort                      uint16 `yaml:"mongodbPort"`
-			MongodbUser                      string `yaml:"mongodbUser"`
-			MongodbPass                      string `yaml:"mongodbPass"`
-			MongodbDatabaseName              string `yaml:"mongodbDatabaseName"`
-			MongodbWhitelistCollectionName   string `yaml:"mongodbWhitelistCollectionName"`
-			MongodbBanCollectionName         string `yaml:"mongodbBanCollectionName"`
-			MongodbReWhitelistCollectionName string `yaml:"mongodbReWhitelistCollectionName"`
-			MongodbReportCollectionName      string `yaml:"mongodbReportCollectionName"`
-		} `yaml:"mongodb"`
+		Database                 struct {
+			Provider         string `yaml:"provider"`
+			Host             string `yaml:"host"`
+			Port             uint16 `yaml:"port"`
+			User             string `yaml:"user"`
+			Pass             string `yaml:"pass"`
+			DatabaseName     string `yaml:"databaseName"`
+			WhitelistTable   string `yaml:"whitelistCollectionName"`
+			BanTable         string `yaml:"banCollectionName"`
+			ReWhitelistTable string `yaml:"reWhitelistCollectionName"`
+			ReportTable      string `yaml:"reportCollectionName"`
+			WaitListTable    string `yaml:"waitListTable"`
+		} `yaml:"db"`
 
 		Roles struct {
 			ServerRoleID      []string `yaml:"serverRoleID"`
