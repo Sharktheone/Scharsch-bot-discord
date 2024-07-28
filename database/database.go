@@ -43,13 +43,13 @@ type Connection interface {
 	Owner(player Player) UserID
 	Players(user UserID) []Player
 	BanUser(user UserID, reason string)
-	BanPlayer(user UserID, player Player, reason string)
+	BanPlayer(player Player, reason string)
 	UnBanUser(user UserID)
 	UnBanPlayer(player Player)
 	UnBanPlayerFrom(user UserID, player Player)
 	IsUserBanned(user UserID) bool
 	IsPlayerBanned(player Player) bool
-	BannedPlayers(user UserID) []Player
+	BannedPlayers(user UserID) []PlayerBanData
 	RemoveAccounts(user UserID)
 	AddWaitlist(user UserID, player Player)
 	RemoveWaitlist(user UserID, player Player)
