@@ -60,6 +60,7 @@ type Format struct {
 			ReWhitelistTable string `yaml:"reWhitelistCollectionName"`
 			ReportTable      string `yaml:"reportCollectionName"`
 			WaitListTable    string `yaml:"waitListTable"`
+			RolesTable       string `yaml:"rolesTable"`
 		} `yaml:"db"`
 
 		Roles struct {
