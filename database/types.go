@@ -6,8 +6,15 @@ type WhitelistEntry struct {
 }
 
 type BanEntry struct {
-	UserID  UserID   `json:"userID" bson:"userID"`
-	Players []Player `json:"players" bson:"players"`
+	UserID     UserID          `json:"userID" bson:"userID"`
+	UserBan    bool            `json:"userBan" bson:"userBan"`
+	Players    []PlayerBanData `json:"players" bson:"players"`
+	UserReason string          `json:"reason" bson:"reason"`
+}
+
+type PlayerBanData struct {
+	Player Player `json:"player" bson:"player"`
+	Reason string `json:"reason" bson:"reason"`
 }
 
 type ReWhitelsitEntry struct {
