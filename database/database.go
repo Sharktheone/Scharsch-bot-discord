@@ -33,10 +33,10 @@ type PlayerBan struct {
 type Connection interface {
 	Connect()
 	Disconnect()
-	WhitelistPlayer(user UserID, player Player, roles []Role)
+	WhitelistPlayer(user UserID, player Player)
 	UnWhitelistAccount(user UserID)
 	UnWhitelistPlayer(player Player)
-	MoveToReWhitelist(user UserID)
+	MoveToReWhitelist(user UserID, missingRole Role)
 	ReWhitelist(user UserID, roles []Role)
 	RemoveAll()
 	RemoveAllFrom(user UserID)

@@ -9,7 +9,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/url"
+	"slices"
 	"time"
+)
+
+var (
+	whitelistCollection   = config.Whitelist.Database.WhitelistTable
+	banCollection         = config.Whitelist.Database.BanTable
+	reWhitelistCollection = config.Whitelist.Database.ReWhitelistTable
+	reportCollection      = config.Whitelist.Database.ReportTable
+	waitlistCollection    = config.Whitelist.Database.WaitListTable
+	rolesCollection       = config.Whitelist.Database.RolesTable
 )
 
 type MongoConnection struct {
@@ -19,7 +29,6 @@ type MongoConnection struct {
 }
 
 func (m *MongoConnection) Connect() {
-
 	uri := fmt.Sprintf(
 		"mongodb://%v:%v@%v:%v",
 		url.QueryEscape(config.Whitelist.Database.User),
@@ -82,49 +91,93 @@ func (m *MongoConnection) Remove(collection string, filter bson.M) {
 	}
 }
 
-func (m *MongoConnection) WhitelistPlayer(user database.UserID, player database.Player, roles []database.Role) {
-	//TODO implement me
-	panic("implement me")
+func (m *MongoConnection) WhitelistPlayer(user database.UserID, player database.Player) {
+	entry := database.WhitelistEntry{
+		UserID: user,
+		Player: player,
+	}
+
+	m.Write(whitelistCollection, entry)
 }
 
 func (m *MongoConnection) UnWhitelistAccount(user database.UserID) {
-	//TODO implement me
-	panic("implement me")
+	m.Remove(whitelistCollection, bson.M{"userID": user})
 }
 
 func (m *MongoConnection) UnWhitelistPlayer(player database.Player) {
-	//TODO implement me
-	panic("implement me")
+	m.Remove(whitelistCollection, bson.M{"player": player})
 }
 
-func (m *MongoConnection) MoveToReWhitelist(user database.UserID) {
-	//TODO implement me
-	panic("implement me")
+func (m *MongoConnection) MoveToReWhitelist(user database.UserID, missingRole database.Role) {
+	whitelisted := m.Players(user)
+
+	entry := database.ReWhitelsitEntry{
+		UserID:      user,
+		Players:     whitelisted,
+		MissingRole: missingRole,
+	}
+
+	m.Write(reWhitelistCollection, entry)
 }
 
 func (m *MongoConnection) ReWhitelist(user database.UserID, roles []database.Role) {
-	//TODO implement me
-	panic("implement me")
+	cursor, err := m.Read(reWhitelistCollection, bson.M{"userID": user})
+	if err != nil {
+		log.Printf("Failed to rewhitelist: %v", err)
+	}
+
+	var reEntry database.ReWhitelsitEntry
+	if err := cursor.Decode(&reEntry); err != nil {
+		log.Printf("Failed to rewhitelist: %v", err)
+	}
+
+	if slices.Contains(roles, reEntry.MissingRole) {
+		for _, player := range reEntry.Players {
+			m.WhitelistPlayer(user, player)
+		}
+		m.Remove(reWhitelistCollection, bson.M{"userID": user})
+	}
+
 }
 
 func (m *MongoConnection) RemoveAll() {
-	//TODO implement me
-	panic("implement me")
+	m.Remove(whitelistCollection, bson.M{})
 }
 
 func (m *MongoConnection) RemoveAllFrom(user database.UserID) {
-	//TODO implement me
-	panic("implement me")
+	m.Remove(whitelistCollection, bson.M{"userID": user})
 }
 
 func (m *MongoConnection) Owner(player database.Player) database.UserID {
-	//TODO implement me
-	panic("implement me")
+	cursor, err := m.Read(whitelistCollection, bson.M{"player": player})
+	if err != nil {
+		log.Printf("Failed to get owner: %v", err)
+	}
+
+	var entry database.WhitelistEntry
+	if err := cursor.Decode(&entry); err != nil {
+		log.Printf("Failed to get owner: %v", err)
+	}
+
+	return entry.UserID
 }
 
 func (m *MongoConnection) Players(user database.UserID) []database.Player {
-	//TODO implement me
-	panic("implement me")
+	cursor, err := m.Read(whitelistCollection, bson.M{"userID": user})
+	if err != nil {
+		log.Printf("Failed to get players: %v", err)
+	}
+
+	var entries []database.Player
+	for cursor.Next(m.ctx) {
+		var entry database.WhitelistEntry
+		if err := cursor.Decode(&entry); err != nil {
+			log.Printf("Failed to get players: %v", err)
+		}
+		entries = append(entries, entry.Player)
+	}
+
+	return entries
 }
 
 func (m *MongoConnection) BanUser(user database.UserID, reason string) {
