@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/database"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -50,6 +51,34 @@ func (m *MongoConnection) Disconnect() {
 	err := m.db.Client().Disconnect(ctx)
 	if err != nil {
 		log.Fatalf("Failed to disconnect: %v \n", err)
+	}
+}
+
+func (m *MongoConnection) Read(collection string, filter bson.M) (*mongo.Cursor, error) {
+	coll := db.Collection(collection)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	return coll.Find(ctx, filter)
+}
+
+func (m *MongoConnection) Write(collection string, data interface{}) {
+	writeColl := db.Collection(collection)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, err := writeColl.InsertOne(ctx, data)
+	if err != nil {
+		log.Printf("Failed to write to MongoDB: %v", err)
+	}
+}
+
+func (m *MongoConnection) Remove(collection string, filter bson.M) {
+	writeColl := db.Collection(collection)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, err := writeColl.DeleteMany(ctx, filter)
+	if err != nil {
+		log.Printf("Failed to remove from MongoDB: %v", err)
 	}
 }
 
