@@ -1,0 +1,204 @@
+package mongodb
+
+import (
+	"context"
+	"github.com/Sharktheone/ScharschBot/database"
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
+type MongoConnection struct {
+	ctx       context.Context
+	db        *mongo.Database
+	connected bool
+}
+
+func (m *MongoConnection) Connect() {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) Disconnect() {
+	//TODO implement me
+	panic("implement me")
+
+}
+
+func (m *MongoConnection) WhitelistPlayer(user database.UserID, player database.Player, roles []database.Role) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) UnWhitelistAccount(user database.UserID) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) UnWhitelistPlayer(player database.Player) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) MoveToReWhitelist(user database.UserID) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) ReWhitelist(user database.UserID, roles []database.Role) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) RemoveAll() {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) RemoveAllFrom(user database.UserID) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) Owner(player database.Player) database.UserID {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) Players(user database.UserID) []database.Player {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) BanUser(user database.UserID, reason string) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) BanPlayer(user database.UserID, player database.Player, reason string) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) UnBanUser(user database.UserID) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) UnBanPlayer(player database.Player) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) UnBanPlayerFrom(user database.UserID, player database.Player) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) IsUserBanned(user database.UserID) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) IsPlayerBanned(player database.Player) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) BannedPlayers(user database.UserID) []database.Player {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) RemoveAccounts(user database.UserID) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) AddWaitlist(user database.UserID, player database.Player) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) RemoveWaitlist(user database.UserID, player database.Player) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) Report(reporter database.UserID, reported database.Player, reason string) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) AllWhitelists() []database.PlayerData {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) AllReWhitelists() []database.PlayerData {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) DeleteReport(reported database.Player) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) RemoveAccount(player database.Player) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) IsWhitelisted(player database.Player) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) IsWhitelistedBy(user database.UserID, player database.Player) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) GetReports() []database.ReportData {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) IsAlreadyReported(reported database.Player) bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) GetReportedPlayer(reported database.Player) (database.ReportData, bool) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) NumberWhitelistedPlayers(user database.UserID) int {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) GetWhitelistedPlayer(player database.Player) (database.WhitelistedPlayerData, bool) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) GetAllWhitelistedPlayers() []database.WhitelistedPlayerData {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) GetAccountsOf(user database.UserID) []database.Player {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) GetBan(user database.UserID) (string, bool) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (m *MongoConnection) GetPlayerBan(player database.Player) (database.PlayerBan, bool) {
+	//TODO implement me
+	panic("implement me")
+}
