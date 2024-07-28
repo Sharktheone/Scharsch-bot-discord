@@ -2,8 +2,13 @@ package mongodb
 
 import (
 	"context"
+	"fmt"
 	"github.com/Sharktheone/ScharschBot/database"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
+	"net/url"
+	"time"
 )
 
 type MongoConnection struct {
@@ -13,14 +18,39 @@ type MongoConnection struct {
 }
 
 func (m *MongoConnection) Connect() {
-	//TODO implement me
-	panic("implement me")
+
+	uri := fmt.Sprintf(
+		"mongodb://%v:%v@%v:%v",
+		url.QueryEscape(config.Whitelist.Database.User),
+		url.QueryEscape(config.Whitelist.Database.Pass),
+		config.Whitelist.Database.Host,
+		config.Whitelist.Database.Port,
+	)
+
+	client, err := mongo.Connect(m.ctx, options.Client().ApplyURI(uri))
+	if err != nil {
+		log.Fatalf("Failed to apply mongo URI: %v", err)
+	}
+
+	err = client.Ping(m.ctx, nil)
+	if err != nil {
+		log.Fatalf("Failed to ping MongoDB: %v", err)
+	}
+
+	log.Println("Connected to MongoDB")
+
+	m.db = client.Database(config.Whitelist.Database.DatabaseName)
+	m.connected = true
 }
 
 func (m *MongoConnection) Disconnect() {
-	//TODO implement me
-	panic("implement me")
-
+	ctx, cancel := context.WithTimeout(m.ctx, 10*time.Second)
+	defer cancel()
+	m.connected = false
+	err := m.db.Client().Disconnect(ctx)
+	if err != nil {
+		log.Fatalf("Failed to disconnect: %v \n", err)
+	}
 }
 
 func (m *MongoConnection) WhitelistPlayer(user database.UserID, player database.Player, roles []database.Role) {
