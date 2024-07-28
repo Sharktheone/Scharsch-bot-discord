@@ -10,12 +10,10 @@ import (
 )
 
 var (
-	config                = conf.GetConf()
-	whitelistCollection   = config.Whitelist.Mongodb.MongodbWhitelistCollectionName
-	reWhitelistCollection = config.Whitelist.Mongodb.MongodbReWhitelistCollectionName
-	reWhitelist           = config.Whitelist.Roles.ReWhitelistWith
-	removeWithout         = config.Whitelist.Roles.RemoveUserWithout
-	kickUnWhitelisted     = config.Whitelist.KickUnWhitelisted
+	config            = conf.GetConf()
+	reWhitelist       = config.Whitelist.Roles.ReWhitelistWith
+	removeWithout     = config.Whitelist.Roles.RemoveUserWithout
+	kickUnWhitelisted = config.Whitelist.KickUnWhitelisted
 )
 
 func CheckRoles() {

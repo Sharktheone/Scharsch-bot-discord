@@ -14,12 +14,10 @@ import (
 )
 
 var (
-	config              = conf.GetConf()
-	whitelistCollection = config.Whitelist.Mongodb.MongodbWhitelistCollectionName
-	banCollection       = config.Whitelist.Mongodb.MongodbBanCollectionName
-	addCommand          = config.Pterodactyl.WhitelistAddCommand
-	removeCommand       = config.Pterodactyl.WhitelistRemoveCommand
-	pterodactylEnabled  = config.Pterodactyl.Enabled
+	config             = conf.GetConf()
+	addCommand         = config.Pterodactyl.WhitelistAddCommand
+	removeCommand      = config.Pterodactyl.WhitelistRemoveCommand
+	pterodactylEnabled = config.Pterodactyl.Enabled
 )
 
 type Player struct {
