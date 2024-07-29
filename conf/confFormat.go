@@ -54,6 +54,8 @@ type Format struct {
 			Port             uint16 `yaml:"port"`
 			User             string `yaml:"user"`
 			Pass             string `yaml:"pass"`
+			TimeZone         string `yaml:"timeZone"`
+			SqLiteFile       string `yaml:"sqLiteFile"`
 			DatabaseName     string `yaml:"databaseName"`
 			WhitelistTable   string `yaml:"whitelistCollectionName"`
 			BanTable         string `yaml:"banCollectionName"`
