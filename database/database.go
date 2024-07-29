@@ -54,8 +54,8 @@ type Connection interface {
 	AddWaitlist(user UserID, player Player)
 	RemoveWaitlist(user UserID, player Player)
 	Report(reporter UserID, reported Player, reason string)
-	AllWhitelists() []PlayerData
-	AllReWhitelists() []PlayerData
+	AllWhitelists() []WhitelistEntry
+	AllReWhitelists() []ReWhitelistEntry
 	DeleteReport(reported Player)
 	RemoveAccount(player Player)
 	IsWhitelisted(player Player) bool

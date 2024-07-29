@@ -352,13 +352,13 @@ func (m *MongoConnection) Report(reporter database.UserID, reported database.Pla
 	m.Write(reportCollection, entry)
 }
 
-func (m *MongoConnection) AllWhitelists() []database.PlayerData {
+func (m *MongoConnection) AllWhitelists() []database.WhitelistEntry {
 	cursor, err := m.Read(whitelistCollection, bson.M{})
 	if err != nil {
 		log.Printf("Failed to get all whitelists: %v", err)
 	}
 
-	var entries []database.PlayerData
+	var entries []database.WhitelistEntry //TODO: this might not be correct
 	if err := cursor.Decode(&entries); err != nil {
 		log.Printf("Failed to get all whitelists: %v", err)
 		return entries
@@ -367,13 +367,13 @@ func (m *MongoConnection) AllWhitelists() []database.PlayerData {
 	return entries
 }
 
-func (m *MongoConnection) AllReWhitelists() []database.PlayerData {
+func (m *MongoConnection) AllReWhitelists() []database.ReWhitelistEntry {
 	cursor, err := m.Read(reWhitelistCollection, bson.M{})
 	if err != nil {
 		log.Printf("Failed to get all rewhitelists: %v", err)
 	}
 
-	var entries []database.PlayerData
+	var entries []database.ReWhitelistEntry
 	if err := cursor.Decode(&entries); err != nil {
 		log.Printf("Failed to get all rewhitelists: %v", err)
 		return entries
