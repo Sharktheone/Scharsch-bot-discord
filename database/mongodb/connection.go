@@ -118,6 +118,8 @@ func (m *MongoConnection) MoveToReWhitelist(user database.UserID, missingRole da
 	}
 
 	m.Write(reWhitelistCollection, entry)
+
+	m.Remove(whitelistCollection, bson.M{"userID": user})
 }
 
 func (m *MongoConnection) ReWhitelist(user database.UserID, roles []database.Role) {
