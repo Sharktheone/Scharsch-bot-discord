@@ -111,7 +111,7 @@ func (m *MongoConnection) UnWhitelistPlayer(player database.Player) {
 func (m *MongoConnection) MoveToReWhitelist(user database.UserID, missingRole database.Role) {
 	whitelisted := m.Players(user)
 
-	entry := database.ReWhitelsitEntry{
+	entry := database.ReWhitelistEntry{
 		UserID:      user,
 		Players:     whitelisted,
 		MissingRole: missingRole,
@@ -126,7 +126,7 @@ func (m *MongoConnection) ReWhitelist(user database.UserID, roles []database.Rol
 		log.Printf("Failed to rewhitelist: %v", err)
 	}
 
-	var reEntry database.ReWhitelsitEntry
+	var reEntry database.ReWhitelistEntry
 	if err := cursor.Decode(&reEntry); err != nil {
 		log.Printf("Failed to rewhitelist: %v", err)
 	}

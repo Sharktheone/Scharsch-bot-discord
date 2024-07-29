@@ -17,7 +17,7 @@ type PlayerBanData struct {
 	Reason string `json:"reason" bson:"reason"`
 }
 
-type ReWhitelsitEntry struct {
+type ReWhitelistEntry struct {
 	UserID      UserID   `json:"userID" bson:"userID"`
 	Players     []Player `json:"players" bson:"players"`
 	MissingRole Role     `json:"missingRole" bson:"missingRole"`
