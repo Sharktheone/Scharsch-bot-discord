@@ -20,20 +20,15 @@ func (m *WhitelistEntry) TableName() string {
 }
 
 type BanEntry struct {
-	ID         uint            `json:"-" bson:"-" gorm:"primaryKey"`
-	UserID     database.UserID `json:"userID" bson:"userID" gorm:"userID"`
-	UserBan    bool            `json:"userBan" bson:"userBan" gorm:"userBan"`
-	Players    []PlayerBanData `json:"players" bson:"players" gorm:"players"`
-	UserReason string          `json:"reason" bson:"reason" gorm:"userReason"`
+	ID         uint                     `json:"-" bson:"-" gorm:"primaryKey"`
+	UserID     database.UserID          `json:"userID" bson:"userID" gorm:"userID"`
+	UserBan    bool                     `json:"userBan" bson:"userBan" gorm:"userBan"`
+	Players    []database.PlayerBanData `json:"players" bson:"players" gorm:"players"`
+	UserReason string                   `json:"reason" bson:"reason" gorm:"userReason"`
 }
 
 func (m *BanEntry) TableName() string {
 	return config.BanTable
-}
-
-type PlayerBanData struct {
-	Player database.Player `json:"player" bson:"player" gorm:"player"`
-	Reason string          `json:"reason" bson:"reason" gorm:"reason"`
 }
 
 type ReWhitelistEntry struct {
