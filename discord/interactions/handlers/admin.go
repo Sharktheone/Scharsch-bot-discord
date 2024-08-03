@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/database/mongodb"
 	"github.com/Sharktheone/ScharschBot/discord/embed/wEmbed"
 	"github.com/Sharktheone/ScharschBot/discord/session"
@@ -304,9 +305,9 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 		}
 
 		if mongodb.Ready {
-			report, _ := reports.GetReport(name)
-			reportMessageEmbed := wEmbed.ReportUserAction(name, false, report.ReporterID, s, "rejected")
-			reportMessageEmbedDMFailed := wEmbed.ReportUserAction(name, true, report.ReporterID, s, "rejected")
+			report, _ := database.DB.GetReportedPlayer(database.Player(name))
+			reportMessageEmbed := wEmbed.ReportUserAction(name, false, string(report.ReporterID), s, "rejected")
+			reportMessageEmbedDMFailed := wEmbed.ReportUserAction(name, true, string(report.ReporterID), s, "rejected")
 
 			allowed, enabled := reports.Reject(name, i, s, notifyreporter, &reportMessageEmbed, &reportMessageEmbedDMFailed)
 			if allowed {
@@ -344,9 +345,9 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 		}
 
 		if mongodb.Ready {
-			report, _ := reports.GetReport(name)
-			reportMessageEmbed := wEmbed.ReportUserAction(name, false, report.ReporterID, s, "accepted")
-			reportMessageEmbedDMFailed := wEmbed.ReportUserAction(name, true, report.ReporterID, s, "accepted")
+			report, _ := database.DB.GetReportedPlayer(database.Player(name))
+			reportMessageEmbed := wEmbed.ReportUserAction(name, false, string(report.ReporterID), s, "accepted")
+			reportMessageEmbedDMFailed := wEmbed.ReportUserAction(name, true, string(report.ReporterID), s, "accepted")
 
 			allowed, enabled := reports.Accept(name, i, s, notifyreporter, &reportMessageEmbed, &reportMessageEmbedDMFailed)
 			if allowed {
