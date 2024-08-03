@@ -58,7 +58,7 @@ func Add(username string, userID string, roles []string) (alreadyListed bool, ex
 		found := database.DB.IsWhitelisted(database.Player(username))
 		if !found {
 
-			database.DB.WhitelistPlayer(database.UserID(userID), database.Player(username), []database.Role{}) //TODO: Add Roles
+			database.DB.WhitelistPlayer(database.UserID(userID), database.Player(username)) //TODO: Add Roles
 			if pterodactylEnabled {
 				// TODO: Update to use new pterodactyl package (WS)
 				// TODO: Add Waitlist if server is offline
@@ -249,7 +249,7 @@ func ListedAccountsOf(userID string, banned bool) (Accounts []string) {
 		}
 		if banned {
 			for i, result := range resultsban {
-				listedAccounts[lastIndex+i+1] = string(result)
+				listedAccounts[lastIndex+i+1] = string(result.Player)
 			}
 		}
 		return listedAccounts
@@ -334,7 +334,7 @@ func BanAccount(userID string, roles []string, account string, reason string, s 
 
 		if banAllowed && !alreadyBanned {
 			log.Printf("%v is banning %v", userID, account)
-			database.DB.BanPlayer(database.UserID(owner.ID), database.Player(account), reason)
+			database.DB.BanPlayer(database.Player(account), reason)
 
 			database.DB.UnWhitelistPlayer(database.Player(account))
 
@@ -385,7 +385,7 @@ func UnBanUserID(userID string, roles []string, banID string, unbanAccounts bool
 			result := database.DB.BannedPlayers(database.UserID(banID))
 
 			for _, entry := range result {
-				database.DB.UnBanPlayerFrom(database.UserID(banID), entry)
+				database.DB.UnBanPlayerFrom(database.UserID(banID), entry.Player)
 
 			}
 			messageEmbedDM := banEmbed.DMUnBan(false, banID, s)
@@ -459,7 +459,7 @@ func CheckBans(userID string) (bannedPlayers []string) {
 
 	var bannedAccounts = make([]string, len(results))
 	for i, result := range results {
-		bannedAccounts[i] = string(result)
+		bannedAccounts[i] = string(result.Player)
 
 	}
 	return bannedAccounts
