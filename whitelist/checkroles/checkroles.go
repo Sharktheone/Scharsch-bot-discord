@@ -54,7 +54,7 @@ func CheckRoles() {
 		session := bot.Session
 		var removedIDs []string
 		for _, entry := range entries {
-			userID := fmt.Sprintf("%v", entry.ID)
+			userID := fmt.Sprintf("%v", entry.UserID)
 
 			checkID := true
 			for _, removeID := range removedIDs {
@@ -67,7 +67,7 @@ func CheckRoles() {
 				if user == nil {
 
 					removedIDs = append(removedIDs, userID)
-					database.DB.MoveToReWhitelist(entry.ID)
+					database.DB.MoveToReWhitelist(entry.UserID, database.Role("discord"))
 
 				} else {
 					serverPerms := false
@@ -82,7 +82,7 @@ func CheckRoles() {
 					if serverPerms == false {
 						removedIDs = append(removedIDs, userID)
 
-						database.DB.MoveToReWhitelist(entry.ID)
+						database.DB.MoveToReWhitelist(entry.UserID, database.Role("server")) //TODO: get user roles here
 					}
 				}
 			}
@@ -97,7 +97,7 @@ func CheckRoles() {
 		session := bot.Session
 		var addedIDs []string
 		for _, entry := range entries {
-			userID := fmt.Sprintf("%v", entry.ID)
+			userID := fmt.Sprintf("%v", entry.UserID)
 
 			checkID := true
 			for _, addID := range addedIDs {
@@ -121,7 +121,7 @@ func CheckRoles() {
 
 						addedIDs = append(addedIDs, userID)
 
-						database.DB.ReWhitelist(entry.ID, []database.Role{}) //TODO: get user roles here
+						database.DB.ReWhitelist(entry.UserID, []database.Role{}) //TODO: get user roles here
 					}
 				}
 			}
