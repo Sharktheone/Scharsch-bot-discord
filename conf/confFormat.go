@@ -43,11 +43,14 @@ type Format struct {
 		MaxAccounts []struct {
 			RoleID string `yaml:"roleID"`
 			Max    int    `yaml:"max"`
+			//Servers []string `yaml:"server"` TODO
+			//CommandOverride string `yaml:"whitelistCommandOverride"` TODO
+			//CommandOverridePerServer map[string]string `yaml:"whitelistCommandOverridePerServer"` TODO
 		} `yaml:"maxAccounts"`
 		BannedUsersToMaxAccounts bool     `yaml:"bannedUsersToMaxAccounts"`
 		KickUnWhitelisted        bool     `yaml:"kickUnWhitelisted"`
 		KickCommand              string   `yaml:"kickCommand"`
-		Servers                  []string `yaml:"serverNames"`
+		Servers                  []string `yaml:"serverNames"` //TODO: remove this
 		Database                 struct {
 			Provider         string `yaml:"provider"`
 			Host             string `yaml:"host"`
@@ -57,10 +60,10 @@ type Format struct {
 			TimeZone         string `yaml:"timeZone"`
 			SqLiteFile       string `yaml:"sqLiteFile"`
 			DatabaseName     string `yaml:"databaseName"`
-			WhitelistTable   string `yaml:"whitelistCollectionName"`
-			BanTable         string `yaml:"banCollectionName"`
-			ReWhitelistTable string `yaml:"reWhitelistCollectionName"`
-			ReportTable      string `yaml:"reportCollectionName"`
+			WhitelistTable   string `yaml:"whitelistTable"`
+			BanTable         string `yaml:"banTable"`
+			ReWhitelistTable string `yaml:"reWhitelistTable"`
+			ReportTable      string `yaml:"reportTable"`
 			WaitListTable    string `yaml:"waitListTable"`
 			RolesTable       string `yaml:"rolesTable"`
 		} `yaml:"db"`
