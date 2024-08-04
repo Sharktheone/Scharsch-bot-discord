@@ -17,10 +17,10 @@ func Connect() {
 			Ctx: context.Background(),
 		}
 
-	case "mysql":
-	case "sqlite":
-	case "postgres":
-		database.DB = &gorm.GormConnection{}
+	case "mysql", "sqlite", "postgres":
+		database.DB = &gorm.GormConnection{
+			DB: nil,
+		}
 
 	default:
 		log.Panicf("Unknown database provider: %s\n Supported options are: `mongodb`, `mysql`, `postgres`, `sqlite`", conf.Config.Whitelist.Database.Provider)

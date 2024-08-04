@@ -11,7 +11,7 @@ import (
 )
 
 func GetDialector() gorm.Dialector {
-	switch config.DatabaseName {
+	switch config.Provider {
 	case "mysql":
 		dsn := fmt.Sprintf(
 			"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
