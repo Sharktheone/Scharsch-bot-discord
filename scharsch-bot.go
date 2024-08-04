@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/database/dbprovider"
 	"github.com/Sharktheone/ScharschBot/database/mongodb"
-	"github.com/Sharktheone/ScharschBot/diagnostics/pprof"
 	"github.com/Sharktheone/ScharschBot/discord/bot"
 	"github.com/Sharktheone/ScharschBot/discord/embed/wEmbed"
 	"github.com/Sharktheone/ScharschBot/srv"
@@ -19,8 +19,10 @@ var config = conf.Config
 //TODO: Waitlist for whitelist, when server is offline
 
 func main() {
-	pprof.Start()
-	mongodb.Connect()
+	log.Println("Starting ScharschBot")
+	//pprof.Start()
+	dbprovider.Connect()
+	log.Println("Connected to MongoDB")
 	dcBot := bot.Session
 	bot.Registration()
 	if config.Whitelist.Enabled {

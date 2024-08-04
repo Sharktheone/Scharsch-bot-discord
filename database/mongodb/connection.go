@@ -23,7 +23,7 @@ var (
 )
 
 type MongoConnection struct {
-	ctx       context.Context
+	Ctx       context.Context
 	db        *mongo.Database
 	connected bool
 }
@@ -37,12 +37,12 @@ func (m *MongoConnection) Connect() {
 		config.Whitelist.Database.Port,
 	)
 
-	client, err := mongo.Connect(m.ctx, options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(m.Ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		log.Fatalf("Failed to apply mongo URI: %v", err)
 	}
 
-	err = client.Ping(m.ctx, nil)
+	err = client.Ping(m.Ctx, nil)
 	if err != nil {
 		log.Fatalf("Failed to ping MongoDB: %v", err)
 	}
@@ -54,7 +54,7 @@ func (m *MongoConnection) Connect() {
 }
 
 func (m *MongoConnection) Disconnect() {
-	ctx, cancel := context.WithTimeout(m.ctx, 10*time.Second)
+	ctx, cancel := context.WithTimeout(m.Ctx, 10*time.Second)
 	defer cancel()
 	m.connected = false
 	err := m.db.Client().Disconnect(ctx)
@@ -171,7 +171,7 @@ func (m *MongoConnection) Players(user database.UserID) []database.Player {
 	}
 
 	var entries []database.Player
-	for cursor.Next(m.ctx) {
+	for cursor.Next(m.Ctx) {
 		var entry database.WhitelistEntry
 		if err := cursor.Decode(&entry); err != nil {
 			log.Printf("Failed to get players: %v", err)
