@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	config             = conf.GetConf()
+	config             = conf.Config
 	addCommand         = config.Pterodactyl.WhitelistAddCommand
 	removeCommand      = config.Pterodactyl.WhitelistRemoveCommand
 	pterodactylEnabled = config.Pterodactyl.Enabled

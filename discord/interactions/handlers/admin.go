@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	config = conf.GetConf()
+	config = conf.Config
 )
 
 func Admin(s *session.Session, i *discordgo.InteractionCreate) {

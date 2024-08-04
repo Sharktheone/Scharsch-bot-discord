@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	config            = conf.GetConf()
+	config            = conf.Config
 	reWhitelist       = config.Whitelist.Roles.ReWhitelistWith
 	removeWithout     = config.Whitelist.Roles.RemoveUserWithout
 	kickUnWhitelisted = config.Whitelist.KickUnWhitelisted

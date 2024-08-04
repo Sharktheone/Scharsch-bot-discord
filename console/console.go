@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-var config = conf.GetConf()
+var config = conf.Config
 
 func Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	for _, server := range conf.Config.Pterodactyl.Servers {

@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	config = conf.GetConf()
+	config = conf.Config
 )
 
 type Session struct {

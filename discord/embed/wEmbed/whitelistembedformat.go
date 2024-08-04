@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	config       = conf.GetConf()
+	config       = conf.Config
 	ErrorIcon    = config.Discord.EmbedErrorIcon
 	ErrorURL     = config.Discord.EmbedErrorAuthorURL
 	BotAvatarURL string

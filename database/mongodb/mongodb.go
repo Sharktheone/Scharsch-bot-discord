@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	config             = conf.GetConf()
+	config             = conf.Config
 	uri                = fmt.Sprintf("mongodb://%v:%v@%v:%v", url.QueryEscape(config.Whitelist.Database.User), url.QueryEscape(config.Whitelist.Database.Pass), config.Whitelist.Database.Host, config.Whitelist.Database.Port)
 	Client, connectErr = mongo.NewClient(options.Client().ApplyURI(uri))
 	Cancel             context.CancelFunc

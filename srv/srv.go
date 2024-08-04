@@ -9,7 +9,7 @@ import (
 	"log"
 )
 
-var config = conf.GetConf()
+var config = conf.Config
 
 func Start() {
 	go api.Start()

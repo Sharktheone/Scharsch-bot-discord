@@ -14,7 +14,7 @@ import (
 	"os/signal"
 )
 
-var config = conf.GetConf()
+var config = conf.Config
 
 //TODO: Waitlist for whitelist, when server is offline
 

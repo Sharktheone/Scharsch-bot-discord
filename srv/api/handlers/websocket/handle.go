@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	config = conf.GetConf()
+	config = conf.Config
 )
 
 func (p *PSRVEvent) processEvent() {

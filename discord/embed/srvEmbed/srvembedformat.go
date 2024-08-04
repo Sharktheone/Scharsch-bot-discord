@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	config     = conf.GetConf()
+	config     = conf.Config
 	bansToMax  = config.Whitelist.BannedUsersToMaxAccounts
 	footerIcon = config.Discord.FooterIcon
 )

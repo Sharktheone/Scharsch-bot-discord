@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	config = conf.GetConf()
+	config = conf.Config
 )
 
 func Power(action string) *discordgo.MessageEmbed {
