@@ -1,8 +1,55 @@
 package database
 
+import (
+	"database/sql/driver"
+	"fmt"
+)
+
 type UserID string
 type Player string
 type Role string
+
+func (u UserID) Value() (driver.Value, error) {
+	return string(u), nil
+}
+
+func (u *UserID) Scan(value interface{}) error {
+	str, ok := value.([]byte)
+	if !ok {
+		return fmt.Errorf("UserID.Scan: expected string, got %T", value)
+	}
+
+	*u = UserID(str)
+	return nil
+}
+
+func (p Player) Value() (driver.Value, error) {
+	return string(p), nil
+}
+
+func (p *Player) Scan(value interface{}) error {
+	str, ok := value.([]byte)
+	if !ok {
+		return fmt.Errorf("Player.Scan: expected string, got %T", value)
+	}
+
+	*p = Player(str)
+	return nil
+}
+
+func (r Role) Value() (driver.Value, error) {
+	return string(r), nil
+}
+
+func (r *Role) Scan(value interface{}) error {
+	str, ok := value.([]byte)
+	if !ok {
+		return fmt.Errorf("Role.Scan: expected string, got %T", value)
+	}
+
+	*r = Role(str)
+	return nil
+}
 
 var (
 	DB Connection

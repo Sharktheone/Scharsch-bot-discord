@@ -23,7 +23,7 @@ type BanEntry struct {
 	ID         uint                     `json:"-" bson:"-" gorm:"primaryKey"`
 	UserID     database.UserID          `json:"userID" bson:"userID" gorm:"userID"`
 	UserBan    bool                     `json:"userBan" bson:"userBan" gorm:"userBan"`
-	Players    []database.PlayerBanData `json:"players" bson:"players" gorm:"players"`
+	Players    []database.PlayerBanData `json:"players" bson:"players" gorm:"foreignKey:ID"`
 	UserReason string                   `json:"reason" bson:"reason" gorm:"userReason"`
 }
 
@@ -32,10 +32,10 @@ func (m *BanEntry) TableName() string {
 }
 
 type ReWhitelistEntry struct {
-	ID          uint              `json:"-" bson:"-" gorm:"primaryKey"`
-	UserID      database.UserID   `json:"userID" bson:"userID" gorm:"userID"`
-	Players     []database.Player `json:"players" bson:"players" gorm:"players"`
-	MissingRole database.Role     `json:"missingRole" bson:"missingRole" gorm:"missingRole"`
+	ID          uint            `json:"-" bson:"-" gorm:"primaryKey"`
+	UserID      database.UserID `json:"userID" bson:"userID" gorm:"userID"`
+	Players     PlayerList      `json:"players" bson:"players" gorm:"players"`
+	MissingRole database.Role   `json:"missingRole" bson:"missingRole" gorm:"missingRole"`
 }
 
 func (m *ReWhitelistEntry) TableName() string {
@@ -61,4 +61,39 @@ type WaitlistEntry struct {
 
 func (m *WaitlistEntry) TableName() string {
 	return config.WaitListTable
+}
+
+type PlayerList []database.Player
+
+func (pl PlayerList) Value() (driver.Value, error) {
+	if len(pl) == 0 {
+		return nil, nil
+	}
+
+	var strbuf bytes.Buffer
+
+	for i, p := range pl {
+		if i != 0 {
+			strbuf.WriteString(",")
+		}
+		strbuf.WriteString(string(p))
+	}
+
+	return strbuf.String(), nil
+}
+
+func (pl *PlayerList) Scan(value interface{}) error {
+	str, ok := value.([]byte)
+	if !ok {
+		return fmt.Errorf("PlayerList.Scan: expected string, got %T", value)
+	}
+
+	players := bytes.Split(str, []byte(","))
+	*pl = make([]database.Player, len(players))
+
+	for i, p := range players {
+		(*pl)[i] = database.Player(p)
+	}
+
+	return nil
 }

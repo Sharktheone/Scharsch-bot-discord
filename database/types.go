@@ -13,8 +13,9 @@ type BanEntry struct {
 }
 
 type PlayerBanData struct {
-	Player Player `json:"player" bson:"player"`
-	Reason string `json:"reason" bson:"reason"`
+	ID     uint   `json:"-" bson:"-" gorm:"primaryKey"`
+	Player Player `json:"player" bson:"player" gorm:"player"`
+	Reason string `json:"reason" bson:"reason" gorm:"reason"`
 }
 
 type ReWhitelistEntry struct {
