@@ -12,6 +12,11 @@ import (
 var config = conf.Config
 
 func Start() {
+
+	if !config.SRV.Enabled {
+		return
+	}
+
 	go api.Start()
 	for _, server := range config.Pterodactyl.Servers {
 		go func(server conf.Server) {

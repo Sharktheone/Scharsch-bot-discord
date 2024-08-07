@@ -26,7 +26,8 @@ type Format struct {
 		Servers                []Server `yaml:"servers"`
 	} `yaml:"pterodactyl"`
 	SRV struct {
-		API struct {
+		Enabled bool `yaml:"enabled"`
+		API     struct {
 			Port     int    `yaml:"port"`
 			User     string `yaml:"user"`
 			Password string `yaml:"password"`
