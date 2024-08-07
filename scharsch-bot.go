@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database/dbprovider"
-	"github.com/Sharktheone/ScharschBot/database/mongodb"
 	"github.com/Sharktheone/ScharschBot/discord/bot"
 	"github.com/Sharktheone/ScharschBot/discord/embed/wEmbed"
 	"github.com/Sharktheone/ScharschBot/srv"
@@ -37,12 +36,17 @@ func main() {
 	wEmbed.BotAvatarURL = dcBot.State.User.AvatarURL("40")
 	srv.Start()
 
-	defer mongodb.Disconnect()
-	defer mongodb.Cancel()
-	defer dcBot.Close()
+	defer func() {
+		bot.RemoveCommands()
+		err := dcBot.Close()
+		if err != nil {
+			log.Fatalf("Error closing Discord session: %v", err)
+		}
+	}()
+
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	log.Println("Press Ctrl+C to exit")
 	<-stop
-	defer bot.RemoveCommands()
+
 }
