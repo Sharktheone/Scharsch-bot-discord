@@ -1,6 +1,9 @@
 package gorm
 
 import (
+	"bytes"
+	"database/sql/driver"
+	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
 )
@@ -34,7 +37,7 @@ func (m *BanEntry) TableName() string {
 type ReWhitelistEntry struct {
 	ID          uint            `json:"-" bson:"-" gorm:"primaryKey"`
 	UserID      database.UserID `json:"userID" bson:"userID" gorm:"userID"`
-	Players     PlayerList      `json:"players" bson:"players" gorm:"players"`
+	Players     PlayerList      `json:"players" bson:"players" gorm:"type:text[];players"`
 	MissingRole database.Role   `json:"missingRole" bson:"missingRole" gorm:"missingRole"`
 }
 
