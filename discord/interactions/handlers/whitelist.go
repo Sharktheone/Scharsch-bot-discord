@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"github.com/Sharktheone/ScharschBot/database/mongodb"
 	"github.com/Sharktheone/ScharschBot/discord/embed/wEmbed"
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/Sharktheone/ScharschBot/reports"
@@ -26,50 +25,47 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 			noFree       = false
 		)
 
-		if mongodb.Ready {
-			alreadyListed, existingAcc, freeAccount, allowed, mcBan, dcBan, banReason := whitelist.Add(name, i.Member.User.ID, i.Member.Roles)
-			listedAccounts := whitelist.ListedAccountsOf(i.Member.User.ID, false)
-			var (
-				removeOptions []discordgo.SelectMenuOption
-			)
-			for _, acc := range listedAccounts {
-				removeOptions = append(removeOptions, discordgo.SelectMenuOption{
-					Label: acc,
-					Value: acc,
-				})
-			}
-			removeSelect = discordgo.SelectMenu{
-				Placeholder: "Remove accounts",
-				CustomID:    "remove_select",
-				Options:     removeOptions,
-			}
+		alreadyListed, existingAcc, freeAccount, allowed, mcBan, dcBan, banReason := whitelist.Add(name, i.Member.User.ID, i.Member.Roles)
+		listedAccounts := whitelist.ListedAccountsOf(i.Member.User.ID, false)
+		var (
+			removeOptions []discordgo.SelectMenuOption
+		)
+		for _, acc := range listedAccounts {
+			removeOptions = append(removeOptions, discordgo.SelectMenuOption{
+				Label: acc,
+				Value: acc,
+			})
+		}
+		removeSelect = discordgo.SelectMenu{
+			Placeholder: "Remove accounts",
+			CustomID:    "remove_select",
+			Options:     removeOptions,
+		}
 
-			if !mcBan && !dcBan {
-				if allowed {
-					if freeAccount {
-						if existingAcc {
-							if alreadyListed {
-								messageEmbed = wEmbed.WhitelistAlreadyListed(name, i)
-							} else {
-								messageEmbed = wEmbed.WhitelistAdding(name, i)
-							}
+		if !mcBan && !dcBan {
+			if allowed {
+				if freeAccount {
+					if existingAcc {
+						if alreadyListed {
+							messageEmbed = wEmbed.WhitelistAlreadyListed(name, i)
 						} else {
-							messageEmbed = wEmbed.WhitelistNotExisting(name, i)
+							messageEmbed = wEmbed.WhitelistAdding(name, i)
 						}
 					} else {
-						messageEmbed = wEmbed.WhitelistNoFreeAccounts(name, i)
-						noFree = true
+						messageEmbed = wEmbed.WhitelistNotExisting(name, i)
 					}
 				} else {
-					messageEmbed = wEmbed.WhitelistAddNotAllowed(name, i)
-
+					messageEmbed = wEmbed.WhitelistNoFreeAccounts(name, i)
+					noFree = true
 				}
 			} else {
-				messageEmbed = wEmbed.WhitelistBanned(name, dcBan, banReason, i)
+				messageEmbed = wEmbed.WhitelistAddNotAllowed(name, i)
+
 			}
 		} else {
-			messageEmbed = wEmbed.DatabaseNotReady
+			messageEmbed = wEmbed.WhitelistBanned(name, dcBan, banReason, i)
 		}
+
 		var err error
 		if noFree {
 			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -103,20 +99,17 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 	case "remove":
 		name := strings.ToLower(optionMap["name"].StringValue())
 		var messageEmbed discordgo.MessageEmbed
-		if mongodb.Ready {
-			allowed, onWhitelist := whitelist.Remove(name, i.Member.User.ID, i.Member.Roles)
 
-			if allowed {
-				if onWhitelist {
-					messageEmbed = wEmbed.WhitelistRemoving(name, i)
-				} else {
-					messageEmbed = wEmbed.WhitelistNotListed(name, i)
-				}
+		allowed, onWhitelist := whitelist.Remove(name, i.Member.User.ID, i.Member.Roles)
+
+		if allowed {
+			if onWhitelist {
+				messageEmbed = wEmbed.WhitelistRemoving(name, i)
 			} else {
-				messageEmbed = wEmbed.WhitelistRemoveNotAllowed(name, i)
+				messageEmbed = wEmbed.WhitelistNotListed(name, i)
 			}
 		} else {
-			messageEmbed = wEmbed.DatabaseNotReady
+			messageEmbed = wEmbed.WhitelistRemoveNotAllowed(name, i)
 		}
 
 		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -132,20 +125,18 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 		}
 	case "myaccounts":
 		var messageEmbed discordgo.MessageEmbed
-		if mongodb.Ready {
-			accounts, allowed, found, bannedPlayers := whitelist.HasListed(i.Member.User.ID, i.Member.User.ID, i.Member.Roles, true)
-			if allowed {
-				if found || len(bannedPlayers) > 0 {
-					messageEmbed = wEmbed.WhitelistHasListed(accounts, i.Member.User.ID, bannedPlayers, i, s)
-				} else {
-					messageEmbed = wEmbed.WhitelistNoAccounts(i, i.Member.User.ID)
-				}
+
+		accounts, allowed, found, bannedPlayers := whitelist.HasListed(i.Member.User.ID, i.Member.User.ID, i.Member.Roles, true)
+		if allowed {
+			if found || len(bannedPlayers) > 0 {
+				messageEmbed = wEmbed.WhitelistHasListed(accounts, i.Member.User.ID, bannedPlayers, i, s)
 			} else {
-				messageEmbed = wEmbed.WhitelistUserNotAllowed(accounts, i.Member.User.ID, bannedPlayers, i)
+				messageEmbed = wEmbed.WhitelistNoAccounts(i, i.Member.User.ID)
 			}
 		} else {
-			messageEmbed = wEmbed.DatabaseNotReady
+			messageEmbed = wEmbed.WhitelistUserNotAllowed(accounts, i.Member.User.ID, bannedPlayers, i)
 		}
+
 		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
@@ -159,17 +150,14 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 		}
 	case "removemyaccounts":
 		var messageEmbed discordgo.MessageEmbed
-		if mongodb.Ready {
-			hasListedAccounts, listedAccounts := whitelist.RemoveMyAccounts(i.Member.User.ID)
-			mcBans := whitelist.CheckBans(i.Member.User.ID)
 
-			if hasListedAccounts {
-				messageEmbed = wEmbed.WhitelistRemoveMyAccounts(listedAccounts, mcBans, i)
-			} else {
-				messageEmbed = wEmbed.WhitelistNoAccounts(i, i.Member.User.ID)
-			}
+		hasListedAccounts, listedAccounts := whitelist.RemoveMyAccounts(i.Member.User.ID)
+		mcBans := whitelist.CheckBans(i.Member.User.ID)
+
+		if hasListedAccounts {
+			messageEmbed = wEmbed.WhitelistRemoveMyAccounts(listedAccounts, mcBans, i)
 		} else {
-			messageEmbed = wEmbed.DatabaseNotReady
+			messageEmbed = wEmbed.WhitelistNoAccounts(i, i.Member.User.ID)
 		}
 
 		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -196,36 +184,34 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 			reason = optionMap["reason"].StringValue()
 		}
 
-		if mongodb.Ready {
-			reportEmbed := wEmbed.NewReport(name, reason, i)
-			allowed, alreadyReported, enabled := reports.Report(name, reason, i, s, reportEmbed)
-			if allowed {
-				if enabled {
-					if alreadyReported {
-						messageEmbed = wEmbed.AlreadyReported(name)
-					} else {
-						messageEmbed = wEmbed.ReportPlayer(name, reason, i)
-					}
+		reportEmbed := wEmbed.NewReport(name, reason, i)
+		allowed, alreadyReported, enabled := reports.Report(name, reason, i, s, reportEmbed)
+		if allowed {
+			if enabled {
+				if alreadyReported {
+					messageEmbed = wEmbed.AlreadyReported(name)
 				} else {
-					messageEmbed = wEmbed.ReportDisabled(i)
+					messageEmbed = wEmbed.ReportPlayer(name, reason, i)
 				}
 			} else {
-				messageEmbed = wEmbed.ReportNotALlowed(i)
+				messageEmbed = wEmbed.ReportDisabled(i)
 			}
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Embeds: []*discordgo.MessageEmbed{
-						&messageEmbed,
-					},
-				},
-			})
-			if err != nil {
-				log.Printf("Failed execute command report %v", err)
-			}
-			log.Printf("%v reported %v for %v", i.Member.User.Username, name, reason)
-
+		} else {
+			messageEmbed = wEmbed.ReportNotALlowed(i)
 		}
+		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Embeds: []*discordgo.MessageEmbed{
+					&messageEmbed,
+				},
+			},
+		})
+		if err != nil {
+			log.Printf("Failed execute command report %v", err)
+		}
+		log.Printf("%v reported %v for %v", i.Member.User.Username, name, reason)
+
 	}
 
 }

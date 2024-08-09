@@ -230,19 +230,6 @@ func WhitelistAddNotAllowed(PlayerName string, i *discordgo.InteractionCreate) d
 	return Embed
 }
 
-var DatabaseNotReady = discordgo.MessageEmbed{
-	Title: "Database is not ready, please try again later",
-	Color: 0xFF0000,
-	Author: &discordgo.MessageEmbedAuthor{
-		Name:    "Scharsch-bot",
-		IconURL: BotAvatarURL,
-		URL:     ErrorURL,
-	},
-	Footer: &discordgo.MessageEmbedFooter{
-		Text: "Bot is starting database connection is not ready",
-	},
-}
-
 func WhitelistRemoving(PlayerName string, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 	var (
 		username      = i.Member.User.String()
