@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,6 +15,7 @@ import (
 )
 
 var (
+	config                = conf.Config
 	whitelistCollection   = config.Whitelist.Database.WhitelistTable
 	banCollection         = config.Whitelist.Database.BanTable
 	reWhitelistCollection = config.Whitelist.Database.ReWhitelistTable
@@ -64,7 +66,7 @@ func (m *MongoConnection) Disconnect() {
 }
 
 func (m *MongoConnection) Read(collection string, filter bson.M) (*mongo.Cursor, error) {
-	coll := db.Collection(collection)
+	coll := m.db.Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -72,7 +74,7 @@ func (m *MongoConnection) Read(collection string, filter bson.M) (*mongo.Cursor,
 }
 
 func (m *MongoConnection) Write(collection string, data interface{}) {
-	writeColl := db.Collection(collection)
+	writeColl := m.db.Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_, err := writeColl.InsertOne(ctx, data)
@@ -82,7 +84,7 @@ func (m *MongoConnection) Write(collection string, data interface{}) {
 }
 
 func (m *MongoConnection) Remove(collection string, filter bson.M) {
-	writeColl := db.Collection(collection)
+	writeColl := m.db.Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_, err := writeColl.DeleteMany(ctx, filter)
