@@ -96,7 +96,21 @@ func (m *GormConnection) RemoveAllFrom(user database.UserID) {
 
 func (m *GormConnection) Owner(player database.Player) database.UserID {
 	var entry WhitelistEntry
-	if err := m.DB.Where(WhitelistEntry{Player: player}).First(&entry).Error; err != nil {
+
+	data := m.DB.Where(WhitelistEntry{Player: player})
+	if data.Error != nil {
+		log.Printf("Failed to get owner: %v", data.Error)
+		return "<unknown>"
+	}
+
+	var count int64
+	data.Count(&count)
+
+	if count == 0 {
+		return "<unknown>"
+	}
+
+	if err := data.First(&entry).Error; err != nil {
 		log.Printf("Failed to get owner: %v", err)
 	}
 
@@ -107,6 +121,7 @@ func (m *GormConnection) Players(user database.UserID) []database.Player {
 	var entries []WhitelistEntry
 	if err := m.DB.Where(WhitelistEntry{UserID: user}).Find(&entries).Error; err != nil {
 		log.Printf("Failed to get players: %v", err)
+		return []database.Player{}
 	}
 
 	players := make([]database.Player, len(entries))
@@ -153,7 +168,21 @@ func (m *GormConnection) UnBanUser(user database.UserID) {
 
 func (m *GormConnection) UnBanPlayer(player database.Player) {
 	var entry BanEntry
-	if err := m.DB.Where(BanEntry{Players: []database.PlayerBanData{{Player: player}}}).First(&entry).Error; err != nil {
+
+	data := m.DB.Where(BanEntry{Players: []database.PlayerBanData{{Player: player}}})
+	if data.Error != nil {
+		log.Printf("Failed to unban player: %v", data.Error)
+		return
+	}
+
+	var count int64
+	data.Count(&count)
+
+	if count == 0 {
+		return
+	}
+
+	if err := data.First(&entry).Error; err != nil {
 		log.Printf("Failed to unban player: %v", err)
 	}
 
@@ -195,17 +224,35 @@ func (m *GormConnection) UnBanPlayerFrom(user database.UserID, player database.P
 }
 
 func (m *GormConnection) IsUserBanned(user database.UserID) bool {
-	var entry BanEntry
-	if err := m.DB.Where(BanEntry{UserID: user}).First(&entry).Error; err != nil {
-		return false
+	items := m.DB.Where(BanEntry{UserID: user})
+
+	var count int64
+
+	if err := items.Count(&count).Error; err != nil {
+		log.Printf("Failed to check if user is banned: %v", err)
+		return true // return true to prevent user from being able to whitelist
 	}
 
-	return entry.UserBan
+	return count > 0
 }
 
 func (m *GormConnection) IsPlayerBanned(player database.Player) bool {
 	var entry BanEntry
-	if err := m.DB.Where(BanEntry{Players: []database.PlayerBanData{{Player: player}}}).First(&entry).Error; err != nil {
+
+	data := m.DB.Where(BanEntry{Players: []database.PlayerBanData{{Player: player}}})
+	if data.Error != nil {
+		log.Printf("Failed to check if player is banned: %v", data.Error)
+		return true
+	}
+
+	var count int64
+	data.Count(&count)
+
+	if count == 0 {
+		return false
+	}
+
+	if err := data.First(&entry).Error; err != nil {
 		return false
 	}
 
@@ -214,7 +261,21 @@ func (m *GormConnection) IsPlayerBanned(player database.Player) bool {
 
 func (m *GormConnection) BannedPlayers(user database.UserID) []database.PlayerBanData {
 	var entry BanEntry
-	if err := m.DB.Where(BanEntry{UserID: user}).First(&entry).Error; err != nil {
+
+	data := m.DB.Where(BanEntry{UserID: user})
+	if data.Error != nil {
+		log.Printf("Failed to get banned players: %v", data.Error)
+		return nil
+	}
+
+	var count int64
+	data.Count(&count)
+
+	if count == 0 {
+		return []database.PlayerBanData{}
+	}
+
+	if err := data.First(&entry).Error; err != nil {
 		return nil
 	}
 
@@ -301,7 +362,22 @@ func (m *GormConnection) RemoveAccount(player database.Player) {
 
 func (m *GormConnection) IsWhitelisted(player database.Player) bool {
 	var entry WhitelistEntry
-	if err := m.DB.Where(WhitelistEntry{Player: player}).First(&entry).Error; err != nil {
+
+	data := m.DB.Where(WhitelistEntry{Player: player})
+
+	if data.Error != nil {
+		log.Printf("Failed to check if player is whitelisted: %v", data.Error)
+		return false
+	}
+
+	var count int64
+	data.Count(&count)
+
+	if count == 0 {
+		return false
+	}
+
+	if err := data.First(&entry).Error; err != nil {
 		return false
 	}
 
@@ -310,7 +386,22 @@ func (m *GormConnection) IsWhitelisted(player database.Player) bool {
 
 func (m *GormConnection) IsWhitelistedBy(user database.UserID, player database.Player) bool {
 	var entry WhitelistEntry
-	if err := m.DB.Where(WhitelistEntry{UserID: user, Player: player}).First(&entry).Error; err != nil {
+
+	data := m.DB.Where(WhitelistEntry{UserID: user, Player: player})
+
+	if data.Error != nil {
+		log.Printf("Failed to check if player is whitelisted by user: %v", data.Error)
+		return false
+	}
+
+	var count int64
+	data.Count(&count)
+
+	if count == 0 {
+		return false
+	}
+
+	if err := data.First(&entry).Error; err != nil {
 		return false
 	}
 
@@ -337,7 +428,22 @@ func (m *GormConnection) GetReports() []database.ReportData {
 
 func (m *GormConnection) IsAlreadyReported(reported database.Player) bool {
 	var entry ReportEntry
-	if err := m.DB.Where(ReportEntry{ReportedPlayer: reported}).First(&entry).Error; err != nil {
+
+	data := m.DB.Where(ReportEntry{ReportedPlayer: reported})
+
+	if data.Error != nil {
+		log.Printf("Failed to check if player is already reported: %v", data.Error)
+		return false
+	}
+
+	var count int64
+	data.Count(&count)
+
+	if count == 0 {
+		return false
+	}
+
+	if err := data.First(&entry).Error; err != nil {
 		return false
 	}
 
@@ -346,7 +452,19 @@ func (m *GormConnection) IsAlreadyReported(reported database.Player) bool {
 
 func (m *GormConnection) GetReportedPlayer(reported database.Player) (database.ReportData, bool) {
 	var entry ReportEntry
-	if err := m.DB.Where(ReportEntry{ReportedPlayer: reported}).First(&entry).Error; err != nil {
+
+	data := m.DB.Where(ReportEntry{ReportedPlayer: reported})
+
+	if data.Error != nil {
+		log.Printf("Failed to get reported player: %v", data.Error)
+		return database.ReportData{}, false
+	}
+
+	if err := data.First(&entry).Error; err != nil {
+		return database.ReportData{}, false
+	}
+
+	if err := data.First(&entry).Error; err != nil {
 		return database.ReportData{}, false
 	}
 
@@ -363,7 +481,22 @@ func (m *GormConnection) NumberWhitelistedPlayers(user database.UserID) int {
 
 func (m *GormConnection) GetWhitelistedPlayer(player database.Player) (database.WhitelistedPlayerData, bool) {
 	var entry WhitelistEntry
-	if err := m.DB.Where(WhitelistEntry{Player: player}).First(&entry).Error; err != nil {
+
+	data := m.DB.Where(WhitelistEntry{Player: player})
+
+	if data.Error != nil {
+		log.Printf("Failed to get whitelisted player: %v", data.Error)
+		return database.WhitelistedPlayerData{}, false
+	}
+
+	var count int64
+	data.Count(&count)
+
+	if count == 0 {
+		return database.WhitelistedPlayerData{}, false
+	}
+
+	if err := data.First(&entry).Error; err != nil {
 		return database.WhitelistedPlayerData{}, false
 	}
 
@@ -396,7 +529,22 @@ func (m *GormConnection) GetAccountsOf(user database.UserID) []database.Player {
 
 func (m *GormConnection) GetBan(user database.UserID) (string, bool) {
 	var entry BanEntry
-	if err := m.DB.Where(BanEntry{UserID: user}).First(&entry).Error; err != nil {
+
+	data := m.DB.Where(BanEntry{UserID: user})
+
+	if data.Error != nil {
+		log.Printf("Failed to get ban: %v", data.Error)
+		return "", false
+	}
+
+	var count int64
+	data.Count(&count)
+
+	if count == 0 {
+		return "", false
+	}
+
+	if err := data.First(&entry).Error; err != nil {
 		return "", false
 	}
 
@@ -405,7 +553,22 @@ func (m *GormConnection) GetBan(user database.UserID) (string, bool) {
 
 func (m *GormConnection) GetPlayerBan(player database.Player) (database.PlayerBan, bool) {
 	var entry BanEntry
-	if err := m.DB.Where(BanEntry{Players: []database.PlayerBanData{{Player: player}}}).First(&entry).Error; err != nil {
+
+	data := m.DB.Where(BanEntry{Players: []database.PlayerBanData{{Player: player}}})
+
+	if data.Error != nil {
+		log.Printf("Failed to get player ban: %v", data.Error)
+		return database.PlayerBan{}, false
+	}
+
+	var count int64
+	data.Count(&count)
+
+	if count == 0 {
+		return database.PlayerBan{}, false
+	}
+
+	if err := data.First(&entry).Error; err != nil {
 		return database.PlayerBan{}, false
 	}
 
