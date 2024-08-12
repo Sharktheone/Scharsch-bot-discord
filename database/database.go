@@ -14,7 +14,7 @@ func (u UserID) Value() (driver.Value, error) {
 }
 
 func (u *UserID) Scan(value interface{}) error {
-	str, ok := value.([]byte)
+	str, ok := value.(string)
 	if !ok {
 		return fmt.Errorf("UserID.Scan: expected string, got %T", value)
 	}
@@ -28,7 +28,7 @@ func (p Player) Value() (driver.Value, error) {
 }
 
 func (p *Player) Scan(value interface{}) error {
-	str, ok := value.([]byte)
+	str, ok := value.(string)
 	if !ok {
 		return fmt.Errorf("Player.Scan: expected string, got %T", value)
 	}
@@ -42,7 +42,7 @@ func (r Role) Value() (driver.Value, error) {
 }
 
 func (r *Role) Scan(value interface{}) error {
-	str, ok := value.([]byte)
+	str, ok := value.(string)
 	if !ok {
 		return fmt.Errorf("Role.Scan: expected string, got %T", value)
 	}
