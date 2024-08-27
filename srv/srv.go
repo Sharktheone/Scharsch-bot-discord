@@ -13,15 +13,19 @@ var config = conf.Config
 
 func Start() {
 
-	if !config.SRV.Enabled {
-		return
+	if config.SRV.Enabled {
+		go api.Start()
 	}
 
-	go api.Start()
 	for _, server := range config.Pterodactyl.Servers {
 		go func(server conf.Server) {
 			ctx := context.Background()
-			s := pterodactyl.New(&ctx, &server)
+			s := pterodactyl.New(&ctx, &server) //TODO: this probably should not be in the srv package
+
+			if !config.SRV.Enabled {
+				return
+			}
+
 			if server.Console.Enabled {
 				s.AddConsoleListener(func(server *conf.Server, console chan string) {
 					listeners.ConsoleListener(ctx, server, console, nil)
