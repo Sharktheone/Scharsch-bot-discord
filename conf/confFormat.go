@@ -1,5 +1,7 @@
 package conf
 
+import "github.com/Sharktheone/ScharschBot/database"
+
 type Format struct {
 	Reconfigure bool `yaml:"reconfigure"`
 	Enabled     bool `yaml:"enabled"`
@@ -42,8 +44,8 @@ type Format struct {
 	Whitelist struct {
 		Enabled     bool `yaml:"enabled"`
 		MaxAccounts []struct {
-			RoleID string `yaml:"roleID"`
-			Max    int    `yaml:"max"`
+			RoleID database.Role `yaml:"roleID"`
+			Max    int           `yaml:"max"`
 			//Servers []string `yaml:"server"` TODO
 			//CommandOverride string `yaml:"whitelistCommandOverride"` TODO
 			//CommandOverridePerServer map[string]string `yaml:"whitelistCommandOverridePerServer"` TODO
@@ -70,9 +72,9 @@ type Format struct {
 		} `yaml:"db"`
 
 		Roles struct {
-			ServerRoleID      []string `yaml:"serverRoleID"`
-			RemoveUserWithout bool     `yaml:"removeUserWithout"`
-			ReWhitelistWith   bool     `yaml:"reWhitelistWith"`
+			ServerRoleID      []database.Role `yaml:"serverRoleID"`
+			RemoveUserWithout bool            `yaml:"removeUserWithout"`
+			ReWhitelistWith   bool            `yaml:"reWhitelistWith"`
 		} `yaml:"roles"`
 		Report struct {
 			Enabled               bool     `yaml:"enabled"`

@@ -7,10 +7,10 @@ import (
 	"github.com/Sharktheone/ScharschBot/discord/embed/banEmbed"
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/Sharktheone/ScharschBot/pterodactyl"
+	"github.com/Sharktheone/ScharschBot/types"
+	"github.com/Sharktheone/ScharschBot/whitelist"
 	"github.com/bwmarrin/discordgo"
-	"io"
 	"log"
-	"net/http"
 )
 
 var (
@@ -31,53 +31,53 @@ type Player struct {
 	MaxAccounts       int
 }
 
-func Add(username string, userID string, roles []string) (alreadyListed bool, existing bool, accountFree bool, allowed bool, mcBanned bool, dcBanned bool, banReason string) {
-	var addAllowed = false
-	mcBan, dcBan, reason := CheckBanned(username, userID)
-	if !mcBan && !dcBan {
-		for _, role := range roles {
-			for _, neededRole := range config.Whitelist.Roles.ServerRoleID {
-				if role == neededRole {
-					addAllowed = true
-					break
-				}
-			}
-		}
-	}
-	var hasFreeAccount = false
-	num := database.DB.NumberWhitelistedPlayers(database.UserID(userID))
+type AddResult int
 
-	if GetMaxAccounts(roles) <= (num + len(CheckBans(userID))) {
-		hasFreeAccount = false
-	} else {
-		hasFreeAccount = true
-	}
-	var found bool
-	existingAcc := existingAccount(username)
-	if existingAcc && hasFreeAccount && addAllowed {
-		found := database.DB.IsWhitelisted(database.Player(username))
-		if !found {
+const (
+	AlreadyListed AddResult = iota
+	NotExisting
+	NoFreeAccount
+	NotAllowed
+	McBanned
+	DcBanned
+	BothBanned
+	Ok
+)
 
-			database.DB.WhitelistPlayer(database.UserID(userID), database.Player(username)) //TODO: Add Roles
-			if pterodactylEnabled {
-				// TODO: Update to use new pterodactyl package (WS)
-				// TODO: Add Waitlist if server is offline
-				command := fmt.Sprintf(addCommand, username)
-				for _, listedServer := range config.Whitelist.Servers {
-					for _, server := range config.Pterodactyl.Servers {
-						if server.ServerName == listedServer {
-							if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
-								log.Printf("Failed to send command to server %v: %v", server.ServerID, err)
-							}
-						}
-					}
-				}
-			}
-			log.Printf("%v is adding %v to whitelist", userID, username)
-		}
+func Add(player database.Player, member *types.Member) (AddResult, string) {
+	mcBan, dcBan, reason := CheckBanned(player, member)
 
+	if mcBan && dcBan {
+		return BothBanned, reason
 	}
-	return found, existingAcc, hasFreeAccount, addAllowed, mcBan, dcBan, reason
+	if mcBan {
+		return McBanned, reason
+	}
+	if dcBan {
+		return DcBanned, reason
+	}
+
+	if !CheckRoles(member, config.Whitelist.Roles.ServerRoleID) {
+		return NotAllowed, ""
+	}
+
+	if !HasFreeAccount(player, member) {
+		return NoFreeAccount, ""
+	}
+
+	if !AccountExists(player) {
+		return NotExisting, ""
+	}
+
+	if database.DB.IsWhitelisted(player) {
+		return AlreadyListed, ""
+	}
+
+	whitelist.Provider.AddToWhitelist(player, member)
+
+	log.Printf("%v is adding %v to whitelist", member.ID, player)
+
+	return Ok, ""
 }
 
 func Remove(username string, userID string, roles []string) (allowed bool, onWhitelist bool) {
@@ -216,20 +216,6 @@ func HasListed(lookupID string, userID string, roles []string, isSelfLookup bool
 	return listedAcc, listedAllowed, len(listedAcc) > 0, CheckBans(userID)
 }
 
-func existingAccount(username string) (existing bool) {
-	url := fmt.Sprintf("https://api.mojang.com/users/profiles/minecraft/%v", username)
-	response, err := http.Get(url)
-	if err != nil {
-		log.Printf("Failed to make check account existebility: %v\n", err)
-	}
-	body, err := io.ReadAll(response.Body)
-
-	if err != nil {
-		log.Printf("Failed reading Body white account check: %v\n", err)
-	}
-	return len(string(body)) > 0
-
-}
 func ListedAccountsOf(userID string, banned bool) (Accounts []string) {
 	var (
 		lastIndex = -1
@@ -434,37 +420,6 @@ func UnBanAccount(userID string, roles []string, account string, s *session.Sess
 	return unBanAllowed
 }
 
-func CheckBanned(mcName string, userID string) (mcBanned bool, dcBanned bool, banReason string) {
-	var (
-		reason string
-	)
-
-	mcReason, mc := database.DB.GetPlayerBan(database.Player(mcName))
-
-	dcReason, dc := database.DB.GetBan(database.UserID(userID))
-
-	if mc {
-		reason = fmt.Sprintf("%v", mcReason)
-	}
-	if dc {
-		reason += fmt.Sprintf("%v", dcReason)
-	}
-
-	return mc, dc, reason
-}
-
-func CheckBans(userID string) (bannedPlayers []string) {
-
-	results := database.DB.BannedPlayers(database.UserID(userID))
-
-	var bannedAccounts = make([]string, len(results))
-	for i, result := range results {
-		bannedAccounts[i] = string(result.Player)
-
-	}
-	return bannedAccounts
-}
-
 func RemoveMyAccounts(userID string) (hadListedAccounts bool, listedAccounts []string) {
 
 	var (
@@ -541,16 +496,4 @@ func GetOwner(Account string, s *session.Session) *Player {
 		Roles:         nil,
 		MaxAccounts:   0,
 	}
-}
-
-func GetMaxAccounts(roleIDs []string) (maxAccounts int) {
-	var max = 0
-	for _, entry := range config.Whitelist.MaxAccounts {
-		for _, role := range roleIDs {
-			if entry.RoleID == role && entry.Max > max {
-				max = entry.Max
-			}
-		}
-	}
-	return max
 }

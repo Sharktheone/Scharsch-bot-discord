@@ -1,9 +1,12 @@
 package whitelist
 
-import "github.com/Sharktheone/ScharschBot/database"
+import (
+	"github.com/Sharktheone/ScharschBot/database"
+	"github.com/Sharktheone/ScharschBot/types"
+)
 
 type WhitelistProvider interface {
-	AddToWhitelist(user database.UserID, player database.Player, roles []database.Role)
+	AddToWhitelist(player database.Player, member *types.Member)
 	RemoveFromWhitelist(user database.UserID, player database.Player)
 	MoveToReWhitelist(user database.UserID, missingRole database.Role)
 	UnWhitelistAccount(user database.UserID)
@@ -16,3 +19,5 @@ type WhitelistProvider interface {
 	RemoveAccounts(user database.UserID)
 	RemoveAccount(player database.Player)
 }
+
+var Provider WhitelistProvider = nil

@@ -1,5 +1,7 @@
 package types
 
+import "github.com/Sharktheone/ScharschBot/database"
+
 type EventJson struct {
 	Name   string `json:"name"`
 	Value  string `json:"value"`
@@ -26,4 +28,10 @@ type WebsocketEventData struct {
 	User               string   `json:"user,omitempty"`
 	Error              string   `json:"error,omitempty"`
 	Server             string   `json:"server,omitempty"`
+}
+
+type Member struct {
+	ID       database.UserID
+	Username string
+	Roles    []database.Role
 }

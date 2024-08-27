@@ -25,7 +25,7 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 			noFree       = false
 		)
 
-		alreadyListed, existingAcc, freeAccount, allowed, mcBan, dcBan, banReason := whitelist.Add(name, i.Member.User.ID, i.Member.Roles)
+		alreadyListed, existingAcc, freeAccount, allowed, mcBan, dcBan, banReason := whitelist.Add(name, i.Member)
 		listedAccounts := whitelist.ListedAccountsOf(i.Member.User.ID, false)
 		var (
 			removeOptions []discordgo.SelectMenuOption
