@@ -6,16 +6,16 @@ type Format struct {
 	Reconfigure bool `yaml:"reconfigure"`
 	Enabled     bool `yaml:"enabled"`
 	Discord     struct {
-		ServerID              string   `yaml:"serverID"`
-		ServerName            string   `yaml:"serverName"`
-		Token                 string   `yaml:"token"`
-		WhitelistRemoveRoleID []string `yaml:"adminWhitelistRemoveRoleID"`
-		WhitelistWhoisRoleID  []string `yaml:"adminWhitelistWhoisRoleID"`
-		WhitelistBanRoleID    []string `yaml:"adminWhitelistBanRoleID"`
-		WhitelistServerRoleID []string `yaml:"whitelistServerRoleID"`
-		EmbedErrorIcon        string   `yaml:"embedErrorIcon"`
-		EmbedErrorAuthorURL   string   `yaml:"embedErrorAuthorURL"`
-		FooterIcon            bool     `yaml:"footerIcon"`
+		ServerID              string          `yaml:"serverID"`
+		ServerName            string          `yaml:"serverName"`
+		Token                 string          `yaml:"token"`
+		WhitelistRemoveRoleID []database.Role `yaml:"adminWhitelistRemoveRoleID"`
+		WhitelistWhoisRoleID  []database.Role `yaml:"adminWhitelistWhoisRoleID"`
+		WhitelistBanRoleID    []database.Role `yaml:"adminWhitelistBanRoleID"`
+		WhitelistServerRoleID []database.Role `yaml:"whitelistServerRoleID"`
+		EmbedErrorIcon        string          `yaml:"embedErrorIcon"`
+		EmbedErrorAuthorURL   string          `yaml:"embedErrorAuthorURL"`
+		FooterIcon            bool            `yaml:"footerIcon"`
 	} `yaml:"discord"`
 	Pterodactyl struct {
 		Enabled                bool     `yaml:"enabled"`
