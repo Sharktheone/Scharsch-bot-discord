@@ -166,7 +166,7 @@ func Whois(username string, userID string, roles []string) (dcUserID string, all
 	}
 	return dcUser, whoisAllowed, dataFound
 }
-func HasListed(lookupID string, userID string, roles []string, isSelfLookup bool) (accounts []string, allowed bool, found bool, bannedPlayers []string) {
+func HasListed(lookupID database.UserID, member *types.Member, isSelfLookup bool) (accounts []string, allowed bool, found bool, bannedPlayers []string) {
 	var listedAllowed = false
 	for _, role := range roles {
 		// TODO Add new Role
@@ -178,28 +178,28 @@ func HasListed(lookupID string, userID string, roles []string, isSelfLookup bool
 		}
 	}
 	if isSelfLookup && !listedAllowed {
-		session.HasRoleID(roles, config.Discord.WhitelistServerRoleID)
+		CheckRoles(member, config.Discord.WhitelistRemoveRoleID)
 	}
 	var listedAcc []string
 	if listedAllowed {
-		log.Printf("%v is looking on whitelisted accounts of %v ", userID, lookupID)
+		log.Printf("%v is looking on whitelisted accounts of %v ", member.ID, lookupID)
 
-		players := database.DB.Players(database.UserID(lookupID))
+		players := database.DB.Players(lookupID)
 		listedAcc = make([]string, len(players))
 		for i, player := range players {
 			listedAcc[i] = string(player)
 		}
 	}
-	return listedAcc, listedAllowed, len(listedAcc) > 0, CheckBans(userID)
+	return listedAcc, listedAllowed, len(listedAcc) > 0, CheckBans(member.ID)
 }
 
-func ListedAccountsOf(userID string, banned bool) (Accounts []string) {
+func ListedAccountsOf(userID database.UserID, banned bool) (Accounts []string) {
 	var (
 		lastIndex = -1
 		datalen   = 0
 	)
-	results := database.DB.Players(database.UserID(userID))
-	resultsban := database.DB.BannedPlayers(database.UserID(userID))
+	results := database.DB.Players(userID)
+	resultsban := database.DB.BannedPlayers(userID)
 	datalen += len(results)
 	if banned {
 		datalen += len(resultsban)
