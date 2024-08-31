@@ -1,6 +1,9 @@
 package types
 
-import "github.com/Sharktheone/ScharschBot/database"
+import (
+	"github.com/Sharktheone/ScharschBot/database"
+	"github.com/bwmarrin/discordgo"
+)
 
 type EventJson struct {
 	Name   string `json:"name"`
@@ -34,4 +37,17 @@ type Member struct {
 	ID       database.UserID
 	Username string
 	Roles    []database.Role
+}
+
+func MemberFromDG(dgMember *discordgo.Member) *Member {
+	roles := make([]database.Role, len(dgMember.Roles))
+	for i, role := range dgMember.Roles {
+		roles[i] = database.Role(role)
+	}
+
+	return &Member{
+		ID:       database.UserID(dgMember.User.ID),
+		Username: dgMember.User.Username,
+		Roles:    roles,
+	}
 }
