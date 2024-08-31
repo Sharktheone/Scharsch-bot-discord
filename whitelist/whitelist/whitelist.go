@@ -116,29 +116,26 @@ func RemoveAll(member *types.Member) (allowed bool, onWhitelist bool) {
 
 	entries := database.DB.GetAllWhitelistedPlayers()
 
-	if removeAllowed {
-		log.Printf("%v is removing all accounts from whitelist", userID)
-		for _, entry := range entries {
-			database.DB.RemoveAccount(entry.Name)
+	log.Printf("%v is removing all accounts from whitelist", member.ID)
+	for _, entry := range entries {
+		database.DB.RemoveAccount(entry.Name)
 
-			if pterodactylEnabled {
-				command := fmt.Sprintf(removeCommand, entry.Name)
-				for _, listedServer := range config.Whitelist.Servers {
-					for _, server := range config.Pterodactyl.Servers {
-						if server.ServerName == listedServer {
-							if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
-								log.Printf("Failed to send command to server %v: %v", server.ServerID, err)
-							}
+		if pterodactylEnabled {
+			command := fmt.Sprintf(removeCommand, entry.Name)
+			for _, listedServer := range config.Whitelist.Servers {
+				for _, server := range config.Pterodactyl.Servers {
+					if server.ServerName == listedServer {
+						if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
+							log.Printf("Failed to send command to server %v: %v", server.ServerID, err)
 						}
 					}
 				}
 			}
-
 		}
 
 	}
 
-	return removeAllowed, len(entries) > 0
+	return true, len(entries) > 0
 }
 func RemoveAllAllowed(member *types.Member) (allowed bool) {
 	return CheckRoles(member, config.Discord.WhitelistRemoveRoleID)
