@@ -109,16 +109,11 @@ func Remove(username database.Player, member *types.Member) (allowed bool, onWhi
 	return true, true
 }
 
-func RemoveAll(userID string, roles []string) (allowed bool, onWhitelist bool) {
-	var removeAllowed = false
-	for _, role := range roles {
-		for _, neededRole := range config.Discord.WhitelistRemoveRoleID {
-			if role == neededRole {
-				removeAllowed = true
-				break
-			}
-		}
+func RemoveAll(member *types.Member) (allowed bool, onWhitelist bool) {
+	if !CheckRoles(member, config.Discord.WhitelistRemoveRoleID) {
+		return false, false
 	}
+
 	entries := database.DB.GetAllWhitelistedPlayers()
 
 	if removeAllowed {
@@ -145,17 +140,9 @@ func RemoveAll(userID string, roles []string) (allowed bool, onWhitelist bool) {
 
 	return removeAllowed, len(entries) > 0
 }
-func RemoveAllAllowed(roles []string) (allowed bool) {
-	var removeAllowed = false
-	for _, role := range roles {
-		for _, neededRole := range config.Discord.WhitelistRemoveRoleID {
-			if role == neededRole {
-				removeAllowed = true
-				break
-			}
-		}
-	}
-	return removeAllowed
+func RemoveAllAllowed(member *types.Member) (allowed bool) {
+	return CheckRoles(member, config.Discord.WhitelistRemoveRoleID)
+
 }
 
 func Whois(username string, userID string, roles []string) (dcUserID string, allowed bool, found bool) {
