@@ -80,40 +80,33 @@ func Add(player database.Player, member *types.Member) (AddResult, string) {
 	return Ok, ""
 }
 
-func Remove(username string, userID string, roles []string) (allowed bool, onWhitelist bool) {
-	var removeAllowed = false
-	for _, role := range roles {
-		for _, neededRole := range config.Discord.WhitelistRemoveRoleID {
-			if role == neededRole {
-				removeAllowed = true
-				break
-			}
-		}
+func Remove(username database.Player, member *types.Member) (allowed bool, onWhitelist bool) {
+	entry, found := database.DB.GetWhitelistedPlayer(username)
+	if !found {
+		return false, false
 	}
-	entry, found := database.DB.GetWhitelistedPlayer(database.Player(username))
 
-	if !removeAllowed {
-		if entry.ID == database.UserID(userID) && found {
-			removeAllowed = true
+	if entry.ID != member.ID {
+		if !CheckRoles(member, config.Whitelist.Roles.ServerRoleID) {
+			return false, false
 		}
 	}
-	if removeAllowed && found {
-		database.DB.RemoveAccount(database.Player(username))
-		if pterodactylEnabled {
-			command := fmt.Sprintf(removeCommand, username)
-			for _, listedServer := range config.Whitelist.Servers {
-				for _, server := range config.Pterodactyl.Servers {
-					if server.ServerName == listedServer {
-						if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
-							log.Printf("Failed to send command to server %v: %v", server.ServerID, err)
-						}
+
+	database.DB.RemoveAccount(username)
+	if pterodactylEnabled {
+		command := fmt.Sprintf(removeCommand, username)
+		for _, listedServer := range config.Whitelist.Servers {
+			for _, server := range config.Pterodactyl.Servers {
+				if server.ServerName == listedServer {
+					if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
+						log.Printf("Failed to send command to server %v: %v", server.ServerID, err)
 					}
 				}
 			}
 		}
-		log.Printf("%v is removing %v from whitelist", userID, username)
 	}
-	return removeAllowed, found
+	log.Printf("%v is removing %v from whitelist", member.ID, username)
+	return true, true
 }
 
 func RemoveAll(userID string, roles []string) (allowed bool, onWhitelist bool) {
