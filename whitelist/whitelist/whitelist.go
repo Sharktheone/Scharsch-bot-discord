@@ -163,26 +163,28 @@ func HasListed(lookupID database.UserID, member *types.Member, isSelfLookup bool
 	return players, true, len(players) > 0, CheckBans(member.ID)
 }
 
-func ListedAccountsOf(userID database.UserID, banned bool) (Accounts []string) {
+func ListedAccountsOf(userID database.UserID, banned bool) (Accounts []database.Player) {
 	var (
-		lastIndex = -1
-		datalen   = 0
+		lastIndex  = -1
+		datalen    = 0
+		resultsban []database.PlayerBanData
 	)
 	results := database.DB.Players(userID)
-	resultsban := database.DB.BannedPlayers(userID)
 	datalen += len(results)
 	if banned {
+		resultsban = database.DB.BannedPlayers(userID)
 		datalen += len(resultsban)
 	}
+
 	if datalen > 0 {
-		listedAccounts := make([]string, datalen)
+		listedAccounts := make([]database.Player, datalen)
 		for i, result := range results {
-			listedAccounts[i] = string(result)
+			listedAccounts[i] = result
 			lastIndex = i
 		}
 		if banned {
 			for i, result := range resultsban {
-				listedAccounts[lastIndex+i+1] = string(result.Player)
+				listedAccounts[lastIndex+i+1] = result.Player
 			}
 		}
 		return listedAccounts
@@ -191,61 +193,45 @@ func ListedAccountsOf(userID database.UserID, banned bool) (Accounts []string) {
 	}
 }
 
-func BanUserID(userID string, roles []string, banID string, banAccounts bool, reason string, s *session.Session) (allowed bool, alreadyBanned bool) {
-	banAllowed := false
+func BanUserID(member *types.Member, banID database.UserID, banAccounts bool, reason string, s *session.Session) (allowed bool, alreadyBanned bool) {
+
+	if !CheckRoles(member, config.Discord.WhitelistBanRoleID) {
+		return false, false
+	}
+
 	listedAccounts := ListedAccountsOf(banID, false)
-	for _, role := range roles {
-		for _, neededRole := range config.Discord.WhitelistBanRoleID {
-			if role == neededRole {
-				banAllowed = true
-				break
-			}
+
+	_, banned, _ := CheckBanned("", banID)
+	if banned {
+		return true, true
+	}
+
+	log.Printf("%v is banning %v", member.ID, banID)
+
+	database.DB.BanUser(banID, reason)
+
+	if banAccounts {
+		for _, account := range listedAccounts {
+			database.DB.UnWhitelistPlayer(account)
+
+			whitelist.Provider.BanPlayer(banID, account, reason)
+
 		}
 	}
-	if banAllowed {
-		_, banned, _ := CheckBanned("", banID)
-		if banned {
-			return true, true
-		} else {
 
-			log.Printf("%v is banning %v", userID, banID)
-
-			database.DB.BanUser(database.UserID(banID), reason)
-
-			if banAccounts {
-				for _, account := range listedAccounts {
-					database.DB.UnWhitelistPlayer(database.Player(account))
-					if pterodactylEnabled {
-						command := fmt.Sprintf(removeCommand, account)
-						for _, listedServer := range config.Whitelist.Servers {
-							for _, server := range config.Pterodactyl.Servers {
-								if server.ServerName == listedServer {
-									if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
-										log.Printf("Failed to send command to server %v: %v", server.ServerName, err)
-									}
-								}
-							}
-						}
-					}
-
-					database.DB.BanUser(database.UserID(banID), reason)
-				}
-				messageEmbedDM := banEmbed.DMBan(false, banID, reason, s)
-				messageEmbedDMFailed := banEmbed.DMBan(true, banID, reason, s)
-				if err := s.SendDM(banID, &discordgo.MessageSend{
-					Embed: &messageEmbedDM,
-				}, &discordgo.MessageSend{
-					Content: fmt.Sprintf("<@%v>", banID),
-					Embed:   &messageEmbedDMFailed,
-				},
-				); err != nil {
-					log.Printf("Failed to send DM to %v: %v", banID, err)
-				}
-			}
-		}
-		return banAllowed, false
+	database.DB.BanUser(banID, reason)
+	messageEmbedDM := banEmbed.DMBan(false, string(banID), reason, s)
+	messageEmbedDMFailed := banEmbed.DMBan(true, string(banID), reason, s)
+	if err := s.SendDM(string(banID), &discordgo.MessageSend{
+		Embed: &messageEmbedDM,
+	}, &discordgo.MessageSend{
+		Content: fmt.Sprintf("<@%v>", banID),
+		Embed:   &messageEmbedDMFailed,
+	},
+	); err != nil {
+		log.Printf("Failed to send DM to %v: %v", banID, err)
 	}
-	return
+	return true, false
 }
 
 func BanAccount(userID string, roles []string, account string, reason string, s *session.Session) (bool, *Player) {
