@@ -21,13 +21,13 @@ var (
 )
 
 type Player struct {
-	ID                string
+	ID                database.UserID
 	Whitelisted       bool
-	Name              string
-	Players           []string
-	PlayersWithBanned []string
-	BannedPlayers     []string
-	Roles             []string
+	Name              database.Player
+	Players           []database.Player
+	PlayersWithBanned []database.Player
+	BannedPlayers     []database.Player
+	Roles             []database.Role
 	MaxAccounts       int
 }
 
@@ -234,17 +234,9 @@ func BanUserID(member *types.Member, banID database.UserID, banAccounts bool, re
 	return true, false
 }
 
-func BanAccount(userID string, roles []string, account string, reason string, s *session.Session) (bool, *Player) {
-	var (
-		banAllowed = false
-	)
-	for _, role := range roles {
-		for _, neededRole := range config.Discord.WhitelistBanRoleID {
-			if role == neededRole {
-				banAllowed = true
-				break
-			}
-		}
+func BanAccount(member *types.Member, account database.UserID, reason string, s *session.Session) (bool, *Player) {
+	if !CheckRoles(member, config.Discord.WhitelistBanRoleID) {
+		return false, nil
 	}
 
 	owner := GetOwner(account, s)
@@ -386,29 +378,40 @@ func RemoveMyAccounts(userID string) (hadListedAccounts bool, listedAccounts []s
 	return hasListedAccounts, accounts
 }
 
-func GetOwner(Account string, s *session.Session) *Player {
+func GetOwner(Account database.Player, s *session.Session) *Player {
 	var (
-		dcUser string
+		dcUser database.UserID
 	)
-	result, found := database.DB.GetWhitelistedPlayer(database.Player(Account))
+	result, found := database.DB.GetWhitelistedPlayer(Account)
 	if found {
-		dcUser = fmt.Sprintf("%v", result.ID)
+		dcUser = result.ID
 	} else {
-		result, found := database.DB.GetPlayerBan(database.Player(Account))
+		result, found := database.DB.GetPlayerBan(Account)
 		if found {
-			dcUser = fmt.Sprintf("%v", result.ID)
+			dcUser = result.ID
 		}
 	}
 
 	if dcUser != "" {
-		var roles []string
+		var roles []database.Role
 		if s != nil {
-			var err error
-			roles, err = s.GetRoles(dcUser)
+			rls, err := s.GetRoles(string(dcUser))
 			if err != nil {
 				log.Printf("Error while getting roles of %v: %v", dcUser, err)
 			}
+
+			for _, role := range rls {
+				roles = append(roles, database.Role(role))
+			}
+
 		}
+
+		member := types.Member{
+			ID:       dcUser,
+			Roles:    roles,
+			Username: "<unknown>",
+		}
+
 		return &Player{
 			ID:                dcUser,
 			Whitelisted:       true,
@@ -417,7 +420,7 @@ func GetOwner(Account string, s *session.Session) *Player {
 			PlayersWithBanned: ListedAccountsOf(dcUser, true),
 			BannedPlayers:     CheckBans(dcUser),
 			Roles:             roles,
-			MaxAccounts:       GetMaxAccounts(roles),
+			MaxAccounts:       GetMaxAccounts(&member),
 		}
 	}
 	return &Player{
