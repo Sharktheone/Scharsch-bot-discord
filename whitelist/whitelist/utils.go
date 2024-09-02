@@ -57,12 +57,12 @@ func CheckBanned(player database.Player, userID database.UserID) (mcBanned bool,
 	return mc, dc, reason
 }
 
-func CheckBans(userID database.UserID) []string {
+func CheckBans(userID database.UserID) []database.Player {
 	results := database.DB.BannedPlayers(userID)
 
-	var bannedAccounts = make([]string, len(results))
+	var bannedAccounts = make([]database.Player, len(results))
 	for i, result := range results {
-		bannedAccounts[i] = string(result.Player)
+		bannedAccounts[i] = result.Player
 
 	}
 	return bannedAccounts
