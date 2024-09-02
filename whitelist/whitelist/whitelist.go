@@ -142,29 +142,15 @@ func RemoveAllAllowed(member *types.Member) (allowed bool) {
 
 }
 
-func Whois(username string, userID string, roles []string) (dcUserID string, allowed bool, found bool) {
-	var whoisAllowed = false
-	for _, role := range roles {
-		for _, neededRole := range config.Discord.WhitelistWhoisRoleID {
-			if role == neededRole {
-				whoisAllowed = true
-				break
-			}
-		}
+func Whois(username database.Player, member *types.Member) (dcUserID database.UserID, allowed bool, found bool) {
+	if !CheckRoles(member, config.Discord.WhitelistWhoisRoleID) {
+		return "", false, false
 	}
-	var (
-		dcUser    string
-		dataFound bool
-	)
-	if whoisAllowed {
-		log.Printf("%v is looking who whitelisted %v ", userID, username)
-		result, dataFound := database.DB.GetWhitelistedPlayer(database.Player(username))
 
-		if dataFound {
-			dcUser = fmt.Sprintf("%v", result.ID)
-		}
-	}
-	return dcUser, whoisAllowed, dataFound
+	log.Printf("%v is looking who whitelisted %v ", member.ID, username)
+	result, dataFound := database.DB.GetWhitelistedPlayer(username)
+
+	return result.ID, true, dataFound
 }
 func HasListed(lookupID database.UserID, member *types.Member, isSelfLookup bool) (accounts []string, allowed bool, found bool, bannedPlayers []string) {
 	var listedAllowed = false
