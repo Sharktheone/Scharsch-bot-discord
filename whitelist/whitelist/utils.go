@@ -38,14 +38,14 @@ func CheckRole(member *types.Member, required database.Role) bool {
 	return false
 }
 
-func CheckBanned(player database.Player, member *types.Member) (mcBanned bool, dcBanned bool, banReason string) {
+func CheckBanned(player database.Player, userID database.UserID) (mcBanned bool, dcBanned bool, banReason string) {
 	var (
 		reason string
 	)
 
 	mcReason, mc := database.DB.GetPlayerBan(player)
 
-	dcReason, dc := database.DB.GetBan(member.ID)
+	dcReason, dc := database.DB.GetBan(userID)
 
 	if mc {
 		reason = fmt.Sprintf("%v", mcReason)
@@ -58,7 +58,6 @@ func CheckBanned(player database.Player, member *types.Member) (mcBanned bool, d
 }
 
 func CheckBans(userID database.UserID) []string {
-
 	results := database.DB.BannedPlayers(userID)
 
 	var bannedAccounts = make([]string, len(results))

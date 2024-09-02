@@ -5,6 +5,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/discord/session"
+	"github.com/Sharktheone/ScharschBot/types"
 	"github.com/Sharktheone/ScharschBot/whitelist/whitelist"
 	"github.com/bwmarrin/discordgo"
 	"log"
@@ -21,16 +22,17 @@ var (
 
 func WhitelistAdding(PlayerName string, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 	var (
+		member        = types.MemberFromDG(i.Member)
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = whitelist.GetMaxAccounts(member)
 		Title         = fmt.Sprintf("%v is now on the whitelist", PlayerName)
 		AuthorIconUrl = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", PlayerName)
 		AuthorUrl     = fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
-		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		Players       = whitelist.ListedAccountsOf(member.ID, true)
+		bannedPlayers = whitelist.CheckBans(member.ID)
 	)
 
 	if !bansToMax {
