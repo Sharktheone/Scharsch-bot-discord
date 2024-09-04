@@ -279,40 +279,37 @@ func BanAccount(member *types.Member, account database.Player, reason string, s 
 
 	return true, owner
 }
-func UnBanUserID(userID string, roles []string, banID string, unbanAccounts bool, s *session.Session) (allowed bool) {
-	unBanAllowed := false
-	for _, role := range roles {
-		for _, neededRole := range config.Discord.WhitelistBanRoleID {
-			if role == neededRole {
-				unBanAllowed = true
-				break
-			}
+
+// UnBanUserID  unbans a user from the whitelist
+// / returns true if the action was allowed
+func UnBanUserID(member *types.Member, banID string, unbanAccounts bool, s *session.Session) bool {
+	if CheckRoles(member, config.Discord.WhitelistBanRoleID) {
+		return false
+	}
+
+	log.Printf("%v is unbanning %v", member.ID, banID)
+	database.DB.UnBanUser(database.UserID(banID))
+	if unbanAccounts {
+		result := database.DB.BannedPlayers(database.UserID(banID))
+
+		for _, entry := range result {
+			database.DB.UnBanPlayerFrom(database.UserID(banID), entry.Player)
+
+		}
+		messageEmbedDM := banEmbed.DMUnBan(false, banID, s)
+		messageEmbedDMFailed := banEmbed.DMUnBan(true, banID, s)
+		if err := s.SendDM(banID, &discordgo.MessageSend{
+			Embed: &messageEmbedDM,
+		}, &discordgo.MessageSend{
+			Content: fmt.Sprintf("<@%v>", banID),
+			Embed:   &messageEmbedDMFailed,
+		},
+		); err != nil {
+			log.Printf("Failed to send DM to %v: %v", banID, err)
 		}
 	}
-	if unBanAllowed {
-		log.Printf("%v is unbanning %v", userID, banID)
-		database.DB.UnBanUser(database.UserID(banID))
-		if unbanAccounts {
-			result := database.DB.BannedPlayers(database.UserID(banID))
 
-			for _, entry := range result {
-				database.DB.UnBanPlayerFrom(database.UserID(banID), entry.Player)
-
-			}
-			messageEmbedDM := banEmbed.DMUnBan(false, banID, s)
-			messageEmbedDMFailed := banEmbed.DMUnBan(true, banID, s)
-			if err := s.SendDM(banID, &discordgo.MessageSend{
-				Embed: &messageEmbedDM,
-			}, &discordgo.MessageSend{
-				Content: fmt.Sprintf("<@%v>", banID),
-				Embed:   &messageEmbedDMFailed,
-			},
-			); err != nil {
-				log.Printf("Failed to send DM to %v: %v", banID, err)
-			}
-		}
-	}
-	return unBanAllowed
+	return true
 }
 
 func UnBanAccount(userID string, roles []string, account string, s *session.Session) (allowed bool) {
