@@ -334,20 +334,16 @@ func UnBanAccount(member *types.Member, account database.Player, s *session.Sess
 	return true
 }
 
-func RemoveMyAccounts(userID string) (hadListedAccounts bool, listedAccounts []string) {
+func RemoveMyAccounts(userID database.UserID) (bool, []database.Player) {
+	accounts := ListedAccountsOf(userID, false)
 
-	var (
-		accounts          = ListedAccountsOf(userID, false)
-		hasListedAccounts = false
-	)
 	if len(accounts) > 0 {
-		hasListedAccounts = true
 		log.Printf("%v is removing his own accounts from the whitelist", userID)
 		for _, account := range accounts {
-			found := database.DB.IsWhitelistedBy(database.UserID(userID), database.Player(account))
+			found := database.DB.IsWhitelistedBy(userID, account)
 
 			if found {
-				database.DB.RemoveAccount(database.Player(account))
+				database.DB.RemoveAccount(account)
 				if pterodactylEnabled {
 					command := fmt.Sprintf(removeCommand, account)
 					for _, listedServer := range config.Whitelist.Servers {
@@ -362,9 +358,11 @@ func RemoveMyAccounts(userID string) (hadListedAccounts bool, listedAccounts []s
 				}
 			}
 		}
+
+		return true, accounts
 	}
 
-	return hasListedAccounts, accounts
+	return false, accounts
 }
 
 func GetOwner(Account database.Player, s *session.Session) *Player {
