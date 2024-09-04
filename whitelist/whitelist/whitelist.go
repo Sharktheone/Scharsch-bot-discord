@@ -312,34 +312,26 @@ func UnBanUserID(member *types.Member, banID database.UserID, unbanAccounts bool
 	return true
 }
 
-func UnBanAccount(userID string, roles []string, account string, s *session.Session) (allowed bool) {
-	unBanAllowed := false
-	for _, role := range roles {
-		for _, neededRole := range config.Discord.WhitelistBanRoleID {
-			if role == neededRole {
-				unBanAllowed = true
-				break
-			}
-		}
-	}
-	if unBanAllowed {
-		log.Printf("%v is unbanning %v", userID, account)
-		database.DB.UnBanPlayer(database.Player(account))
-		messageEmbedDM := banEmbed.DMUnBanAccount(account, false, userID, s)
-		messageEmbedDMFailed := banEmbed.DMUnBanAccount(account, true, userID, s)
-		if err := s.SendDM(userID, &discordgo.MessageSend{
-			Embed: &messageEmbedDM,
-		}, &discordgo.MessageSend{
-			Content: fmt.Sprintf("<@%v>", userID),
-			Embed:   &messageEmbedDMFailed,
-		},
-		); err != nil {
-			log.Printf("Failed to send DM to %v: %v", userID, err)
-		}
-
+func UnBanAccount(member *types.Member, account database.Player, s *session.Session) bool {
+	if !CheckRoles(member, config.Discord.WhitelistBanRoleID) {
+		return false
 	}
 
-	return unBanAllowed
+	log.Printf("%v is unbanning %v", member.ID, account)
+	database.DB.UnBanPlayer(account)
+	messageEmbedDM := banEmbed.DMUnBanAccount(string(account), false, string(member.ID), s)
+	messageEmbedDMFailed := banEmbed.DMUnBanAccount(string(account), true, string(member.ID), s)
+	if err := s.SendDM(string(member.ID), &discordgo.MessageSend{
+		Embed: &messageEmbedDM,
+	}, &discordgo.MessageSend{
+		Content: fmt.Sprintf("<@%v>", member.ID),
+		Embed:   &messageEmbedDMFailed,
+	},
+	); err != nil {
+		log.Printf("Failed to send DM to %v: %v", member.ID, err)
+	}
+
+	return true
 }
 
 func RemoveMyAccounts(userID string) (hadListedAccounts bool, listedAccounts []string) {
