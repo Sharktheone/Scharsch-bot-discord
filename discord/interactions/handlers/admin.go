@@ -119,8 +119,8 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 		var messageEmbed discordgo.MessageEmbed
 
 		allowed, owner := whitelist.BanAccount(i.Member.User.ID, i.Member.Roles, name, reason, s)
-		if allowed {
-			messageEmbed = wEmbed.WhitelistBanAccount(name, owner.ID, reason, i, s)
+		if allowed && owner != nil {
+			messageEmbed = wEmbed.WhitelistBanAccount(name, string(owner.ID), reason, i, s)
 		} else {
 			messageEmbed = wEmbed.WhitelistBanAccountNotAllowed(name, i)
 		}
