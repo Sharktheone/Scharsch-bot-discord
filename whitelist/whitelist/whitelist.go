@@ -45,7 +45,7 @@ const (
 )
 
 func Add(player database.Player, member *types.Member) (AddResult, string) {
-	mcBan, dcBan, reason := CheckBanned(player, member)
+	mcBan, dcBan, reason := CheckBanned(player, member.ID)
 
 	if mcBan && dcBan {
 		return BothBanned, reason
@@ -153,7 +153,7 @@ func Whois(username database.Player, member *types.Member) (dcUserID database.Us
 	return result.ID, true, dataFound
 }
 
-func HasListed(lookupID database.UserID, member *types.Member, isSelfLookup bool) (accounts []database.Player, allowed bool, found bool, bannedPlayers []string) {
+func HasListed(lookupID database.UserID, member *types.Member, isSelfLookup bool) (accounts []database.Player, allowed bool, found bool, bannedPlayers []database.Player) {
 	if !isSelfLookup && !CheckRoles(member, config.Discord.WhitelistWhoisRoleID) {
 		return nil, false, false, nil
 	}
@@ -282,23 +282,23 @@ func BanAccount(member *types.Member, account database.Player, reason string, s 
 
 // UnBanUserID  unbans a user from the whitelist
 // / returns true if the action was allowed
-func UnBanUserID(member *types.Member, banID string, unbanAccounts bool, s *session.Session) bool {
-	if CheckRoles(member, config.Discord.WhitelistBanRoleID) {
+func UnBanUserID(member *types.Member, banID database.UserID, unbanAccounts bool, s *session.Session) bool {
+	if !CheckRoles(member, config.Discord.WhitelistBanRoleID) {
 		return false
 	}
 
 	log.Printf("%v is unbanning %v", member.ID, banID)
-	database.DB.UnBanUser(database.UserID(banID))
+	database.DB.UnBanUser(banID)
 	if unbanAccounts {
-		result := database.DB.BannedPlayers(database.UserID(banID))
+		result := database.DB.BannedPlayers(banID)
 
 		for _, entry := range result {
-			database.DB.UnBanPlayerFrom(database.UserID(banID), entry.Player)
+			database.DB.UnBanPlayerFrom(banID, entry.Player)
 
 		}
-		messageEmbedDM := banEmbed.DMUnBan(false, banID, s)
-		messageEmbedDMFailed := banEmbed.DMUnBan(true, banID, s)
-		if err := s.SendDM(banID, &discordgo.MessageSend{
+		messageEmbedDM := banEmbed.DMUnBan(false, string(banID), s)
+		messageEmbedDMFailed := banEmbed.DMUnBan(true, string(banID), s)
+		if err := s.SendDM(string(banID), &discordgo.MessageSend{
 			Embed: &messageEmbedDM,
 		}, &discordgo.MessageSend{
 			Content: fmt.Sprintf("<@%v>", banID),
