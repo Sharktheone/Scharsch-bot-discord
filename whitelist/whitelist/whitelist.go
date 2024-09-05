@@ -6,7 +6,6 @@ import (
 	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/discord/embed/banEmbed"
 	"github.com/Sharktheone/ScharschBot/discord/session"
-	"github.com/Sharktheone/ScharschBot/pterodactyl"
 	"github.com/Sharktheone/ScharschBot/types"
 	"github.com/Sharktheone/ScharschBot/whitelist"
 	"github.com/bwmarrin/discordgo"
@@ -14,10 +13,7 @@ import (
 )
 
 var (
-	config             = conf.Config
-	addCommand         = config.Pterodactyl.WhitelistAddCommand
-	removeCommand      = config.Pterodactyl.WhitelistRemoveCommand
-	pterodactylEnabled = config.Pterodactyl.Enabled
+	config = conf.Config
 )
 
 type Player struct {
@@ -92,19 +88,8 @@ func Remove(username database.Player, member *types.Member) (allowed bool, onWhi
 		}
 	}
 
-	database.DB.RemoveAccount(username)
-	if pterodactylEnabled {
-		command := fmt.Sprintf(removeCommand, username)
-		for _, listedServer := range config.Whitelist.Servers {
-			for _, server := range config.Pterodactyl.Servers {
-				if server.ServerName == listedServer {
-					if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
-						log.Printf("Failed to send command to server %v: %v", server.ServerID, err)
-					}
-				}
-			}
-		}
-	}
+	whitelist.Provider.RemoveAccount(username)
+
 	log.Printf("%v is removing %v from whitelist", member.ID, username)
 	return true, true
 }
@@ -120,19 +105,7 @@ func RemoveAll(member *types.Member) (allowed bool, onWhitelist bool) {
 	for _, entry := range entries {
 		database.DB.RemoveAccount(entry.Name)
 
-		if pterodactylEnabled {
-			command := fmt.Sprintf(removeCommand, entry.Name)
-			for _, listedServer := range config.Whitelist.Servers {
-				for _, server := range config.Pterodactyl.Servers {
-					if server.ServerName == listedServer {
-						if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
-							log.Printf("Failed to send command to server %v: %v", server.ServerID, err)
-						}
-					}
-				}
-			}
-		}
-
+		whitelist.Provider.RemoveAccount(entry.Name)
 	}
 
 	return true, len(entries) > 0
@@ -245,10 +218,6 @@ func BanAccount(member *types.Member, account database.Player, reason string, s 
 
 		if !alreadyBanned {
 			log.Printf("%v is banning %v", owner.ID, account)
-			database.DB.BanPlayer(account, reason)
-
-			database.DB.UnWhitelistPlayer(account)
-
 			messageEmbedDM := banEmbed.DMBanAccount(string(account), false, string(owner.ID), reason, s)
 			messageEmbedDMFailed := banEmbed.DMBanAccount(string(account), true, string(owner.ID), reason, s)
 			if err := s.SendDM(string(owner.ID), &discordgo.MessageSend{
@@ -260,18 +229,8 @@ func BanAccount(member *types.Member, account database.Player, reason string, s 
 			); err != nil {
 				log.Printf("Failed to send DM to %v: %v", owner.ID, err)
 			}
-			if pterodactylEnabled {
-				command := fmt.Sprintf(removeCommand, account)
-				for _, listedServer := range config.Whitelist.Servers {
-					for _, server := range config.Pterodactyl.Servers {
-						if server.ServerName == listedServer {
-							if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
-								log.Printf("Failed to send command to server %v: %v", server.ServerID, err)
-							}
-						}
-					}
-				}
-			}
+
+			whitelist.Provider.BanPlayer(owner.ID, account, reason)
 		}
 	} else {
 		return false, nil
@@ -334,35 +293,9 @@ func UnBanAccount(member *types.Member, account database.Player, s *session.Sess
 	return true
 }
 
-func RemoveMyAccounts(userID database.UserID) (bool, []database.Player) {
-	accounts := ListedAccountsOf(userID, false)
-
-	if len(accounts) > 0 {
-		log.Printf("%v is removing his own accounts from the whitelist", userID)
-		for _, account := range accounts {
-			found := database.DB.IsWhitelistedBy(userID, account)
-
-			if found {
-				database.DB.RemoveAccount(account)
-				if pterodactylEnabled {
-					command := fmt.Sprintf(removeCommand, account)
-					for _, listedServer := range config.Whitelist.Servers {
-						for _, server := range config.Pterodactyl.Servers {
-							if server.ServerName == listedServer {
-								if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
-									log.Printf("Error while sending command to server %v: %v", server.ServerID, err)
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return true, accounts
-	}
-
-	return false, accounts
+func RemoveMyAccounts(userID database.UserID) *[]database.Player {
+	log.Printf("%v is removing his own accounts from the whitelist", userID)
+	return whitelist.Provider.RemoveAccounts(userID)
 }
 
 func GetOwner(Account database.Player, s *session.Session) *Player {

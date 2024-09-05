@@ -16,7 +16,7 @@ type WhitelistProvider interface {
 	UnBanUser(user database.UserID)
 	UnBanPlayer(player database.Player)
 	UnBanPlayerFrom(user database.UserID, player database.Player)
-	RemoveAccounts(user database.UserID)
+	RemoveAccounts(user database.UserID) *[]database.Player
 	RemoveAccount(player database.Player)
 }
 
