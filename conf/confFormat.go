@@ -42,18 +42,16 @@ type Format struct {
 		}
 	} `yaml:"srv"`
 	Whitelist struct {
-		Enabled     bool `yaml:"enabled"`
-		MaxAccounts []struct {
-			RoleID database.Role `yaml:"roleID"`
-			Max    int           `yaml:"max"`
-			//Servers []string `yaml:"server"` TODO
-			//CommandOverride string `yaml:"whitelistCommandOverride"` TODO
-			//CommandOverridePerServer map[string]string `yaml:"whitelistCommandOverridePerServer"` TODO
-		} `yaml:"maxAccounts"`
-		BannedUsersToMaxAccounts bool     `yaml:"bannedUsersToMaxAccounts"`
-		KickUnWhitelisted        bool     `yaml:"kickUnWhitelisted"`
-		KickCommand              string   `yaml:"kickCommand"`
-		Servers                  []string `yaml:"serverNames"` //TODO: remove this
+		Enabled       bool   `yaml:"enabled"`
+		AddCommand    string `yaml:"whitelistAddCommand"`
+		RemoveCommand string `yaml:"whitelistRemoveCommand"`
+		BanCommand    string `yaml:"banCommand"`
+
+		RolesConfig              []RoleConfig `yaml:"maxAccounts"`
+		BannedUsersToMaxAccounts bool         `yaml:"bannedUsersToMaxAccounts"`
+		KickUnWhitelisted        bool         `yaml:"kickUnWhitelisted"`
+		KickCommand              string       `yaml:"kickCommand"`
+		Servers                  []string     `yaml:"serverNames"` //TODO: remove this
 		Database                 struct {
 			Provider         string `yaml:"provider"`
 			Host             string `yaml:"host"`
@@ -157,4 +155,24 @@ type Server struct {
 			Death            bool `yaml:"death"`
 		} `yaml:"events"`
 	} `yaml:"srv"`
+}
+
+type RoleConfig struct {
+	RoleID   database.Role `yaml:"roleID"`
+	Priority int           `yaml:"priority"`
+	Max      int           `yaml:"max"`
+
+	WhitelistCommand   string `yaml:"overrideWhitelistCommand"`
+	UnWhitelistCommand string `yaml:"overrideUnWhitelistCommand"`
+	BanCommand         string `yaml:"overrideBanCommand"`
+
+	perServer []struct {
+		serverID string
+
+		//Max    int           `yaml:"max"` I don't think, this could work, since it wouldn't know which servers to use
+
+		WhitelistCommand   string `yaml:"overrideWhitelistCommand"`
+		UnWhitelistCommand string `yaml:"overrideUnWhitelistCommand"`
+		BanCommand         string `yaml:"overrideBanCommand"`
+	} `yaml:"overridePerServer"`
 }

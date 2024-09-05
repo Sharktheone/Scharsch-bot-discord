@@ -1,12 +1,14 @@
 package conf
 
 import (
+	"cmp"
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/config"
 	"github.com/Sharktheone/ScharschBot/flags"
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
+	"slices"
 )
 
 var (
@@ -37,4 +39,12 @@ func loadConf() {
 	if err := yaml.Unmarshal(ymlConf, &Config); err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
+
+	sortRoleConf()
+}
+
+func sortRoleConf() {
+	slices.SortStableFunc(Config.Whitelist.RolesConfig, func(i, j RoleConfig) int {
+		return cmp.Compare(i.Priority, j.Priority)
+	})
 }
