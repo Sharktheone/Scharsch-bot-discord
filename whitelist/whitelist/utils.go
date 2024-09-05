@@ -85,7 +85,7 @@ func AccountExists(username database.Player) bool {
 func GetMaxAccounts(member *types.Member) int {
 	m := 0
 
-	for _, entry := range config.Whitelist.MaxAccounts {
+	for _, entry := range config.Whitelist.RolesConfig {
 		if CheckRole(member, entry.RoleID) {
 			if entry.Max > m {
 				m = entry.Max
