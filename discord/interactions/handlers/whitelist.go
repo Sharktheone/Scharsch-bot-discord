@@ -149,11 +149,11 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 	case "removemyaccounts":
 		var messageEmbed discordgo.MessageEmbed
 
-		hasListedAccounts, listedAccounts := whitelist.RemoveMyAccounts(i.Member.User.ID)
-		mcBans := whitelist.CheckBans(i.Member.User.ID)
+		listedAccounts := whitelist.RemoveMyAccounts(database.UserID(i.Member.User.ID))
+		mcBans := whitelist.CheckBans(database.UserID(i.Member.User.ID))
 
-		if hasListedAccounts {
-			messageEmbed = wEmbed.WhitelistRemoveMyAccounts(listedAccounts, mcBans, i)
+		if len(*listedAccounts) > 0 {
+			messageEmbed = wEmbed.WhitelistRemoveMyAccounts(*listedAccounts, mcBans, i)
 		} else {
 			messageEmbed = wEmbed.WhitelistNoAccounts(i, i.Member.User.ID)
 		}

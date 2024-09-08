@@ -1044,11 +1044,11 @@ func WhitelistBanned(PlayerName string, IDBan bool, reason string, i *discordgo.
 	return Embed
 
 }
-func WhitelistRemoveMyAccounts(PlayerNames []string, bannedPlayers []string, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
+func WhitelistRemoveMyAccounts(PlayerNames []database.Player, bannedPlayers []database.Player, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = whitelist.GetMaxAccounts(types.MemberFromDG(i.Member))
 		Title         = "Removing whitelisted accounts of"
 		playerID      = i.Member.User.ID
 		Description   = fmt.Sprintf("<@%v>", playerID)
@@ -1059,7 +1059,7 @@ func WhitelistRemoveMyAccounts(PlayerNames []string, bannedPlayers []string, i *
 	for _, PlayerName := range PlayerNames {
 		userURL := fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
 		embedAccounts = append(embedAccounts, &discordgo.MessageEmbedField{
-			Name:   PlayerName,
+			Name:   string(PlayerName),
 			Value:  userURL,
 			Inline: false,
 		})
