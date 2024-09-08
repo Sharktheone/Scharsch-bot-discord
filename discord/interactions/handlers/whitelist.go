@@ -98,7 +98,7 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 		name := strings.ToLower(optionMap["name"].StringValue())
 		var messageEmbed discordgo.MessageEmbed
 
-		allowed, onWhitelist := whitelist.Remove(name, i.Member.User.ID, i.Member.Roles)
+		allowed, onWhitelist := whitelist.Remove(database.Player(name), types.MemberFromDG(i.Member))
 
 		if allowed {
 			if onWhitelist {
