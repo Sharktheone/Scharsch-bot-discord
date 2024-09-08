@@ -124,7 +124,7 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 	case "myaccounts":
 		var messageEmbed discordgo.MessageEmbed
 
-		accounts, allowed, found, bannedPlayers := whitelist.HasListed(i.Member.User.ID, i.Member.User.ID, i.Member.Roles, true)
+		accounts, allowed, found, bannedPlayers := whitelist.HasListed(database.UserID(i.Member.User.ID), types.MemberFromDG(i.Member), true)
 		if allowed {
 			if found || len(bannedPlayers) > 0 {
 				messageEmbed = wEmbed.WhitelistHasListed(accounts, i.Member.User.ID, bannedPlayers, i, s)

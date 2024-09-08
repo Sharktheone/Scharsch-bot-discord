@@ -449,7 +449,7 @@ func WhitelistWhoisNotAllowed(PlayerName string, i *discordgo.InteractionCreate)
 	return Embed
 }
 
-func WhitelistHasListed(PlayerNames []string, playerID string, bannedPlayers []string, i *discordgo.InteractionCreate, s *session.Session) discordgo.MessageEmbed {
+func WhitelistHasListed(PlayerNames []database.Player, playerID string, bannedPlayers []database.Player, i *discordgo.InteractionCreate, s *session.Session) discordgo.MessageEmbed {
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
@@ -468,7 +468,7 @@ func WhitelistHasListed(PlayerNames []string, playerID string, bannedPlayers []s
 	for _, PlayerName := range PlayerNames {
 		userURL := fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
 		embedAccounts = append(embedAccounts, &discordgo.MessageEmbedField{
-			Name:   PlayerName,
+			Name:   string(PlayerName),
 			Value:  userURL,
 			Inline: false,
 		})
@@ -532,11 +532,11 @@ func WhitelistNoAccounts(i *discordgo.InteractionCreate, playerID string) discor
 	return Embed
 }
 
-func WhitelistUserNotAllowed(Players []string, playerID string, bannedPlayers []string, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
+func WhitelistUserNotAllowed(Players []database.Player, playerID string, bannedPlayers []database.Player, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 	var (
 		username    = i.Member.User.String()
 		avatarURL   = i.Member.User.AvatarURL("40")
-		maxAccounts = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts = whitelist.GetMaxAccounts(types.MemberFromDG(i.Member))
 		Title       = "You have no permission to lookup the whitelisted accounts of"
 		Description = fmt.Sprintf("<@%v>", playerID)
 		FooterText  string
