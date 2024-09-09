@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func HasFreeAccount(player database.Player, member *types.Member) bool {
+func HasFreeAccount(member *types.Member) bool {
 	num := database.DB.NumberWhitelistedPlayers(member.ID)
 
 	if GetMaxAccounts(member) > (num + len(CheckBans(member.ID))) {

@@ -3,6 +3,7 @@ package session
 import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/bwmarrin/discordgo"
 	"log"
 )
@@ -66,14 +67,14 @@ func (s *Session) SendMessages(channelID []string, message string, messageType s
 	}
 }
 
-func HasRole(member *discordgo.Member, roleIDs []string) bool {
+func HasRole(member *discordgo.Member, roleIDs []database.Role) bool {
 	return HasRoleID(member.Roles, roleIDs)
 }
 
-func HasRoleID(hasRoles, neededRoles []string) bool {
+func HasRoleID(hasRoles []string, neededRoles []database.Role) bool {
 	for _, role := range hasRoles {
 		for _, neededRole := range neededRoles {
-			if role == neededRole {
+			if role == string(neededRole) {
 				return true
 			}
 		}

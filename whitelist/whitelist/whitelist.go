@@ -57,7 +57,7 @@ func Add(player database.Player, member *types.Member) (AddResult, string) {
 		return NotAllowed, ""
 	}
 
-	if !HasFreeAccount(player, member) {
+	if !HasFreeAccount(member) {
 		return NoFreeAccount, ""
 	}
 
