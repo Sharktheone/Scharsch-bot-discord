@@ -7,17 +7,15 @@ import (
 
 type WhitelistProvider interface {
 	AddToWhitelist(player database.Player, member *types.Member)
-	RemoveFromWhitelist(user database.UserID, player database.Player)
-	MoveToReWhitelist(user database.UserID, missingRole database.Role)
-	UnWhitelistAccount(user database.UserID)
-	UnWhitelistPlayer(player database.Player)
-	BanUser(user database.UserID, reason string)
-	BanPlayer(user database.UserID, player database.Player, reason string)
+	UnWhitelistPlayer(player database.Player, member *types.Member)
+	MoveToReWhitelist(missingRole database.Role, member *types.Member)
+	UnWhitelistAccount(member *types.Member)
+	BanUser(member *types.Member, reason string)
+	BanPlayer(player database.Player, member *types.Member, reason string)
 	UnBanUser(user database.UserID)
 	UnBanPlayer(player database.Player)
 	UnBanPlayerFrom(user database.UserID, player database.Player)
 	RemoveAccounts(user database.UserID) *[]database.Player
-	RemoveAccount(player database.Player)
 }
 
-var Provider WhitelistProvider = nil
+var Provider WhitelistProvider = GetDefaultProvider()

@@ -25,61 +25,110 @@ func (p *DefaultProvider) AddToWhitelist(player database.Player, member *types.M
 	if p.ServerProvider != nil {
 
 		for _, serverID := range p.ServerProvider.GetServers() {
-			getWhitelistCommand(member, serverID)
+			command := getWhitelistCommand(member, serverID)
+
+			if command == "" || command == "<default>" {
+				p.ServerProvider.Whitelist(player, serverID)
+			}
+
+			if command == "<none>" {
+				continue
+			}
+
+			p.ServerProvider.SendCommand(command, serverID)
 		}
 
 	}
 }
-func (p *DefaultProvider) RemoveFromWhitelist(user database.UserID, player database.Player) {
+func (p *DefaultProvider) UnWhitelistPlayer(player database.Player, member *types.Member) {
 	database.DB.UnWhitelistPlayer(player)
 
 	if p.ServerProvider != nil {
 		for _, serverID := range p.ServerProvider.GetServers() {
-			getUnWhitelistCommand(player, serverID)
+			command := getUnWhitelistCommand(member, serverID)
+
+			if command == "" || command == "<default>" {
+				p.ServerProvider.UnWhitelist(player, serverID)
+			}
+
+			if command == "<none>" {
+				continue
+			}
+
+			p.ServerProvider.SendCommand(command, serverID)
 		}
 	}
 
 }
-func (p *DefaultProvider) MoveToReWhitelist(user database.UserID, missingRole database.Role) {
+func (p *DefaultProvider) MoveToReWhitelist(missingRole database.Role, member *types.Member) {
 
 }
-func (p *DefaultProvider) UnWhitelistAccount(user database.UserID) {
+func (p *DefaultProvider) UnWhitelistAccount(member *types.Member) {
+	players := database.DB.Players(member.ID)
 
+	for _, player := range players {
+		p.UnWhitelistPlayer(player, member)
+	}
 }
-func (p *DefaultProvider) UnWhitelistPlayer(player database.Player) {
+func (p *DefaultProvider) BanUser(member *types.Member, reason string) {
+	players := database.DB.Players(member.ID)
 
+	for _, player := range players {
+		p.BanPlayer(player, member, reason)
+	}
 }
-func (p *DefaultProvider) BanUser(user database.UserID, reason string) {
+func (p *DefaultProvider) BanPlayer(player database.Player, member *types.Member, reason string) {
+	database.DB.BanPlayer(player, reason)
 
-}
-func (p *DefaultProvider) BanPlayer(user database.UserID, player database.Player, reason string) {
+	if p.ServerProvider != nil {
+		for _, serverID := range p.ServerProvider.GetServers() {
+			command := getBanCommand(member, serverID)
 
+			if command == "" || command == "<default>" {
+				p.ServerProvider.Ban(player, reason, serverID)
+			}
+
+			if command == "<none>" {
+				continue
+			}
+
+			p.ServerProvider.SendCommand(command, serverID)
+		}
+	}
 }
 func (p *DefaultProvider) UnBanUser(user database.UserID) {
+	database.DB.UnBanUser(user)
 
 }
 func (p *DefaultProvider) UnBanPlayer(player database.Player) {
-
+	database.DB.UnBanPlayer(player)
 }
 func (p *DefaultProvider) UnBanPlayerFrom(user database.UserID, player database.Player) {
-
+	database.DB.UnBanPlayerFrom(user, player)
 }
 func (p *DefaultProvider) RemoveAccounts(user database.UserID) *[]database.Player {
+	players := database.DB.Players(user)
+
+	for _, player := range players {
+		database.DB.UnWhitelistPlayer(player)
+	}
+
+	database.DB.RemoveAccounts(user)
+	return &players
+}
+
+func getWhitelistCommand(member *types.Member, serverID server.ServerID) string {
 
 }
 
-func (p *DefaultProvider) RemoveAccount(player database.Player) {
+func getUnWhitelistCommand(member *types.Member, serverID server.ServerID) string {
 
 }
 
-func getWhitelistCommand(member *types.Member, serverID server.ServerID) {
+func getBanCommand(member *types.Member, serverID server.ServerID) string {
 
 }
 
-func getUnWhitelistCommand(member *types.Member, serverID server.ServerID) {
-
-}
-
-func getBanCommand(member *types.Member, serverID server.ServerID) {
-
+func GetDefaultProvider() WhitelistProvider {
+	return &DefaultProvider{}
 }
