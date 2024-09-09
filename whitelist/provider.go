@@ -5,6 +5,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/types"
 	"github.com/Sharktheone/ScharschBot/whitelist/server"
+	"github.com/Sharktheone/ScharschBot/whitelist/whitelist"
 )
 
 var (
@@ -118,15 +119,69 @@ func (p *DefaultProvider) RemoveAccounts(user database.UserID) *[]database.Playe
 }
 
 func getWhitelistCommand(member *types.Member, serverID server.ServerID) string {
+	command := AddCommand
 
+	for _, rc := range config.RolesConfig {
+		if whitelist.CheckRole(member, rc.RoleID) {
+			if rc.WhitelistCommand != "" {
+				command = rc.WhitelistCommand
+			}
+
+			for _, s := range rc.PerServer {
+				if s.ServerID == serverID {
+					if s.WhitelistCommand != "" {
+						command = s.WhitelistCommand
+					}
+				}
+			}
+		}
+	}
+
+	return command
 }
 
 func getUnWhitelistCommand(member *types.Member, serverID server.ServerID) string {
+	command := RemoveCommand
 
+	for _, rc := range config.RolesConfig {
+		if whitelist.CheckRole(member, rc.RoleID) {
+			if rc.UnWhitelistCommand != "" {
+				command = rc.UnWhitelistCommand
+			}
+
+			for _, s := range rc.PerServer {
+				if s.ServerID == serverID {
+					if s.UnWhitelistCommand != "" {
+						command = s.UnWhitelistCommand
+					}
+				}
+			}
+		}
+	}
+
+	return command
 }
 
 func getBanCommand(member *types.Member, serverID server.ServerID) string {
+	command := BanCommand
 
+	for _, rc := range config.RolesConfig {
+		if whitelist.CheckRole(member, rc.RoleID) {
+			if rc.BanCommand != "" {
+				command = rc.BanCommand
+			}
+
+			for _, s := range rc.PerServer {
+				if s.ServerID == serverID {
+					if s.BanCommand != "" {
+						command = s.BanCommand
+					}
+				}
+			}
+		}
+	}
+
+	return command
 }
 
 func GetDefaultProvider() WhitelistProvider {

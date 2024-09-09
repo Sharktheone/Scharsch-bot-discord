@@ -1,6 +1,9 @@
 package conf
 
-import "github.com/Sharktheone/ScharschBot/database"
+import (
+	"github.com/Sharktheone/ScharschBot/database"
+	"github.com/Sharktheone/ScharschBot/whitelist/server"
+)
 
 type Format struct {
 	Reconfigure bool `yaml:"reconfigure"`
@@ -166,8 +169,8 @@ type RoleConfig struct {
 	UnWhitelistCommand string `yaml:"overrideUnWhitelistCommand"`
 	BanCommand         string `yaml:"overrideBanCommand"`
 
-	perServer []struct {
-		serverID string
+	PerServer []struct {
+		ServerID server.ServerID `yaml:"serverID"`
 
 		//Max    int           `yaml:"max"` I don't think, this could work, since it wouldn't know which servers to use
 
