@@ -5,7 +5,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/types"
 	"github.com/Sharktheone/ScharschBot/whitelist/server"
-	"github.com/Sharktheone/ScharschBot/whitelist/whitelist"
+	"github.com/Sharktheone/ScharschBot/whitelist/whitelist/utils"
 )
 
 var (
@@ -126,7 +126,7 @@ func getWhitelistCommand(member *types.Member, serverID server.ServerID) string 
 	command := AddCommand
 
 	for _, rc := range config.RolesConfig {
-		if whitelist.CheckRole(member, rc.RoleID) {
+		if utils.CheckRole(member, rc.RoleID) {
 			if rc.WhitelistCommand != "" {
 				command = rc.WhitelistCommand
 			}
@@ -148,7 +148,7 @@ func getUnWhitelistCommand(member *types.Member, serverID server.ServerID) strin
 	command := RemoveCommand
 
 	for _, rc := range config.RolesConfig {
-		if whitelist.CheckRole(member, rc.RoleID) {
+		if utils.CheckRole(member, rc.RoleID) {
 			if rc.UnWhitelistCommand != "" {
 				command = rc.UnWhitelistCommand
 			}
@@ -170,7 +170,7 @@ func getBanCommand(member *types.Member, serverID server.ServerID) string {
 	command := BanCommand
 
 	for _, rc := range config.RolesConfig {
-		if whitelist.CheckRole(member, rc.RoleID) {
+		if utils.CheckRole(member, rc.RoleID) {
 			if rc.BanCommand != "" {
 				command = rc.BanCommand
 			}

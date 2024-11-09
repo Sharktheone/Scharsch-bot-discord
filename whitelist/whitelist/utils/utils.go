@@ -1,12 +1,17 @@
-package whitelist
+package utils
 
 import (
 	"fmt"
+	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/types"
 	"io"
 	"log"
 	"net/http"
+)
+
+var (
+	config = conf.Config
 )
 
 func HasFreeAccount(member *types.Member) bool {

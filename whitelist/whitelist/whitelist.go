@@ -8,6 +8,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/Sharktheone/ScharschBot/types"
 	"github.com/Sharktheone/ScharschBot/whitelist"
+	"github.com/Sharktheone/ScharschBot/whitelist/whitelist/utils"
 	"github.com/bwmarrin/discordgo"
 	"log"
 )
@@ -41,7 +42,7 @@ const (
 )
 
 func Add(player database.Player, member *types.Member) (AddResult, string) {
-	mcBan, dcBan, reason := CheckBanned(player, member.ID)
+	mcBan, dcBan, reason := utils.CheckBanned(player, member.ID)
 
 	if mcBan && dcBan {
 		return BothBanned, reason
@@ -53,15 +54,15 @@ func Add(player database.Player, member *types.Member) (AddResult, string) {
 		return DcBanned, reason
 	}
 
-	if !CheckRoles(member, config.Whitelist.Roles.ServerRoleID) {
+	if !utils.CheckRoles(member, config.Whitelist.Roles.ServerRoleID) {
 		return NotAllowed, ""
 	}
 
-	if !HasFreeAccount(member) {
+	if !utils.HasFreeAccount(member) {
 		return NoFreeAccount, ""
 	}
 
-	if !AccountExists(player) {
+	if !utils.AccountExists(player) {
 		return NotExisting, ""
 	}
 
@@ -83,7 +84,7 @@ func Remove(username database.Player, member *types.Member) (allowed bool, onWhi
 	}
 
 	if entry.ID != member.ID {
-		if !CheckRoles(member, config.Whitelist.Roles.ServerRoleID) {
+		if !utils.CheckRoles(member, config.Whitelist.Roles.ServerRoleID) {
 			return false, false
 		}
 	}
@@ -95,7 +96,7 @@ func Remove(username database.Player, member *types.Member) (allowed bool, onWhi
 }
 
 func RemoveAll(member *types.Member) (allowed bool, onWhitelist bool) {
-	if !CheckRoles(member, config.Discord.WhitelistRemoveRoleID) {
+	if !utils.CheckRoles(member, config.Discord.WhitelistRemoveRoleID) {
 		return false, false
 	}
 
@@ -111,12 +112,12 @@ func RemoveAll(member *types.Member) (allowed bool, onWhitelist bool) {
 	return true, len(entries) > 0
 }
 func RemoveAllAllowed(member *types.Member) (allowed bool) {
-	return CheckRoles(member, config.Discord.WhitelistRemoveRoleID)
+	return utils.CheckRoles(member, config.Discord.WhitelistRemoveRoleID)
 
 }
 
 func Whois(username database.Player, member *types.Member) (dcUserID database.UserID, allowed bool, found bool) {
-	if !CheckRoles(member, config.Discord.WhitelistWhoisRoleID) {
+	if !utils.CheckRoles(member, config.Discord.WhitelistWhoisRoleID) {
 		return "", false, false
 	}
 
@@ -127,13 +128,13 @@ func Whois(username database.Player, member *types.Member) (dcUserID database.Us
 }
 
 func HasListed(lookupID database.UserID, member *types.Member, isSelfLookup bool) (accounts []database.Player, allowed bool, found bool, bannedPlayers []database.Player) {
-	if !isSelfLookup && !CheckRoles(member, config.Discord.WhitelistWhoisRoleID) {
+	if !isSelfLookup && !utils.CheckRoles(member, config.Discord.WhitelistWhoisRoleID) {
 		return nil, false, false, nil
 	}
 	log.Printf("%v is looking on whitelisted accounts of %v ", member.ID, lookupID)
 
 	players := database.DB.Players(lookupID)
-	return players, true, len(players) > 0, CheckBans(member.ID)
+	return players, true, len(players) > 0, utils.CheckBans(member.ID)
 }
 
 func ListedAccountsOf(userID database.UserID, banned bool) (Accounts []database.Player) {
@@ -168,13 +169,13 @@ func ListedAccountsOf(userID database.UserID, banned bool) (Accounts []database.
 
 func BanUserID(member *types.Member, banID database.UserID, banAccounts bool, reason string, s *session.Session) (allowed bool, alreadyBanned bool) {
 
-	if !CheckRoles(member, config.Discord.WhitelistBanRoleID) {
+	if !utils.CheckRoles(member, config.Discord.WhitelistBanRoleID) {
 		return false, false
 	}
 
 	listedAccounts := ListedAccountsOf(banID, false)
 
-	_, banned, _ := CheckBanned("", banID)
+	_, banned, _ := utils.CheckBanned("", banID)
 	if banned {
 		return true, true
 	}
@@ -208,7 +209,7 @@ func BanUserID(member *types.Member, banID database.UserID, banAccounts bool, re
 }
 
 func BanAccount(member *types.Member, account database.Player, reason string, s *session.Session) (bool, *Player) {
-	if !CheckRoles(member, config.Discord.WhitelistBanRoleID) {
+	if !utils.CheckRoles(member, config.Discord.WhitelistBanRoleID) {
 		return false, nil
 	}
 
@@ -242,7 +243,7 @@ func BanAccount(member *types.Member, account database.Player, reason string, s 
 // UnBanUserID  unbans a user from the whitelist
 // / returns true if the action was allowed
 func UnBanUserID(member *types.Member, banID database.UserID, unbanAccounts bool, s *session.Session) bool {
-	if !CheckRoles(member, config.Discord.WhitelistBanRoleID) {
+	if !utils.CheckRoles(member, config.Discord.WhitelistBanRoleID) {
 		return false
 	}
 
@@ -272,7 +273,7 @@ func UnBanUserID(member *types.Member, banID database.UserID, unbanAccounts bool
 }
 
 func UnBanAccount(member *types.Member, account database.Player, s *session.Session) bool {
-	if !CheckRoles(member, config.Discord.WhitelistBanRoleID) {
+	if !utils.CheckRoles(member, config.Discord.WhitelistBanRoleID) {
 		return false
 	}
 
@@ -338,9 +339,9 @@ func GetOwner(Account database.Player, s *session.Session) *Player {
 			Name:              Account,
 			Players:           ListedAccountsOf(dcUser, false),
 			PlayersWithBanned: ListedAccountsOf(dcUser, true),
-			BannedPlayers:     CheckBans(dcUser),
+			BannedPlayers:     utils.CheckBans(dcUser),
 			Roles:             roles,
-			MaxAccounts:       GetMaxAccounts(&member),
+			MaxAccounts:       utils.GetMaxAccounts(&member),
 		}
 	}
 	return &Player{

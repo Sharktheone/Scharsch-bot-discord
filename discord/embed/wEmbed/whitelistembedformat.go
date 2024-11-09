@@ -7,6 +7,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/Sharktheone/ScharschBot/types"
 	"github.com/Sharktheone/ScharschBot/whitelist/whitelist"
+	"github.com/Sharktheone/ScharschBot/whitelist/whitelist/utils"
 	"github.com/bwmarrin/discordgo"
 	"log"
 )
@@ -25,14 +26,14 @@ func WhitelistAdding(PlayerName string, i *discordgo.InteractionCreate) discordg
 		member        = types.MemberFromDG(i.Member)
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(member)
+		maxAccounts   = utils.GetMaxAccounts(member)
 		Title         = fmt.Sprintf("%v is now on the whitelist", PlayerName)
 		AuthorIconUrl = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", PlayerName)
 		AuthorUrl     = fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(member.ID, true)
-		bannedPlayers = whitelist.CheckBans(member.ID)
+		bannedPlayers = utils.CheckBans(member.ID)
 	)
 
 	if !bansToMax {
@@ -68,14 +69,14 @@ func WhitelistAlreadyListed(PlayerName string, i *discordgo.InteractionCreate) d
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = utils.GetMaxAccounts(i.Member.Roles)
 		Title         = fmt.Sprintf("%v is already on the whitelist", PlayerName)
 		AuthorIconUrl = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", PlayerName)
 		AuthorUrl     = fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		bannedPlayers = utils.CheckBans(i.Member.User.ID)
 	)
 
 	if !bansToMax {
@@ -111,12 +112,12 @@ func WhitelistNotExisting(PlayerName string, i *discordgo.InteractionCreate) dis
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = utils.GetMaxAccounts(i.Member.Roles)
 		Title         = fmt.Sprintf("%v is not existing", PlayerName)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		bannedPlayers = utils.CheckBans(i.Member.User.ID)
 	)
 
 	if !bansToMax {
@@ -152,14 +153,14 @@ func WhitelistNoFreeAccounts(PlayerName string, i *discordgo.InteractionCreate) 
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = utils.GetMaxAccounts(i.Member.Roles)
 		Title         = "You have no free Accounts"
 		AuthorIconUrl = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", PlayerName)
 		AuthorUrl     = fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		bannedPlayers = utils.CheckBans(i.Member.User.ID)
 	)
 	if !bansToMax {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
@@ -194,14 +195,14 @@ func WhitelistAddNotAllowed(PlayerName string, i *discordgo.InteractionCreate) d
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = utils.GetMaxAccounts(i.Member.Roles)
 		Title         = fmt.Sprintf("You have no permission to add %v to the whitelist", PlayerName)
 		AuthorIconUrl = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", PlayerName)
 		AuthorUrl     = fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		bannedPlayers = utils.CheckBans(i.Member.User.ID)
 	)
 	if !bansToMax {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
@@ -236,14 +237,14 @@ func WhitelistRemoving(PlayerName string, i *discordgo.InteractionCreate) discor
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = utils.GetMaxAccounts(i.Member.Roles)
 		Title         = fmt.Sprintf("%v is no longer on the whitelist", PlayerName)
 		AuthorIconUrl = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", PlayerName)
 		AuthorUrl     = fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		bannedPlayers = utils.CheckBans(i.Member.User.ID)
 	)
 	if !bansToMax {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
@@ -277,14 +278,14 @@ func WhitelistRemoveNotAllowed(PlayerName string, i *discordgo.InteractionCreate
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = utils.GetMaxAccounts(i.Member.Roles)
 		Title         = fmt.Sprintf("You have no permission to remove %v from the whitelist", PlayerName)
 		AuthorIconUrl = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", PlayerName)
 		AuthorUrl     = fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		bannedPlayers = utils.CheckBans(i.Member.User.ID)
 	)
 	if !bansToMax {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
@@ -319,14 +320,14 @@ func WhitelistNotListed(PlayerName string, i *discordgo.InteractionCreate) disco
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = utils.GetMaxAccounts(i.Member.Roles)
 		Title         = fmt.Sprintf("%v is not on the whitelist", PlayerName)
 		AuthorIconUrl = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", PlayerName)
 		AuthorUrl     = fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		bannedPlayers = utils.CheckBans(i.Member.User.ID)
 	)
 
 	if !bansToMax {
@@ -363,7 +364,7 @@ func WhitelistIsListedBy(PlayerName string, playerID string, i *discordgo.Intera
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
 		roles, err    = s.GetRoles(playerID)
-		maxAccounts   = whitelist.GetMaxAccounts(roles)
+		maxAccounts   = utils.GetMaxAccounts(roles)
 		Title         = fmt.Sprintf("%v was whitelisted by", PlayerName)
 		Description   = fmt.Sprintf("<@%v>", playerID)
 		AuthorIconUrl = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", PlayerName)
@@ -371,7 +372,7 @@ func WhitelistIsListedBy(PlayerName string, playerID string, i *discordgo.Intera
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(playerID, true)
-		bannedPlayers = whitelist.CheckBans(playerID)
+		bannedPlayers = utils.CheckBans(playerID)
 	)
 	if err != nil {
 		log.Printf("Error getting roles: %v", err)
@@ -411,14 +412,14 @@ func WhitelistWhoisNotAllowed(PlayerName string, i *discordgo.InteractionCreate)
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = utils.GetMaxAccounts(i.Member.Roles)
 		Title         = fmt.Sprintf("You have no permission to lookup the owner of %v", PlayerName)
 		AuthorIconUrl = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", PlayerName)
 		AuthorUrl     = fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		bannedPlayers = utils.CheckBans(i.Member.User.ID)
 	)
 	if !bansToMax {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
@@ -454,7 +455,7 @@ func WhitelistHasListed(PlayerNames []database.Player, playerID string, bannedPl
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
 		roles, err    = s.GetRoles(playerID)
-		maxAccounts   = whitelist.GetMaxAccounts(roles)
+		maxAccounts   = utils.GetMaxAccounts(roles)
 		Title         = "Whitelisted accounts of"
 		Description   = fmt.Sprintf("<@%v>", playerID)
 		embedAccounts []*discordgo.MessageEmbedField
@@ -536,7 +537,7 @@ func WhitelistUserNotAllowed(Players []database.Player, playerID string, bannedP
 	var (
 		username    = i.Member.User.String()
 		avatarURL   = i.Member.User.AvatarURL("40")
-		maxAccounts = whitelist.GetMaxAccounts(types.MemberFromDG(i.Member))
+		maxAccounts = utils.GetMaxAccounts(types.MemberFromDG(i.Member))
 		Title       = "You have no permission to lookup the whitelisted accounts of"
 		Description = fmt.Sprintf("<@%v>", playerID)
 		FooterText  string
@@ -575,12 +576,12 @@ func WhitelistRemoveAllNotAllowed(i *discordgo.InteractionCreate) discordgo.Mess
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = utils.GetMaxAccounts(i.Member.Roles)
 		Title         = "You have no permission to remove all accounts from the whitelist"
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		bannedPlayers = utils.CheckBans(i.Member.User.ID)
 	)
 	if !bansToMax {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
@@ -680,13 +681,13 @@ func WhitelistBanUserID(playerID string, reason string, i *discordgo.Interaction
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
 		roles, err    = s.GetRoles(playerID)
-		maxAccounts   = whitelist.GetMaxAccounts(roles)
+		maxAccounts   = utils.GetMaxAccounts(roles)
 		Title         = fmt.Sprintf("Banning following user for the reason %v that has following whitelisted accounts", username)
 		Description   = fmt.Sprintf("<@%v>", playerID)
 		embedAccounts []*discordgo.MessageEmbedField
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(playerID, true)
-		bannedPlayers = whitelist.CheckBans(playerID)
+		bannedPlayers = utils.CheckBans(playerID)
 	)
 	if err != nil {
 		log.Printf("Error getting roles: %v", err)
@@ -743,9 +744,9 @@ func WhitelistBanAccount(PlayerName string, playerID string, reason string, i *d
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
 		roles, err    = s.GetRoles(playerID)
-		maxAccounts   = whitelist.GetMaxAccounts(roles)
+		maxAccounts   = utils.GetMaxAccounts(roles)
 		Players       = whitelist.ListedAccountsOf(playerID, true)
-		bannedPlayers = whitelist.CheckBans(playerID)
+		bannedPlayers = utils.CheckBans(playerID)
 		Title         = fmt.Sprintf("%v is now banned from the whitelist", PlayerName)
 		AuthorIconUrl = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", PlayerName)
 		AuthorUrl     = fmt.Sprintf("https://namemc.com/profile/%v", PlayerName)
@@ -830,13 +831,13 @@ func WhitelistUnBanUserID(playerID string, i *discordgo.InteractionCreate, s *se
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
 		roles, err    = s.GetRoles(playerID)
-		maxAccounts   = whitelist.GetMaxAccounts(roles)
+		maxAccounts   = utils.GetMaxAccounts(roles)
 		Title         = "Unbanning user"
 		Description   = fmt.Sprintf("<@%v>", playerID)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(playerID, true)
-		bannedPlayers = whitelist.CheckBans(playerID)
+		bannedPlayers = utils.CheckBans(playerID)
 	)
 	if err != nil {
 		log.Printf("Error getting roles: %v", err)
@@ -931,12 +932,12 @@ func WhitelistBanAccountNotAllowed(mcName string, i *discordgo.InteractionCreate
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = utils.GetMaxAccounts(i.Member.Roles)
 		Title         = fmt.Sprintf("You have no permission to (un)ban %v", mcName)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		bannedPlayers = utils.CheckBans(i.Member.User.ID)
 	)
 	if !bansToMax {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
@@ -971,13 +972,13 @@ func WhitelistBanUserIDNotAllowed(playerID string, i *discordgo.InteractionCreat
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(i.Member.Roles)
+		maxAccounts   = utils.GetMaxAccounts(i.Member.Roles)
 		Title         = "You have no permission to (un)ban"
 		Description   = fmt.Sprintf("<@%v>", playerID)
 		FooterText    string
 		Footer        *discordgo.MessageEmbedFooter
 		Players       = whitelist.ListedAccountsOf(i.Member.User.ID, true)
-		bannedPlayers = whitelist.CheckBans(i.Member.User.ID)
+		bannedPlayers = utils.CheckBans(i.Member.User.ID)
 	)
 	if !bansToMax {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
@@ -1048,7 +1049,7 @@ func WhitelistRemoveMyAccounts(PlayerNames []database.Player, bannedPlayers []da
 	var (
 		username      = i.Member.User.String()
 		avatarURL     = i.Member.User.AvatarURL("40")
-		maxAccounts   = whitelist.GetMaxAccounts(types.MemberFromDG(i.Member))
+		maxAccounts   = utils.GetMaxAccounts(types.MemberFromDG(i.Member))
 		Title         = "Removing whitelisted accounts of"
 		playerID      = i.Member.User.ID
 		Description   = fmt.Sprintf("<@%v>", playerID)
@@ -1210,7 +1211,7 @@ func NewReport(PlayerName string, reason string, i *discordgo.InteractionCreate)
 		var (
 			FieldName string
 		)
-		mcBanned, _, banReason := whitelist.CheckBanned(Account, "")
+		mcBanned, _, banReason := utils.CheckBanned(Account, "")
 		if mcBanned {
 			FieldName = fmt.Sprintf("%v (banned, reason: %v)", Account, banReason)
 		} else {
@@ -1255,7 +1256,7 @@ func ListReports(i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 	if len(reports) > 0 {
 
 		for _, r := range reports {
-			banned, _, reason := whitelist.CheckBanned(string(r.ReportedPlayer), "")
+			banned, _, reason := utils.CheckBanned(string(r.ReportedPlayer), "")
 			if banned {
 				value := fmt.Sprintf("%v (banned, reason: %v)", r.Reason, reason)
 				Fields = append(Fields, &discordgo.MessageEmbedField{

@@ -7,6 +7,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/reports"
 	"github.com/Sharktheone/ScharschBot/types"
 	"github.com/Sharktheone/ScharschBot/whitelist/whitelist"
+	"github.com/Sharktheone/ScharschBot/whitelist/whitelist/utils"
 	"github.com/bwmarrin/discordgo"
 	"log"
 	"strings"
@@ -150,7 +151,7 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 		var messageEmbed discordgo.MessageEmbed
 
 		listedAccounts := whitelist.RemoveMyAccounts(database.UserID(i.Member.User.ID))
-		mcBans := whitelist.CheckBans(database.UserID(i.Member.User.ID))
+		mcBans := utils.CheckBans(database.UserID(i.Member.User.ID))
 
 		if len(*listedAccounts) > 0 {
 			messageEmbed = wEmbed.WhitelistRemoveMyAccounts(*listedAccounts, mcBans, i)
