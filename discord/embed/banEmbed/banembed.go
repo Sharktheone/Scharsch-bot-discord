@@ -3,6 +3,7 @@ package banEmbed
 import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/bwmarrin/discordgo"
 	"log"
@@ -13,7 +14,7 @@ var (
 	serverName = config.Discord.ServerName
 )
 
-func DMBan(dmFailed bool, userID string, reason string, s *session.Session) discordgo.MessageEmbed {
+func DMBan(dmFailed bool, userID database.UserID, reason string, s *session.Session) discordgo.MessageEmbed {
 	var (
 		user, err   = s.GetUserProfile(userID)
 		authorName  = user.User.String()
@@ -49,7 +50,7 @@ func DMBan(dmFailed bool, userID string, reason string, s *session.Session) disc
 	return Embed
 }
 
-func DMUnBan(dmFailed bool, userID string, s *session.Session) discordgo.MessageEmbed {
+func DMUnBan(dmFailed bool, userID database.UserID, s *session.Session) discordgo.MessageEmbed {
 	var (
 		user, err   = s.GetUserProfile(userID)
 		authorName  = user.User.String()
@@ -85,7 +86,7 @@ func DMUnBan(dmFailed bool, userID string, s *session.Session) discordgo.Message
 	return Embed
 }
 
-func DMBanAccount(name string, dmFailed bool, userID string, reason string, s *session.Session) discordgo.MessageEmbed {
+func DMBanAccount(name string, dmFailed bool, userID database.UserID, reason string, s *session.Session) discordgo.MessageEmbed {
 	var (
 		user, err   = s.GetUserProfile(userID)
 		authorName  = user.User.String()
@@ -121,19 +122,28 @@ func DMBanAccount(name string, dmFailed bool, userID string, reason string, s *s
 	return Embed
 }
 
-func DMUnBanAccount(name string, dmFailed bool, userID string, s *session.Session) discordgo.MessageEmbed {
+func DMUnBanAccount(name string, dmFailed bool, userID database.UserID, s *session.Session) discordgo.MessageEmbed {
 	var (
-		user, err   = s.GetUserProfile(userID)
-		authorName  = user.User.String()
-		avatarURL   = user.AvatarURL("40")
+		user, err  = s.GetUserProfile(userID)
+		authorName = "unknown"
+		avatarURL  = ""
+		FooterIcon = ""
+	)
+
+	if err != nil {
+		log.Printf("Error while getting user profile: %v", err)
+
+	} else {
+
+		authorName = user.User.String()
+		avatarURL = user.AvatarURL("40")
+		FooterIcon = user.AvatarURL("40")
+	}
+	var (
 		Title       = fmt.Sprintf("Your account %v got Unbanned on the server %v", name, serverName)
 		Description string
 		FooterText  string
-		FooterIcon  = user.AvatarURL("40")
 	)
-	if err != nil {
-		log.Printf("Error while getting user profile: %v", err)
-	}
 
 	if dmFailed {
 		FooterText = fmt.Sprintf("Failed to send DM to %v. Maybe you have DMs disabled? Sending to channel instead.", user.User.String())

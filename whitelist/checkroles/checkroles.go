@@ -73,7 +73,7 @@ func CheckRoles() {
 					serverPerms := false
 					for _, role := range user.Roles {
 						for _, neededRole := range config.Whitelist.Roles.ServerRoleID {
-							if role == neededRole {
+							if database.Role(role) == neededRole {
 								serverPerms = true
 								break
 							}
@@ -111,7 +111,7 @@ func CheckRoles() {
 					serverPerms := false
 					for _, role := range user.Roles {
 						for _, neededRole := range config.Whitelist.Roles.ServerRoleID {
-							if role == neededRole {
+							if database.Role(role) == neededRole {
 								serverPerms = true
 								break
 							}

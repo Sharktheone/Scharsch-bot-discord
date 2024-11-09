@@ -19,6 +19,9 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 	for _, opt := range options[0].Options {
 		optionMap[opt.Name] = opt
 	}
+
+	member := types.MemberFromDG(i.Member)
+
 	switch options[0].Name {
 	case "add":
 		name := strings.ToLower(optionMap["name"].StringValue())
@@ -128,12 +131,12 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 		accounts, allowed, found, bannedPlayers := whitelist.HasListed(database.UserID(i.Member.User.ID), types.MemberFromDG(i.Member), true)
 		if allowed {
 			if found || len(bannedPlayers) > 0 {
-				messageEmbed = wEmbed.WhitelistHasListed(accounts, i.Member.User.ID, bannedPlayers, i, s)
+				messageEmbed = wEmbed.WhitelistHasListed(accounts, member.ID, bannedPlayers, i, s)
 			} else {
 				messageEmbed = wEmbed.WhitelistNoAccounts(i, i.Member.User.ID)
 			}
 		} else {
-			messageEmbed = wEmbed.WhitelistUserNotAllowed(accounts, i.Member.User.ID, bannedPlayers, i)
+			messageEmbed = wEmbed.WhitelistUserNotAllowed(accounts, member.ID, bannedPlayers, i)
 		}
 
 		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -173,11 +176,11 @@ func Whitelist(s *session.Session, i *discordgo.InteractionCreate) {
 	case "report":
 		var (
 			messageEmbed discordgo.MessageEmbed
-			name         string
+			name         database.Player
 			reason       = "No reason provided"
 		)
 		if optionMap["name"] != nil {
-			name = strings.ToLower(optionMap["name"].StringValue())
+			name = database.Player(strings.ToLower(optionMap["name"].StringValue()))
 		}
 		if optionMap["reason"] != nil {
 			reason = optionMap["reason"].StringValue()

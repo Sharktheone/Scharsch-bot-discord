@@ -3,6 +3,7 @@ package websocket
 import (
 	"context"
 	"fmt"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/Sharktheone/ScharschBot/pterodactyl"
 	"github.com/Sharktheone/ScharschBot/types"
@@ -70,7 +71,7 @@ type Handler struct {
 type PSRVEvent struct {
 	h           *Handler
 	e           *types.WebsocketEvent
-	userID      *string
+	userID      *database.UserID
 	onWhitelist *bool
 	footerIcon  *string
 	username    *string

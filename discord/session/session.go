@@ -17,24 +17,24 @@ type Session struct {
 	Guild string
 }
 
-func (s *Session) GetUserProfile(userID string) (*discordgo.Member, error) {
-	if user, err := s.GuildMember(config.Discord.ServerID, userID); err != nil {
+func (s *Session) GetUserProfile(userID database.UserID) (*discordgo.Member, error) {
+	if user, err := s.GuildMember(config.Discord.ServerID, string(userID)); err != nil {
 		return &discordgo.Member{}, fmt.Errorf("failed to get user profile: %v", err)
 	} else {
 		return user, nil
 	}
 }
 
-func (s *Session) GetRoles(userID string) ([]string, error) {
-	if user, err := s.GuildMember(config.Discord.ServerID, userID); err != nil {
+func (s *Session) GetRoles(userID database.UserID) ([]string, error) {
+	if user, err := s.GuildMember(config.Discord.ServerID, string(userID)); err != nil {
 		return nil, err
 	} else {
 		return user.Roles, nil
 	}
 }
 
-func (s *Session) SendDM(userID string, messageComplexDM *discordgo.MessageSend, messageComplexDMFailed *discordgo.MessageSend) error {
-	channel, err := s.UserChannelCreate(userID)
+func (s *Session) SendDM(userID database.UserID, messageComplexDM *discordgo.MessageSend, messageComplexDMFailed *discordgo.MessageSend) error {
+	channel, err := s.UserChannelCreate(string(userID))
 	if err != nil {
 		log.Printf("Failed to create DM with reporter: %v", err)
 

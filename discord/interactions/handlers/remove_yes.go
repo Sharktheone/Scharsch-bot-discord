@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/Sharktheone/ScharschBot/discord/embed/wEmbed"
 	"github.com/Sharktheone/ScharschBot/discord/session"
+	"github.com/Sharktheone/ScharschBot/types"
 	"github.com/Sharktheone/ScharschBot/whitelist/whitelist"
 	"github.com/bwmarrin/discordgo"
 	"log"
@@ -10,7 +11,10 @@ import (
 
 func RemoveYes(s *session.Session, i *discordgo.InteractionCreate) {
 	var messageEmbed discordgo.MessageEmbed
-	allowed, onWhitelist := whitelist.RemoveAll(i.Member.User.ID, i.Member.Roles)
+
+	member := types.MemberFromDG(i.Member)
+
+	allowed, onWhitelist := whitelist.RemoveAll(member)
 	if allowed {
 		if onWhitelist {
 			messageEmbed = wEmbed.WhitelistRemoveAll(i)

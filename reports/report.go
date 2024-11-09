@@ -19,7 +19,7 @@ type ReportData struct {
 	Reason         string `bson:"reason"`
 }
 
-func Report(name string, reason string, i *discordgo.InteractionCreate, s *session.Session, messageEmbed discordgo.MessageEmbed) (reportAllowed bool, alreadyReported bool, enabled bool) {
+func Report(name database.Player, reason string, i *discordgo.InteractionCreate, s *session.Session, messageEmbed discordgo.MessageEmbed) (reportAllowed bool, alreadyReported bool, enabled bool) {
 	var (
 		allowed   = false
 		dataFound bool
@@ -134,7 +134,7 @@ func Accept(name string, i *discordgo.InteractionCreate, s *session.Session, not
 		if reportFound {
 			if notifyDM {
 				if notifyreporter {
-					if err := s.SendDM(string(report.ReporterID), &discordgo.MessageSend{
+					if err := s.SendDM(report.ReporterID, &discordgo.MessageSend{
 						Embed: messageEmbed,
 					},
 						&discordgo.MessageSend{

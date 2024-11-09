@@ -1115,7 +1115,7 @@ func WhitelistRemoveMyAccounts(PlayerNames []database.Player, bannedPlayers []da
 	return Embed
 }
 
-func ReportPlayer(PlayerName string, reason string, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
+func ReportPlayer(PlayerName database.Player, reason string, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 	var (
 		username    = i.Member.User.String()
 		avatarURL   = i.Member.User.AvatarURL("40")
@@ -1132,7 +1132,7 @@ func ReportPlayer(PlayerName string, reason string, i *discordgo.InteractionCrea
 		Description: Description,
 		Color:       0x00FF00,
 		Author: &discordgo.MessageEmbedAuthor{
-			Name:    AuthorName,
+			Name:    string(AuthorName),
 			IconURL: AuthorIcon,
 			URL:     AuthorURL,
 		},
@@ -1182,7 +1182,7 @@ func ReportDisabled(i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 	}
 	return Embed
 }
-func AlreadyReported(PlayerName string) discordgo.MessageEmbed {
+func AlreadyReported(PlayerName database.Player) discordgo.MessageEmbed {
 	var (
 		Title      = fmt.Sprintf("The player %v is already reported", PlayerName)
 		AuthorName = PlayerName
@@ -1194,7 +1194,7 @@ func AlreadyReported(PlayerName string) discordgo.MessageEmbed {
 		Title: Title,
 		Color: 0xFF0000,
 		Author: &discordgo.MessageEmbedAuthor{
-			Name:    AuthorName,
+			Name:    string(AuthorName),
 			IconURL: AuthorIcon,
 			URL:     AuthorURL,
 		},
