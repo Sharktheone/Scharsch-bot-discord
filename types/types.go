@@ -19,19 +19,19 @@ type WebsocketEvent struct {
 }
 
 type WebsocketEventData struct {
-	Players            []string `json:"players,omitempty"`
-	Player             string   `json:"player,omitempty"`
-	UUID               string   `json:"uuid,omitempty"`
-	Reason             string   `json:"reason,omitempty"`
-	Command            string   `json:"command,omitempty"`
-	Message            string   `json:"message,omitempty"`
-	DeathMessage       string   `json:"death_message,omitempty"`
-	MessageIsComponent bool     `json:"message_is_component,omitempty"`
-	Advancement        string   `json:"advancement,omitempty"`
-	Password           string   `json:"password,omitempty"`
-	User               string   `json:"user,omitempty"`
-	Error              string   `json:"error,omitempty"`
-	Server             string   `json:"server,omitempty"`
+	Players            []database.Player `json:"players,omitempty"`
+	Player             database.Player   `json:"player,omitempty"`
+	UUID               string            `json:"uuid,omitempty"`
+	Reason             string            `json:"reason,omitempty"`
+	Command            string            `json:"command,omitempty"`
+	Message            string            `json:"message,omitempty"`
+	DeathMessage       string            `json:"death_message,omitempty"`
+	MessageIsComponent bool              `json:"message_is_component,omitempty"`
+	Advancement        string            `json:"advancement,omitempty"`
+	Password           string            `json:"password,omitempty"`
+	User               string            `json:"user,omitempty"`
+	Error              string            `json:"error,omitempty"`
+	Server             string            `json:"server,omitempty"`
 }
 
 type Member struct {
