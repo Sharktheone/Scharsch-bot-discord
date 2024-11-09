@@ -185,12 +185,18 @@ func BanUserID(member *types.Member, banID database.UserID, banAccounts bool, re
 	database.DB.BanUser(banID, reason)
 
 	if banAccounts {
-		for _, account := range listedAccounts {
-			database.DB.UnWhitelistPlayer(account)
+		banMember, err := types.MemberFromID(banID, s)
+		if err != nil {
+			log.Printf("Error while getting member: %v", err)
+		} else {
+			for _, account := range listedAccounts {
+				database.DB.UnWhitelistPlayer(account)
 
-			whitelist.Provider.BanPlayer(banID, account, reason)
+				whitelist.Provider.BanPlayer(account, banMember, reason)
 
+			}
 		}
+
 	}
 
 	database.DB.BanUser(banID, reason)
@@ -231,7 +237,12 @@ func BanAccount(member *types.Member, account database.Player, reason string, s 
 				log.Printf("Failed to send DM to %v: %v", owner.ID, err)
 			}
 
-			whitelist.Provider.BanPlayer(owner.ID, account, reason)
+			banMember, err := types.MemberFromID(owner.ID, s)
+			if err != nil {
+				log.Printf("Error while getting member: %v", err)
+			} else {
+				whitelist.Provider.BanPlayer(account, banMember, reason)
+			}
 		}
 	} else {
 		return false, nil
