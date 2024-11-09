@@ -6,6 +6,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/discord/embed/wEmbed"
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/Sharktheone/ScharschBot/reports"
+	"github.com/Sharktheone/ScharschBot/types"
 	"github.com/Sharktheone/ScharschBot/whitelist/whitelist"
 	"github.com/bwmarrin/discordgo"
 	"log"
@@ -22,11 +23,14 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 	for _, opt := range options[0].Options {
 		optionMap[opt.Name] = opt
 	}
+
+	member := types.MemberFromDG(i.Member)
+
 	switch options[0].Name {
 	case "whois":
 		name := strings.ToLower(optionMap["name"].StringValue())
 		var messageEmbed discordgo.MessageEmbed
-		playerID, allowed, found := whitelist.Whois(name, i.Member.User.ID, i.Member.Roles)
+		playerID, allowed, found := whitelist.Whois(database.Player(name), member)
 		if allowed {
 			if found {
 				messageEmbed = wEmbed.WhitelistIsListedBy(name, playerID, i, s)
@@ -50,15 +54,15 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 		}
 	case "user":
 		user := optionMap["user"].UserValue(s.Session)
-		playerID := user.ID
+		playerID := database.UserID(user.ID)
 		var messageEmbed discordgo.MessageEmbed
 
-		accounts, allowed, found, bannedPlayers := whitelist.HasListed(playerID, i.Member.User.ID, i.Member.Roles, false)
+		accounts, allowed, found, bannedPlayers := whitelist.HasListed(playerID, member, false)
 		if allowed {
 			if found || len(bannedPlayers) > 0 {
 				messageEmbed = wEmbed.WhitelistHasListed(accounts, playerID, bannedPlayers, i, s)
 			} else {
-				messageEmbed = wEmbed.WhitelistNoAccounts(i, playerID)
+				messageEmbed = wEmbed.WhitelistNoAccounts(i, string(playerID))
 			}
 		} else {
 			messageEmbed = wEmbed.WhitelistUserNotAllowed(accounts, playerID, bannedPlayers, i)
@@ -81,14 +85,14 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 		if optionMap["reason"] != nil {
 			reason = optionMap["reason"].StringValue()
 		}
-		playerID := user.ID
+		playerID := database.UserID(user.ID)
 		banAccounts := true
 		if optionMap["removeaccounts"] != nil {
 			banAccounts = optionMap["removeaccounts"].BoolValue()
 		}
 		var messageEmbed discordgo.MessageEmbed
 
-		allowed, alreadyBanned := whitelist.BanUserID(i.Member.User.ID, i.Member.Roles, playerID, banAccounts, reason, s)
+		allowed, alreadyBanned := whitelist.BanUserID(member, playerID, banAccounts, reason, s)
 		if allowed {
 			if alreadyBanned {
 				messageEmbed = wEmbed.AlreadyBanned(user.Username)
@@ -111,16 +115,16 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 			log.Printf("Failed execute command whitelistbanuserid: %v", err)
 		}
 	case "banaccount":
-		name := strings.ToLower(optionMap["name"].StringValue())
+		name := database.Player(strings.ToLower(optionMap["name"].StringValue()))
 		var reason = "No reason provided"
 		if optionMap["reason"] != nil {
 			reason = optionMap["reason"].StringValue()
 		}
 		var messageEmbed discordgo.MessageEmbed
 
-		allowed, owner := whitelist.BanAccount(i.Member.User.ID, i.Member.Roles, name, reason, s)
+		allowed, owner := whitelist.BanAccount(member, name, reason, s)
 		if allowed && owner != nil {
-			messageEmbed = wEmbed.WhitelistBanAccount(name, string(owner.ID), reason, i, s)
+			messageEmbed = wEmbed.WhitelistBanAccount(name, owner.ID, reason, i, s)
 		} else {
 			messageEmbed = wEmbed.WhitelistBanAccountNotAllowed(name, i)
 		}
@@ -138,14 +142,14 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 		}
 	case "unbanuser":
 		user := optionMap["user"].UserValue(s.Session)
-		playerID := user.ID
+		playerID := database.UserID(user.ID)
 		unbanAccounts := false
 		if optionMap["unbanaccounts"] != nil {
 			unbanAccounts = optionMap["unbanaccounts"].BoolValue()
 		}
 		var messageEmbed discordgo.MessageEmbed
 
-		allowed := whitelist.UnBanUserID(i.Member.User.ID, i.Member.Roles, playerID, unbanAccounts, s)
+		allowed := whitelist.UnBanUserID(member, playerID, unbanAccounts, s)
 		if allowed {
 			messageEmbed = wEmbed.WhitelistUnBanUserID(playerID, i, s)
 		} else {
@@ -164,9 +168,9 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 			log.Printf("Failed execute command whitelistunbanuserid: %v", err)
 		}
 	case "unbanaccount":
-		name := strings.ToLower(optionMap["name"].StringValue())
+		name := database.Player(strings.ToLower(optionMap["name"].StringValue()))
 		var messageEmbed discordgo.MessageEmbed
-		allowed := whitelist.UnBanAccount(i.Member.User.ID, i.Member.Roles, name, s)
+		allowed := whitelist.UnBanAccount(member, name, s)
 		if allowed {
 			messageEmbed = wEmbed.WhitelistUnBanAccount(name, i, s)
 		} else {
@@ -189,7 +193,7 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 			messageEmbed discordgo.MessageEmbed
 			err          error
 		)
-		allowed := whitelist.RemoveAllAllowed(i.Member.Roles)
+		allowed := whitelist.RemoveAllAllowed(member)
 		if allowed {
 			var button discordgo.Button
 			messageEmbed, button = wEmbed.WhitelistRemoveAllSure(i)
@@ -231,7 +235,7 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 			enabled      = config.Whitelist.Report.Enabled
 		)
 		if config.Whitelist.Report.Enabled {
-			for _, role := range i.Member.Roles {
+			for _, role := range member.Roles {
 				for _, requiredRole := range config.Discord.WhitelistBanRoleID { // TODO: Add Report Admin Role
 					if role == requiredRole {
 						allowed = true

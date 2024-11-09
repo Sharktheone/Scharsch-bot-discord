@@ -541,7 +541,7 @@ func WhitelistNoAccounts(i *discordgo.InteractionCreate, playerID string) discor
 	return Embed
 }
 
-func WhitelistUserNotAllowed(Players []database.Player, playerID string, bannedPlayers []database.Player, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
+func WhitelistUserNotAllowed(Players []database.Player, playerID database.UserID, bannedPlayers []database.Player, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 	var (
 		username    = i.Member.User.String()
 		avatarURL   = i.Member.User.AvatarURL("40")
@@ -748,7 +748,7 @@ func WhitelistBanUserID(playerID database.UserID, reason string, i *discordgo.In
 	return Embed
 }
 
-func WhitelistBanAccount(PlayerName string, playerID database.UserID, reason string, i *discordgo.InteractionCreate, s *session.Session) discordgo.MessageEmbed {
+func WhitelistBanAccount(PlayerName database.Player, playerID database.UserID, reason string, i *discordgo.InteractionCreate, s *session.Session) discordgo.MessageEmbed {
 	var (
 		byMember, err = types.MemberFromID(playerID, s)
 		username      = i.Member.User.String()
@@ -806,7 +806,7 @@ func WhitelistBanAccount(PlayerName string, playerID database.UserID, reason str
 			Title: Title,
 			Color: 0x00FF00,
 			Author: &discordgo.MessageEmbedAuthor{
-				Name:    PlayerName,
+				Name:    string(PlayerName),
 				IconURL: AuthorIconUrl,
 				URL:     AuthorUrl,
 			},
@@ -821,7 +821,7 @@ func WhitelistBanAccount(PlayerName string, playerID database.UserID, reason str
 			Title: Title,
 			Color: 0x00FF00,
 			Author: &discordgo.MessageEmbedAuthor{
-				Name:    PlayerName,
+				Name:    string(PlayerName),
 				IconURL: AuthorIconUrl,
 				URL:     AuthorUrl,
 			},
@@ -937,7 +937,7 @@ func WhitelistUnBanAccount(playerName database.Player, i *discordgo.InteractionC
 	return Embed
 }
 
-func WhitelistBanAccountNotAllowed(mcName string, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
+func WhitelistBanAccountNotAllowed(mcName database.Player, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 	var (
 		member        = types.MemberFromDG(i.Member)
 		username      = i.Member.User.String()
@@ -978,7 +978,7 @@ func WhitelistBanAccountNotAllowed(mcName string, i *discordgo.InteractionCreate
 	return Embed
 }
 
-func WhitelistBanUserIDNotAllowed(playerID string, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
+func WhitelistBanUserIDNotAllowed(playerID database.UserID, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 	var (
 		member        = types.MemberFromDG(i.Member)
 		username      = i.Member.User.String()
