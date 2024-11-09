@@ -16,7 +16,7 @@ var (
 	Session *session.Session
 )
 
-func init() {
+func Connect() {
 	var BotToken = flags.StringWithFallback("token", &config.Discord.Token)
 	s, err := discordgo.New("Bot " + *BotToken)
 	if err != nil {

@@ -19,6 +19,10 @@ var config = conf.Config
 
 func main() {
 	log.Println("Starting ScharschBot")
+
+	conf.LoadConf()
+	bot.Connect()
+
 	//pprof.Start()
 	dbprovider.Connect()
 	log.Println("Connected to MongoDB")

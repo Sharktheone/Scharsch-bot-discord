@@ -16,11 +16,7 @@ var (
 	Config   *Format
 )
 
-func init() {
-	loadConf()
-}
-
-func loadConf() {
+func LoadConf() {
 	ymlConf, err := os.ReadFile(*confPath)
 	if err != nil {
 		if os.IsNotExist(err) {
