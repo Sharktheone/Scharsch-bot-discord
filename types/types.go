@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/Sharktheone/ScharschBot/database"
+	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -50,4 +51,14 @@ func MemberFromDG(dgMember *discordgo.Member) *Member {
 		Username: dgMember.User.Username,
 		Roles:    roles,
 	}
+}
+
+func MemberFromID(id database.UserID, s *session.Session) (*Member, error) {
+	member, err := s.GuildMember(s.Guild, string(id))
+	if err != nil {
+		return nil, err
+	}
+
+	return MemberFromDG(member), nil
+
 }

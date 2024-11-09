@@ -22,7 +22,7 @@ func Connect() {
 	if err != nil {
 		log.Fatal("Invalid Bot Configuration:", err)
 	}
-	Session = &session.Session{Session: s}
+	Session = &session.Session{Session: s, Guild: *GuildID}
 
 	if err := Session.Open(); err != nil {
 		log.Fatal("Cannot open connection to discord:", err)
@@ -36,14 +36,14 @@ func Registration() {
 		switch i.Type {
 		case discordgo.InteractionApplicationCommand:
 			if h, ok := interactions.Handlers[i.ApplicationCommandData().Name]; ok {
-				h(&session.Session{Session: s}, i)
+				h(&session.Session{Session: s, Guild: *GuildID}, i)
 			} else {
 				log.Printf("No handler for %v", i.ApplicationCommandData().Name)
 			}
 
 		case discordgo.InteractionMessageComponent:
 			if h, ok := interactions.Handlers[i.MessageComponentData().CustomID]; ok {
-				h(&session.Session{Session: s}, i)
+				h(&session.Session{Session: s, Guild: *GuildID}, i)
 			} else {
 				log.Printf("No handler for %v", i.MessageComponentData().CustomID)
 			}

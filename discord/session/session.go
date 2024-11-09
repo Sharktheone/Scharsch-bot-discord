@@ -14,6 +14,7 @@ var (
 
 type Session struct {
 	*discordgo.Session
+	Guild string
 }
 
 func (s *Session) GetUserProfile(userID string) (*discordgo.Member, error) {
