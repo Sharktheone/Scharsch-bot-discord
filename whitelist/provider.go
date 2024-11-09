@@ -118,6 +118,10 @@ func (p *DefaultProvider) RemoveAccounts(user database.UserID) *[]database.Playe
 	return &players
 }
 
+func (p *DefaultProvider) RemoveAccount(player database.Player) {
+	database.DB.UnWhitelistPlayer(player)
+}
+
 func getWhitelistCommand(member *types.Member, serverID server.ServerID) string {
 	command := AddCommand
 

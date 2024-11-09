@@ -16,6 +16,7 @@ type WhitelistProvider interface {
 	UnBanPlayer(player database.Player)
 	UnBanPlayerFrom(user database.UserID, player database.Player)
 	RemoveAccounts(user database.UserID) *[]database.Player
+	RemoveAccount(player database.Player)
 }
 
 var Provider WhitelistProvider = GetDefaultProvider()
