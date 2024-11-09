@@ -1319,7 +1319,7 @@ func ReportAction(name string, action string, notifyreporter bool) discordgo.Mes
 	return Embed
 }
 
-func ReportUserAction(name string, dmFailed bool, userID string, s *session.Session, action string) discordgo.MessageEmbed {
+func ReportUserAction(name string, dmFailed bool, userID database.UserID, s *session.Session, action string) discordgo.MessageEmbed {
 	var (
 		avatarURL   = fmt.Sprintf("https://mc-heads.net/avatar/%v.png", name)
 		AuthorURL   = fmt.Sprintf("https://namemc.com/profile/%v", name)

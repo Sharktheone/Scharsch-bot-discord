@@ -278,8 +278,8 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 		}
 
 		report, _ := database.DB.GetReportedPlayer(database.Player(name))
-		reportMessageEmbed := wEmbed.ReportUserAction(name, false, string(report.ReporterID), s, "rejected")
-		reportMessageEmbedDMFailed := wEmbed.ReportUserAction(name, true, string(report.ReporterID), s, "rejected")
+		reportMessageEmbed := wEmbed.ReportUserAction(name, false, report.ReporterID, s, "rejected")
+		reportMessageEmbedDMFailed := wEmbed.ReportUserAction(name, true, report.ReporterID, s, "rejected")
 
 		allowed, enabled := reports.Reject(name, i, s, notifyreporter, &reportMessageEmbed, &reportMessageEmbedDMFailed)
 		if allowed {
@@ -317,8 +317,8 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 		}
 
 		report, _ := database.DB.GetReportedPlayer(database.Player(name))
-		reportMessageEmbed := wEmbed.ReportUserAction(name, false, string(report.ReporterID), s, "accepted")
-		reportMessageEmbedDMFailed := wEmbed.ReportUserAction(name, true, string(report.ReporterID), s, "accepted")
+		reportMessageEmbed := wEmbed.ReportUserAction(name, false, report.ReporterID, s, "accepted")
+		reportMessageEmbedDMFailed := wEmbed.ReportUserAction(name, true, report.ReporterID, s, "accepted")
 
 		allowed, enabled := reports.Accept(name, i, s, notifyreporter, &reportMessageEmbed, &reportMessageEmbedDMFailed)
 		if allowed {

@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"fmt"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/discord/bot"
 	"github.com/Sharktheone/ScharschBot/srv/playersrv"
 	"github.com/Sharktheone/ScharschBot/types"
@@ -37,14 +38,14 @@ func (h *Handler) DecodePlayer(e *types.WebsocketEvent) (*PSRVEvent, error) {
 			a := member.User.AvatarURL("40")
 			u := member.User.String()
 			pSrv.footerIcon = &a
-			pSrv.username = &u
+			pSrv.username = (*database.Player)(&u)
 			pSrv.member = member
 		}
 	} else {
 		pSrv.onWhitelist = &owner.Whitelisted
 		pSrv.footerIcon = &config.Discord.EmbedErrorIcon
 	}
-	playersrv.CheckAccount(strings.ToLower(e.Data.Player))
+	playersrv.CheckAccount(database.Player(strings.ToLower(string(e.Data.Player))))
 
 	return pSrv, errMsg
 }

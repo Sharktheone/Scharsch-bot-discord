@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/fasthttp/websocket"
 	"sync"
 )
@@ -64,7 +65,7 @@ type listenerCtx struct {
 
 type Server struct {
 	OnlinePlayers struct {
-		Players []*string
+		Players []*database.Player
 		Mu      sync.Mutex
 	}
 	Config    *conf.Server

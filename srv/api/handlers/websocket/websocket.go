@@ -74,7 +74,7 @@ type PSRVEvent struct {
 	userID      *database.UserID
 	onWhitelist *bool
 	footerIcon  *string
-	username    *string
+	username    *database.Player
 	member      *discordgo.Member
 	session     *session.Session
 }

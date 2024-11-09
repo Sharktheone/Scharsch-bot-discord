@@ -147,7 +147,6 @@ func Accept(name string, i *discordgo.InteractionCreate, s *session.Session, not
 				}
 			} else {
 				if notifyreporter {
-
 					for _, channelID := range config.Whitelist.Report.ChannelID {
 						_, err := s.ChannelMessageSendEmbed(channelID, messageEmbed)
 						if err != nil {

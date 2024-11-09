@@ -200,9 +200,9 @@ func BanUserID(member *types.Member, banID database.UserID, banAccounts bool, re
 	}
 
 	database.DB.BanUser(banID, reason)
-	messageEmbedDM := banEmbed.DMBan(false, string(banID), reason, s)
-	messageEmbedDMFailed := banEmbed.DMBan(true, string(banID), reason, s)
-	if err := s.SendDM(string(banID), &discordgo.MessageSend{
+	messageEmbedDM := banEmbed.DMBan(false, banID, reason, s)
+	messageEmbedDMFailed := banEmbed.DMBan(true, banID, reason, s)
+	if err := s.SendDM(banID, &discordgo.MessageSend{
 		Embed: &messageEmbedDM,
 	}, &discordgo.MessageSend{
 		Content: fmt.Sprintf("<@%v>", banID),
@@ -225,9 +225,9 @@ func BanAccount(member *types.Member, account database.Player, reason string, s 
 
 		if !alreadyBanned {
 			log.Printf("%v is banning %v", owner.ID, account)
-			messageEmbedDM := banEmbed.DMBanAccount(string(account), false, string(owner.ID), reason, s)
-			messageEmbedDMFailed := banEmbed.DMBanAccount(string(account), true, string(owner.ID), reason, s)
-			if err := s.SendDM(string(owner.ID), &discordgo.MessageSend{
+			messageEmbedDM := banEmbed.DMBanAccount(string(account), false, owner.ID, reason, s)
+			messageEmbedDMFailed := banEmbed.DMBanAccount(string(account), true, owner.ID, reason, s)
+			if err := s.SendDM(owner.ID, &discordgo.MessageSend{
 				Embed: &messageEmbedDM,
 			}, &discordgo.MessageSend{
 				Content: fmt.Sprintf("<@%v>", owner.ID),
@@ -267,9 +267,9 @@ func UnBanUserID(member *types.Member, banID database.UserID, unbanAccounts bool
 			database.DB.UnBanPlayerFrom(banID, entry.Player)
 
 		}
-		messageEmbedDM := banEmbed.DMUnBan(false, string(banID), s)
-		messageEmbedDMFailed := banEmbed.DMUnBan(true, string(banID), s)
-		if err := s.SendDM(string(banID), &discordgo.MessageSend{
+		messageEmbedDM := banEmbed.DMUnBan(false, banID, s)
+		messageEmbedDMFailed := banEmbed.DMUnBan(true, banID, s)
+		if err := s.SendDM(banID, &discordgo.MessageSend{
 			Embed: &messageEmbedDM,
 		}, &discordgo.MessageSend{
 			Content: fmt.Sprintf("<@%v>", banID),
@@ -290,9 +290,9 @@ func UnBanAccount(member *types.Member, account database.Player, s *session.Sess
 
 	log.Printf("%v is unbanning %v", member.ID, account)
 	database.DB.UnBanPlayer(account)
-	messageEmbedDM := banEmbed.DMUnBanAccount(string(account), false, string(member.ID), s)
-	messageEmbedDMFailed := banEmbed.DMUnBanAccount(string(account), true, string(member.ID), s)
-	if err := s.SendDM(string(member.ID), &discordgo.MessageSend{
+	messageEmbedDM := banEmbed.DMUnBanAccount(string(account), false, member.ID, s)
+	messageEmbedDMFailed := banEmbed.DMUnBanAccount(string(account), true, member.ID, s)
+	if err := s.SendDM(member.ID, &discordgo.MessageSend{
 		Embed: &messageEmbedDM,
 	}, &discordgo.MessageSend{
 		Content: fmt.Sprintf("<@%v>", member.ID),
@@ -327,7 +327,7 @@ func GetOwner(Account database.Player, s *session.Session) *Player {
 	if dcUser != "" {
 		var roles []database.Role
 		if s != nil {
-			rls, err := s.GetRoles(string(dcUser))
+			rls, err := s.GetRoles(dcUser)
 			if err != nil {
 				log.Printf("Error while getting roles of %v: %v", dcUser, err)
 			}

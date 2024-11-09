@@ -3,6 +3,7 @@ package srvEmbed
 import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/Sharktheone/ScharschBot/minecraft/advancements"
 	"github.com/Sharktheone/ScharschBot/types"
@@ -16,7 +17,7 @@ var (
 	footerIcon = config.Discord.FooterIcon
 )
 
-func PlayerJoin(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL, username *string, s *session.Session) *discordgo.MessageEmbed {
+func PlayerJoin(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL *string, username *database.Player, s *session.Session) *discordgo.MessageEmbed {
 	var (
 		owner         = whitelist.GetOwner(e.Data.Player, s)
 		Title         = fmt.Sprintf("%v joined the game", e.Data.Player)
@@ -98,7 +99,7 @@ func PlayerJoin(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL,
 	}
 	return Embed
 }
-func PlayerQuit(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL, username *string, s *session.Session) *discordgo.MessageEmbed {
+func PlayerQuit(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL *string, username *database.Player, s *session.Session) *discordgo.MessageEmbed {
 	var (
 		owner         = whitelist.GetOwner(e.Data.Player, s)
 		Title         = fmt.Sprintf("%v left the game", e.Data.Player)
@@ -181,7 +182,7 @@ func PlayerQuit(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL,
 	return Embed
 }
 
-func PlayerAdvancement(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL, username *string, s *session.Session) discordgo.MessageEmbed {
+func PlayerAdvancement(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL *string, username *database.Player, s *session.Session) discordgo.MessageEmbed {
 	var (
 		PlayerName    = e.Data.Player
 		advancement   = advancements.Decode(e.Data.Advancement)
@@ -265,7 +266,7 @@ func PlayerAdvancement(e *types.WebsocketEvent, serverConf *conf.Server, footerI
 	return Embed
 }
 
-func PlayerDeath(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL, username *string, s *session.Session) *discordgo.MessageEmbed {
+func PlayerDeath(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL *string, username *database.Player, s *session.Session) *discordgo.MessageEmbed {
 	var (
 		PlayerName    = e.Data.Player
 		owner         = whitelist.GetOwner(PlayerName, s)
@@ -348,7 +349,7 @@ func PlayerDeath(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL
 	return Embed
 }
 
-func Chat(eventJson *types.WebsocketEvent, serverConf *conf.Server, footerIconURL, username *string, s *session.Session) *discordgo.MessageEmbed {
+func Chat(eventJson *types.WebsocketEvent, serverConf *conf.Server, footerIconURL *string, username *database.Player, s *session.Session) *discordgo.MessageEmbed {
 	var (
 		PlayerName    = eventJson.Data.Player
 		Message       = eventJson.Data.Message

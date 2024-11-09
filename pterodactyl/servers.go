@@ -1,6 +1,9 @@
 package pterodactyl
 
-import "errors"
+import (
+	"errors"
+	"github.com/Sharktheone/ScharschBot/database"
+)
 
 var (
 	ServerNotFoundErr = errors.New("server not found")
@@ -32,9 +35,9 @@ func GetServerByName(serverName string) (*Server, error) {
 	return nil, ServerNotFoundErr
 }
 
-func GetAllPlayers() []*string {
+func GetAllPlayers() []*database.Player {
 	var (
-		players []*string
+		players []*database.Player
 	)
 	for _, server := range Servers {
 		if server.Config.SRV.Events.PlayerJoinLeft {

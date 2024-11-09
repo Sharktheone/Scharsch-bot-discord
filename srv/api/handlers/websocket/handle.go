@@ -3,6 +3,7 @@ package websocket
 import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/discord/embed/srvEmbed"
 	"github.com/Sharktheone/ScharschBot/types"
 	"strings"
@@ -46,9 +47,9 @@ func (p *PSRVEvent) processEvent() {
 
 // sendPlayers send total online players to server
 func (p *PSRVEvent) sendPlayers() {
-	var players []string
+	var players []database.Player
 	for _, player := range p.h.server.OnlinePlayers.Players {
-		players = append(players, *player)
+		players = append(players, database.Player(*player))
 	}
 
 	p.h.send <- &types.WebsocketEvent{
@@ -99,7 +100,7 @@ func (p *PSRVEvent) players() {
 	if p.h.server.Config.SRV.Events.PlayerJoinLeft {
 		p.h.server.OnlinePlayers.Mu.Lock()
 		defer p.h.server.OnlinePlayers.Mu.Unlock()
-		var players []*string
+		var players []*database.Player
 		for _, player := range p.e.Data.Players {
 			players = append(players, &player)
 		}
