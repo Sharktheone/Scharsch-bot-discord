@@ -30,11 +30,6 @@ const (
 )
 
 var (
-	_config   = conf.Config
-	_panelURL = _config.Pterodactyl.PanelURL
-	_apiKey   = fmt.Sprintf("Bearer %s", _config.Pterodactyl.APIKey)
-)
-var (
 	Servers []*Server
 	mu      sync.RWMutex
 )

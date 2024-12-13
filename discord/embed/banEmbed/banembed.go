@@ -9,17 +9,12 @@ import (
 	"log"
 )
 
-var (
-	config     = conf.Config
-	serverName = config.Discord.ServerName
-)
-
 func DMBan(dmFailed bool, userID database.UserID, reason string, s *session.Session) discordgo.MessageEmbed {
 	var (
 		user, err   = s.GetUserProfile(userID)
 		authorName  = user.User.String()
 		avatarURL   = user.AvatarURL("40")
-		Title       = fmt.Sprintf("You got banned on the server %v", serverName)
+		Title       = fmt.Sprintf("You got banned on the server %v", conf.Config.Discord.ServerName)
 		Description = fmt.Sprintf("You have been banned for the reason %v from the server. If you think this is a mistake, please contact a staff member directly.", reason)
 		FooterText  string
 		FooterIcon  = user.AvatarURL("40")
@@ -55,7 +50,7 @@ func DMUnBan(dmFailed bool, userID database.UserID, s *session.Session) discordg
 		user, err   = s.GetUserProfile(userID)
 		authorName  = user.User.String()
 		avatarURL   = user.AvatarURL("40")
-		Title       = fmt.Sprintf("You got Unbanned on the server %v", serverName)
+		Title       = fmt.Sprintf("You got Unbanned on the server %v", conf.Config.Discord.ServerName)
 		Description string
 		FooterText  string
 		FooterIcon  = user.AvatarURL("40")
@@ -91,7 +86,7 @@ func DMBanAccount(name string, dmFailed bool, userID database.UserID, reason str
 		user, err   = s.GetUserProfile(userID)
 		authorName  = user.User.String()
 		avatarURL   = user.AvatarURL("40")
-		Title       = fmt.Sprintf("Your account %v got banned on the server %v", name, serverName)
+		Title       = fmt.Sprintf("Your account %v got banned on the server %v", name, conf.Config.Discord.ServerName)
 		Description = fmt.Sprintf("The Account has been banned for the reason %v from the server. If you think this is a mistake, please contact a staff member directly.", reason)
 		FooterText  string
 		FooterIcon  = user.AvatarURL("40")
@@ -140,7 +135,7 @@ func DMUnBanAccount(name string, dmFailed bool, userID database.UserID, s *sessi
 		FooterIcon = user.AvatarURL("40")
 	}
 	var (
-		Title       = fmt.Sprintf("Your account %v got Unbanned on the server %v", name, serverName)
+		Title       = fmt.Sprintf("Your account %v got Unbanned on the server %v", name, conf.Config.Discord.ServerName)
 		Description string
 		FooterText  string
 	)

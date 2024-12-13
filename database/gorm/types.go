@@ -8,10 +8,6 @@ import (
 	"github.com/Sharktheone/ScharschBot/database"
 )
 
-var (
-	config = conf.Config.Whitelist.Database
-)
-
 type WhitelistEntry struct {
 	ID     uint            `json:"-" bson:"-" gorm:"primaryKey"`
 	UserID database.UserID `json:"userID" bson:"userID" gorm:"userID"`
@@ -19,7 +15,7 @@ type WhitelistEntry struct {
 }
 
 func (m *WhitelistEntry) TableName() string {
-	return config.WhitelistTable
+	return conf.Config.Whitelist.Database.WhitelistTable
 }
 
 type BanEntry struct {
@@ -31,7 +27,7 @@ type BanEntry struct {
 }
 
 func (m *BanEntry) TableName() string {
-	return config.BanTable
+	return conf.Config.Whitelist.Database.BanTable
 }
 
 type ReWhitelistEntry struct {
@@ -42,7 +38,7 @@ type ReWhitelistEntry struct {
 }
 
 func (m *ReWhitelistEntry) TableName() string {
-	return config.ReWhitelistTable
+	return conf.Config.Whitelist.Database.ReWhitelistTable
 }
 
 type ReportEntry struct {
@@ -53,7 +49,7 @@ type ReportEntry struct {
 }
 
 func (m *ReportEntry) TableName() string {
-	return config.ReportTable
+	return conf.Config.Whitelist.Database.ReportTable
 }
 
 type WaitlistEntry struct {
@@ -63,7 +59,7 @@ type WaitlistEntry struct {
 }
 
 func (m *WaitlistEntry) TableName() string {
-	return config.WaitListTable
+	return conf.Config.Whitelist.Database.WaitListTable
 }
 
 type PlayerList []database.Player

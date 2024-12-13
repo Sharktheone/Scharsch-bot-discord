@@ -11,12 +11,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var (
-	config     = conf.Config
-	bansToMax  = config.Whitelist.BannedUsersToMaxAccounts
-	footerIcon = config.Discord.FooterIcon
-)
-
 func PlayerJoin(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL *string, username *database.Player, s *session.Session) *discordgo.MessageEmbed {
 	var (
 		owner         = whitelist.GetOwner(e.Data.Player, s)
@@ -28,7 +22,7 @@ func PlayerJoin(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL 
 	)
 	if serverConf.SRV.Footer {
 		if owner.Whitelisted {
-			if !bansToMax {
+			if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 				FooterText = fmt.Sprintf("%v • The owner has whitelisted %v accounts (max %v)", username, len(owner.Players), owner.MaxAccounts)
 			} else {
 				FooterText = fmt.Sprintf("%v • The owner has whitelisted %v accounts and %v are banned (max %v)", username, len(owner.Players), len(owner.BannedPlayers), owner.MaxAccounts)
@@ -36,7 +30,7 @@ func PlayerJoin(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL 
 		} else {
 			FooterText = fmt.Sprintf("%v is not whitelisted", e.Data.Player)
 		}
-		if footerIcon {
+		if conf.Config.Discord.FooterIcon {
 			Footer = &discordgo.MessageEmbedFooter{
 				Text:    FooterText,
 				IconURL: *footerIconURL,
@@ -110,7 +104,7 @@ func PlayerQuit(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL 
 	)
 	if serverConf.SRV.Footer {
 		if owner.Whitelisted {
-			if !bansToMax {
+			if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 				FooterText = fmt.Sprintf("%v • The owner has whitelisted %v accounts (max %v)", username, len(owner.Players), owner.MaxAccounts)
 			} else {
 				FooterText = fmt.Sprintf("%v • The owner has whitelisted %v accounts and %v are banned (max %v)", username, len(owner.Players), len(owner.BannedPlayers), owner.MaxAccounts)
@@ -118,7 +112,7 @@ func PlayerQuit(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL 
 		} else {
 			FooterText = fmt.Sprintf("%v is not whitelisted", e.Data.Player)
 		}
-		if footerIcon {
+		if conf.Config.Discord.FooterIcon {
 			Footer = &discordgo.MessageEmbedFooter{
 				Text:    FooterText,
 				IconURL: *footerIconURL,
@@ -195,7 +189,7 @@ func PlayerAdvancement(e *types.WebsocketEvent, serverConf *conf.Server, footerI
 	)
 	if serverConf.SRV.Footer {
 		if owner.Whitelisted {
-			if !bansToMax {
+			if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 				FooterText = fmt.Sprintf("%v • The owner has whitelisted %v accounts (max %v)", username, len(owner.Players), owner.MaxAccounts)
 			} else {
 				FooterText = fmt.Sprintf("%v • The owner has whitelisted %v accounts and %v are banned (max %v)", username, len(owner.Players), len(owner.BannedPlayers), owner.MaxAccounts)
@@ -203,7 +197,7 @@ func PlayerAdvancement(e *types.WebsocketEvent, serverConf *conf.Server, footerI
 		} else {
 			FooterText = fmt.Sprintf("%v is not whitelisted", PlayerName)
 		}
-		if footerIcon {
+		if conf.Config.Discord.FooterIcon {
 			Footer = &discordgo.MessageEmbedFooter{
 				Text:    FooterText,
 				IconURL: *footerIconURL,
@@ -278,7 +272,7 @@ func PlayerDeath(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL
 	)
 	if serverConf.SRV.Footer {
 		if owner.Whitelisted {
-			if !bansToMax {
+			if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 				FooterText = fmt.Sprintf("%v • The owner has whitelisted %v accounts (max %v)", username, len(owner.Players), owner.MaxAccounts)
 			} else {
 				FooterText = fmt.Sprintf("%v • The owner has whitelisted %v accounts and %v are banned (max %v)", username, len(owner.Players), len(owner.BannedPlayers), owner.MaxAccounts)
@@ -286,7 +280,7 @@ func PlayerDeath(e *types.WebsocketEvent, serverConf *conf.Server, footerIconURL
 		} else {
 			FooterText = fmt.Sprintf("%v is not whitelisted", PlayerName)
 		}
-		if footerIcon {
+		if conf.Config.Discord.FooterIcon {
 			Footer = &discordgo.MessageEmbedFooter{
 				Text:    FooterText,
 				IconURL: *footerIconURL,
@@ -361,7 +355,7 @@ func Chat(eventJson *types.WebsocketEvent, serverConf *conf.Server, footerIconUR
 	)
 	if serverConf.SRV.Footer {
 		if owner.Whitelisted {
-			if !bansToMax {
+			if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 				FooterText = fmt.Sprintf("%v • The owner has whitelisted %v accounts (max %v)", username, len(owner.Players), owner.MaxAccounts)
 			} else {
 				FooterText = fmt.Sprintf("%v • The owner has whitelisted %v accounts and %v are banned (max %v)", username, len(owner.Players), len(owner.BannedPlayers), owner.MaxAccounts)
@@ -369,7 +363,7 @@ func Chat(eventJson *types.WebsocketEvent, serverConf *conf.Server, footerIconUR
 		} else {
 			FooterText = fmt.Sprintf("%v is not whitelisted", PlayerName)
 		}
-		if footerIcon {
+		if conf.Config.Discord.FooterIcon {
 			Footer = &discordgo.MessageEmbedFooter{
 				Text:    FooterText,
 				IconURL: *footerIconURL,

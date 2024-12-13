@@ -8,17 +8,13 @@ import (
 	"log"
 )
 
-var (
-	config = conf.Config
-)
-
 type Session struct {
 	*discordgo.Session
 	Guild string
 }
 
 func (s *Session) GetUserProfile(userID database.UserID) (*discordgo.Member, error) {
-	if user, err := s.GuildMember(config.Discord.ServerID, string(userID)); err != nil {
+	if user, err := s.GuildMember(conf.Config.Discord.ServerID, string(userID)); err != nil {
 		return &discordgo.Member{}, fmt.Errorf("failed to get user profile: %v", err)
 	} else {
 		return user, nil
@@ -26,7 +22,7 @@ func (s *Session) GetUserProfile(userID database.UserID) (*discordgo.Member, err
 }
 
 func (s *Session) GetRoles(userID database.UserID) ([]string, error) {
-	if user, err := s.GuildMember(config.Discord.ServerID, string(userID)); err != nil {
+	if user, err := s.GuildMember(conf.Config.Discord.ServerID, string(userID)); err != nil {
 		return nil, err
 	} else {
 		return user.Roles, nil
@@ -42,7 +38,7 @@ func (s *Session) SendDM(userID database.UserID, messageComplexDM *discordgo.Mes
 	_, err = s.ChannelMessageSendComplex(channel.ID, messageComplexDM)
 	if err != nil {
 		log.Printf("Failed to send DM: %v, sending Message in normal Channels", err)
-		for _, channelID := range config.Whitelist.Report.ChannelID {
+		for _, channelID := range conf.Config.Whitelist.Report.ChannelID {
 			_, err = s.ChannelMessageSendComplex(channelID, messageComplexDMFailed)
 			if err != nil {
 				return fmt.Errorf("failed to send message in dm alternative channel on server: %v", err)

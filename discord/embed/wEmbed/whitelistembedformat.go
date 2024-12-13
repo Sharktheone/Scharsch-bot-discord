@@ -13,12 +13,7 @@ import (
 )
 
 var (
-	config       = conf.Config
-	ErrorIcon    = config.Discord.EmbedErrorIcon
-	ErrorURL     = config.Discord.EmbedErrorAuthorURL
 	BotAvatarURL string
-	bansToMax    = config.Whitelist.BannedUsersToMaxAccounts
-	footerIcon   = config.Discord.FooterIcon
 )
 
 func WhitelistAdding(PlayerName string, i *discordgo.InteractionCreate) discordgo.MessageEmbed {
@@ -36,12 +31,12 @@ func WhitelistAdding(PlayerName string, i *discordgo.InteractionCreate) discordg
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
 
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -80,12 +75,12 @@ func WhitelistAlreadyListed(PlayerName string, i *discordgo.InteractionCreate) d
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
 
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -122,12 +117,12 @@ func WhitelistNotExisting(PlayerName string, i *discordgo.InteractionCreate) dis
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
 
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -143,8 +138,8 @@ func WhitelistNotExisting(PlayerName string, i *discordgo.InteractionCreate) dis
 		Color: 0xFF0000,
 		Author: &discordgo.MessageEmbedAuthor{
 			Name:    PlayerName,
-			IconURL: ErrorIcon,
-			URL:     ErrorURL,
+			IconURL: conf.Config.Discord.EmbedErrorIcon,
+			URL:     conf.Config.Discord.EmbedErrorAuthorURL,
 		},
 		Footer: Footer,
 	}
@@ -165,12 +160,12 @@ func WhitelistNoFreeAccounts(PlayerName string, i *discordgo.InteractionCreate) 
 		Players       = whitelist.ListedAccountsOf(member.ID, true)
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -208,12 +203,12 @@ func WhitelistAddNotAllowed(PlayerName string, i *discordgo.InteractionCreate) d
 		Players       = whitelist.ListedAccountsOf(member.ID, true)
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -251,12 +246,12 @@ func WhitelistRemoving(PlayerName string, i *discordgo.InteractionCreate) discor
 		Players       = whitelist.ListedAccountsOf(member.ID, true)
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -293,12 +288,12 @@ func WhitelistRemoveNotAllowed(PlayerName string, i *discordgo.InteractionCreate
 		Players       = whitelist.ListedAccountsOf(member.ID, true)
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -337,12 +332,12 @@ func WhitelistNotListed(PlayerName string, i *discordgo.InteractionCreate) disco
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
 
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -385,12 +380,12 @@ func WhitelistIsListedBy(PlayerName string, playerID database.UserID, i *discord
 		log.Printf("Error getting roles: %v", err)
 	}
 
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v has whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v has whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -429,12 +424,12 @@ func WhitelistWhoisNotAllowed(PlayerName string, i *discordgo.InteractionCreate)
 		Players       = whitelist.ListedAccountsOf(member.ID, true)
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -491,12 +486,12 @@ func WhitelistHasListed(PlayerNames []database.Player, playerID database.UserID,
 		})
 	}
 
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v has whitelisted %v accounts (max %v)", username, len(PlayerNames), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v has whitelisted %v accounts and %v are banned (max %v)", username, len(PlayerNames), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -551,12 +546,12 @@ func WhitelistUserNotAllowed(Players []database.Player, playerID database.UserID
 		FooterText  string
 		Footer      *discordgo.MessageEmbedFooter
 	)
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -592,12 +587,12 @@ func WhitelistRemoveAllNotAllowed(i *discordgo.InteractionCreate) discordgo.Mess
 		Players       = whitelist.ListedAccountsOf(member.ID, true)
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -614,7 +609,7 @@ func WhitelistRemoveAllNotAllowed(i *discordgo.InteractionCreate) discordgo.Mess
 		Author: &discordgo.MessageEmbedAuthor{
 			Name:    username,
 			IconURL: avatarURL,
-			URL:     ErrorURL,
+			URL:     conf.Config.Discord.EmbedErrorAuthorURL,
 		},
 		Footer: Footer,
 	}
@@ -633,7 +628,7 @@ func WhitelistRemoveAllNoWhitelistEntries(i *discordgo.InteractionCreate) discor
 			Author: &discordgo.MessageEmbedAuthor{
 				Name:    username,
 				IconURL: avatarURL,
-				URL:     ErrorURL,
+				URL:     conf.Config.Discord.EmbedErrorAuthorURL,
 			},
 		}
 	)
@@ -652,7 +647,7 @@ func WhitelistRemoveAllSure(i *discordgo.InteractionCreate) (embed discordgo.Mes
 			Author: &discordgo.MessageEmbedAuthor{
 				Name:    username,
 				IconURL: avatarURL,
-				URL:     ErrorURL,
+				URL:     conf.Config.Discord.EmbedErrorAuthorURL,
 			},
 		}
 		Button = discordgo.Button{
@@ -678,7 +673,7 @@ func WhitelistRemoveAll(i *discordgo.InteractionCreate) discordgo.MessageEmbed {
 			Author: &discordgo.MessageEmbedAuthor{
 				Name:    username,
 				IconURL: avatarURL,
-				URL:     ErrorURL,
+				URL:     conf.Config.Discord.EmbedErrorAuthorURL,
 			},
 		}
 	)
@@ -703,12 +698,12 @@ func WhitelistBanUserID(playerID database.UserID, reason string, i *discordgo.In
 	}
 	var FooterText string
 
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v had whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v had whitelisted %v accounts and %v banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -778,12 +773,12 @@ func WhitelistBanAccount(PlayerName database.Player, playerID database.UserID, r
 			Name:  FieldName,
 			Value: FieldValue,
 		}
-		if !bansToMax {
+		if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 			FooterText = fmt.Sprintf("%v • He had whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 		} else {
 			FooterText = fmt.Sprintf("%v • He had whitelisted %v accounts and %v banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 		}
-		if footerIcon {
+		if conf.Config.Discord.FooterIcon {
 			Footer = &discordgo.MessageEmbedFooter{
 				Text:    FooterText,
 				IconURL: avatarURL,
@@ -851,12 +846,12 @@ func WhitelistUnBanUserID(playerID database.UserID, i *discordgo.InteractionCrea
 	if err != nil {
 		log.Printf("Error getting roles: %v", err)
 	}
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • He has whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • He has whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(Players), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -913,7 +908,7 @@ func WhitelistUnBanAccount(playerName database.Player, i *discordgo.InteractionC
 	} else {
 		FooterText = fmt.Sprintf("%v • No was not whitelisted", username)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -949,12 +944,12 @@ func WhitelistBanAccountNotAllowed(mcName database.Player, i *discordgo.Interact
 		Players       = whitelist.ListedAccountsOf(member.ID, true)
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -971,7 +966,7 @@ func WhitelistBanAccountNotAllowed(mcName database.Player, i *discordgo.Interact
 		Author: &discordgo.MessageEmbedAuthor{
 			Name:    username,
 			IconURL: avatarURL,
-			URL:     ErrorURL,
+			URL:     conf.Config.Discord.EmbedErrorAuthorURL,
 		},
 		Footer: Footer,
 	}
@@ -991,12 +986,12 @@ func WhitelistBanUserIDNotAllowed(playerID database.UserID, i *discordgo.Interac
 		Players       = whitelist.ListedAccountsOf(member.ID, true)
 		bannedPlayers = utils.CheckBans(member.ID)
 	)
-	if !bansToMax {
+	if !conf.Config.Whitelist.BannedUsersToMaxAccounts {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts (max %v)", username, len(Players), maxAccounts)
 	} else {
 		FooterText = fmt.Sprintf("%v • You have whitelisted %v accounts and %v are banned (max %v)", username, len(Players), len(bannedPlayers), maxAccounts)
 	}
-	if footerIcon {
+	if conf.Config.Discord.FooterIcon {
 		Footer = &discordgo.MessageEmbedFooter{
 			Text:    FooterText,
 			IconURL: avatarURL,
@@ -1014,7 +1009,7 @@ func WhitelistBanUserIDNotAllowed(playerID database.UserID, i *discordgo.Interac
 		Author: &discordgo.MessageEmbedAuthor{
 			Name:    username,
 			IconURL: avatarURL,
-			URL:     ErrorURL,
+			URL:     conf.Config.Discord.EmbedErrorAuthorURL,
 		},
 		Footer: Footer,
 	}
@@ -1034,7 +1029,7 @@ func WhitelistBanned(PlayerName string, IDBan bool, reason string, i *discordgo.
 	if IDBan {
 		Title = " You have no permission to whitelist accounts because you are banned from the whitelist"
 		AuthorName = username
-		AuthorURL = ErrorURL
+		AuthorURL = conf.Config.Discord.EmbedErrorAuthorURL
 		AuthorIconURL = avatarURL
 	} else {
 		Title = fmt.Sprintf("You have no permission to add %v to the whitelist beacause the account banned from the whitelist", PlayerName)

@@ -7,10 +7,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var (
-	config = conf.Config
-)
-
 func Power(action string) *discordgo.MessageEmbed {
 	var (
 		color  int
@@ -43,13 +39,13 @@ func getServerFields() []*discordgo.MessageEmbedField {
 		var StateMsg string
 		switch server.Status.State {
 		case pterodactyl.PowerStatusStarting:
-			StateMsg = config.SRV.States.Starting
+			StateMsg = conf.Config.SRV.States.Starting
 		case pterodactyl.PowerStatusStopping:
-			StateMsg = config.SRV.States.Stopping
+			StateMsg = conf.Config.SRV.States.Stopping
 		case pterodactyl.PowerStatusRunning:
-			StateMsg = config.SRV.States.Online
+			StateMsg = conf.Config.SRV.States.Online
 		case pterodactyl.PowerStatusOffline:
-			StateMsg = config.SRV.States.Offline
+			StateMsg = conf.Config.SRV.States.Offline
 		}
 		Fields = append(Fields, &discordgo.MessageEmbedField{
 			Name:  fmt.Sprintf("%v:", server.Config.ServerName),
@@ -74,7 +70,7 @@ func PowerNotAllowed(avatarURL string, name string, action string, serverName st
 		Author: &discordgo.MessageEmbedAuthor{
 			Name:    name,
 			IconURL: avatarURL,
-			URL:     config.Discord.EmbedErrorAuthorURL,
+			URL:     conf.Config.Discord.EmbedErrorAuthorURL,
 		},
 	}
 	return Embed

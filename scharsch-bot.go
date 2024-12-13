@@ -13,8 +13,6 @@ import (
 	"os/signal"
 )
 
-var config = conf.Config
-
 //TODO: Waitlist for whitelist, when server is offline
 
 func main() {
@@ -28,7 +26,7 @@ func main() {
 	log.Println("Connected to MongoDB")
 	dcBot := bot.Session
 	bot.Registration()
-	if config.Whitelist.Enabled {
+	if conf.Config.Whitelist.Enabled {
 		checkroles.CheckRoles()
 		rolesCron := cron.New()
 		err := rolesCron.AddFunc("0 */10 * * * *", checkroles.CheckRoles)

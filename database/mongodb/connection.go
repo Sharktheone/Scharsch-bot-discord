@@ -14,16 +14,6 @@ import (
 	"time"
 )
 
-var (
-	config                = conf.Config
-	whitelistCollection   = config.Whitelist.Database.WhitelistTable
-	banCollection         = config.Whitelist.Database.BanTable
-	reWhitelistCollection = config.Whitelist.Database.ReWhitelistTable
-	reportCollection      = config.Whitelist.Database.ReportTable
-	waitlistCollection    = config.Whitelist.Database.WaitListTable
-	rolesCollection       = config.Whitelist.Database.RolesTable
-)
-
 type MongoConnection struct {
 	Ctx       context.Context
 	db        *mongo.Database
@@ -33,10 +23,10 @@ type MongoConnection struct {
 func (m *MongoConnection) Connect() {
 	uri := fmt.Sprintf(
 		"mongodb://%v:%v@%v:%v",
-		url.QueryEscape(config.Whitelist.Database.User),
-		url.QueryEscape(config.Whitelist.Database.Pass),
-		config.Whitelist.Database.Host,
-		config.Whitelist.Database.Port,
+		url.QueryEscape(conf.Config.Whitelist.Database.User),
+		url.QueryEscape(conf.Config.Whitelist.Database.Pass),
+		conf.Config.Whitelist.Database.Host,
+		conf.Config.Whitelist.Database.Port,
 	)
 
 	client, err := mongo.Connect(m.Ctx, options.Client().ApplyURI(uri))
@@ -51,7 +41,7 @@ func (m *MongoConnection) Connect() {
 
 	log.Println("Connected to MongoDB")
 
-	m.db = client.Database(config.Whitelist.Database.DatabaseName)
+	m.db = client.Database(conf.Config.Whitelist.Database.DatabaseName)
 	m.connected = true
 }
 
@@ -99,15 +89,15 @@ func (m *MongoConnection) WhitelistPlayer(user database.UserID, player database.
 		Player: player,
 	}
 
-	m.Write(whitelistCollection, entry)
+	m.Write(conf.Config.Whitelist.Database.WhitelistTable, entry)
 }
 
 func (m *MongoConnection) UnWhitelistAccount(user database.UserID) {
-	m.Remove(whitelistCollection, bson.M{"userID": user})
+	m.Remove(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"userID": user})
 }
 
 func (m *MongoConnection) UnWhitelistPlayer(player database.Player) {
-	m.Remove(whitelistCollection, bson.M{"player": player})
+	m.Remove(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"player": player})
 }
 
 func (m *MongoConnection) MoveToReWhitelist(user database.UserID, missingRole database.Role) {
@@ -119,13 +109,13 @@ func (m *MongoConnection) MoveToReWhitelist(user database.UserID, missingRole da
 		MissingRole: missingRole,
 	}
 
-	m.Write(reWhitelistCollection, entry)
+	m.Write(conf.Config.Whitelist.Database.ReWhitelistTable, entry)
 
-	m.Remove(whitelistCollection, bson.M{"userID": user})
+	m.Remove(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"userID": user})
 }
 
 func (m *MongoConnection) ReWhitelist(user database.UserID, roles []database.Role) {
-	cursor, err := m.Read(reWhitelistCollection, bson.M{"userID": user})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.ReWhitelistTable, bson.M{"userID": user})
 	if err != nil {
 		log.Printf("Failed to rewhitelist: %v", err)
 	}
@@ -139,21 +129,21 @@ func (m *MongoConnection) ReWhitelist(user database.UserID, roles []database.Rol
 		for _, player := range reEntry.Players {
 			m.WhitelistPlayer(user, player)
 		}
-		m.Remove(reWhitelistCollection, bson.M{"userID": user})
+		m.Remove(conf.Config.Whitelist.Database.ReWhitelistTable, bson.M{"userID": user})
 	}
 
 }
 
 func (m *MongoConnection) RemoveAll() {
-	m.Remove(whitelistCollection, bson.M{})
+	m.Remove(conf.Config.Whitelist.Database.WhitelistTable, bson.M{})
 }
 
 func (m *MongoConnection) RemoveAllFrom(user database.UserID) {
-	m.Remove(whitelistCollection, bson.M{"userID": user})
+	m.Remove(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"userID": user})
 }
 
 func (m *MongoConnection) Owner(player database.Player) database.UserID {
-	cursor, err := m.Read(whitelistCollection, bson.M{"player": player})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"player": player})
 	if err != nil {
 		log.Printf("Failed to get owner: %v", err)
 	}
@@ -167,7 +157,7 @@ func (m *MongoConnection) Owner(player database.Player) database.UserID {
 }
 
 func (m *MongoConnection) Players(user database.UserID) []database.Player {
-	cursor, err := m.Read(whitelistCollection, bson.M{"userID": user})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"userID": user})
 	if err != nil {
 		log.Printf("Failed to get players: %v", err)
 	}
@@ -200,8 +190,8 @@ func (m *MongoConnection) BanUser(user database.UserID, reason string) {
 		Players:    playerReasons,
 	}
 
-	m.Write(banCollection, entry)
-	m.Remove(whitelistCollection, bson.M{"userID": user})
+	m.Write(conf.Config.Whitelist.Database.BanTable, entry)
+	m.Remove(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"userID": user})
 }
 
 func (m *MongoConnection) BanPlayer(player database.Player, reason string) {
@@ -213,17 +203,17 @@ func (m *MongoConnection) BanPlayer(player database.Player, reason string) {
 		},
 	}
 
-	m.Write(banCollection, entry)
-	m.Remove(whitelistCollection, bson.M{"player": player})
+	m.Write(conf.Config.Whitelist.Database.BanTable, entry)
+	m.Remove(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"player": player})
 
 }
 
 func (m *MongoConnection) UnBanUser(user database.UserID) {
-	m.Remove(banCollection, bson.M{"userID": user})
+	m.Remove(conf.Config.Whitelist.Database.BanTable, bson.M{"userID": user})
 }
 
 func (m *MongoConnection) UnBanPlayer(player database.Player) {
-	cursor, err := m.Read(banCollection, bson.M{"players": player})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.BanTable, bson.M{"players": player})
 	if err != nil {
 		log.Printf("Failed to unban player: %v", err)
 		return
@@ -236,10 +226,10 @@ func (m *MongoConnection) UnBanPlayer(player database.Player) {
 	}
 
 	if len(entry.Players) == 1 {
-		m.Remove(banCollection, bson.M{"userID": entry.UserID})
+		m.Remove(conf.Config.Whitelist.Database.BanTable, bson.M{"userID": entry.UserID})
 	}
 
-	m.Remove(banCollection, bson.M{"players": player})
+	m.Remove(conf.Config.Whitelist.Database.BanTable, bson.M{"players": player})
 	// remove player from ban array
 	for i, p := range entry.Players {
 		if p.Player == player {
@@ -248,11 +238,11 @@ func (m *MongoConnection) UnBanPlayer(player database.Player) {
 		}
 	}
 
-	m.Write(banCollection, entry)
+	m.Write(conf.Config.Whitelist.Database.BanTable, entry)
 }
 
 func (m *MongoConnection) UnBanPlayerFrom(user database.UserID, player database.Player) {
-	cursor, err := m.Read(banCollection, bson.M{"userID": user})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.BanTable, bson.M{"userID": user})
 	if err != nil {
 		log.Printf("Failed to unban player: %v", err)
 		return
@@ -265,7 +255,7 @@ func (m *MongoConnection) UnBanPlayerFrom(user database.UserID, player database.
 	}
 
 	if len(entry.Players) == 1 {
-		m.Remove(banCollection, bson.M{"userID": entry.UserID})
+		m.Remove(conf.Config.Whitelist.Database.BanTable, bson.M{"userID": entry.UserID})
 	}
 
 	for i, p := range entry.Players {
@@ -275,11 +265,11 @@ func (m *MongoConnection) UnBanPlayerFrom(user database.UserID, player database.
 		}
 	}
 
-	m.Write(banCollection, entry)
+	m.Write(conf.Config.Whitelist.Database.BanTable, entry)
 }
 
 func (m *MongoConnection) IsUserBanned(user database.UserID) bool {
-	cursor, err := m.Read(banCollection, bson.M{"userID": user})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.BanTable, bson.M{"userID": user})
 	if err != nil {
 		log.Printf("Failed to check if user is banned: %v", err)
 		return false
@@ -300,7 +290,7 @@ func (m *MongoConnection) IsUserBanned(user database.UserID) bool {
 }
 
 func (m *MongoConnection) IsPlayerBanned(player database.Player) bool {
-	cursor, err := m.Read(banCollection, bson.M{"players": player})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.BanTable, bson.M{"players": player})
 	if err != nil {
 		log.Printf("Failed to check if player is banned: %v", err)
 		return false
@@ -310,7 +300,7 @@ func (m *MongoConnection) IsPlayerBanned(player database.Player) bool {
 }
 
 func (m *MongoConnection) BannedPlayers(user database.UserID) []database.PlayerBanData {
-	cursor, err := m.Read(banCollection, bson.M{"userID": user})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.BanTable, bson.M{"userID": user})
 	if err != nil {
 		log.Printf("Failed to get banned players: %v", err)
 	}
@@ -328,7 +318,7 @@ func (m *MongoConnection) BannedPlayers(user database.UserID) []database.PlayerB
 }
 
 func (m *MongoConnection) RemoveAccounts(user database.UserID) {
-	m.Remove(whitelistCollection, bson.M{"userID": user})
+	m.Remove(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"userID": user})
 }
 
 func (m *MongoConnection) AddWaitlist(user database.UserID, player database.Player) {
@@ -337,11 +327,11 @@ func (m *MongoConnection) AddWaitlist(user database.UserID, player database.Play
 		Player: player,
 	}
 
-	m.Write(waitlistCollection, entry)
+	m.Write(conf.Config.Whitelist.Database.WaitListTable, entry)
 }
 
 func (m *MongoConnection) RemoveWaitlist(user database.UserID, player database.Player) {
-	m.Remove(waitlistCollection, bson.M{"userID": user, "player": player})
+	m.Remove(conf.Config.Whitelist.Database.WaitListTable, bson.M{"userID": user, "player": player})
 }
 
 func (m *MongoConnection) Report(reporter database.UserID, reported database.Player, reason string) {
@@ -351,11 +341,11 @@ func (m *MongoConnection) Report(reporter database.UserID, reported database.Pla
 		Reason:         reason,
 	}
 
-	m.Write(reportCollection, entry)
+	m.Write(conf.Config.Whitelist.Database.ReportTable, entry)
 }
 
 func (m *MongoConnection) AllWhitelists() []database.WhitelistEntry {
-	cursor, err := m.Read(whitelistCollection, bson.M{})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.WhitelistTable, bson.M{})
 	if err != nil {
 		log.Printf("Failed to get all whitelists: %v", err)
 	}
@@ -370,7 +360,7 @@ func (m *MongoConnection) AllWhitelists() []database.WhitelistEntry {
 }
 
 func (m *MongoConnection) AllReWhitelists() []database.ReWhitelistEntry {
-	cursor, err := m.Read(reWhitelistCollection, bson.M{})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.ReWhitelistTable, bson.M{})
 	if err != nil {
 		log.Printf("Failed to get all rewhitelists: %v", err)
 	}
@@ -385,15 +375,15 @@ func (m *MongoConnection) AllReWhitelists() []database.ReWhitelistEntry {
 }
 
 func (m *MongoConnection) DeleteReport(reported database.Player) {
-	m.Remove(reportCollection, bson.M{"reportedPlayer": reported})
+	m.Remove(conf.Config.Whitelist.Database.ReportTable, bson.M{"reportedPlayer": reported})
 }
 
 func (m *MongoConnection) RemoveAccount(player database.Player) {
-	m.Remove(whitelistCollection, bson.M{"player": player})
+	m.Remove(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"player": player})
 }
 
 func (m *MongoConnection) IsWhitelisted(player database.Player) bool {
-	cursor, err := m.Read(whitelistCollection, bson.M{"player": player})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"player": player})
 	if err != nil {
 		log.Printf("Failed to check if player is whitelisted: %v", err)
 		return false
@@ -403,7 +393,7 @@ func (m *MongoConnection) IsWhitelisted(player database.Player) bool {
 }
 
 func (m *MongoConnection) IsWhitelistedBy(user database.UserID, player database.Player) bool {
-	cursor, err := m.Read(whitelistCollection, bson.M{"userID": user, "player": player})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"userID": user, "player": player})
 	if err != nil {
 		log.Printf("Failed to check if player is whitelisted by user: %v", err)
 		return false
@@ -413,7 +403,7 @@ func (m *MongoConnection) IsWhitelistedBy(user database.UserID, player database.
 }
 
 func (m *MongoConnection) GetReports() []database.ReportData {
-	cursor, err := m.Read(reportCollection, bson.M{})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.ReportTable, bson.M{})
 	if err != nil {
 		log.Printf("Failed to get reports: %v", err)
 	}
@@ -428,7 +418,7 @@ func (m *MongoConnection) GetReports() []database.ReportData {
 }
 
 func (m *MongoConnection) IsAlreadyReported(reported database.Player) bool {
-	cursor, err := m.Read(reportCollection, bson.M{"reportedPlayer": reported})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.ReportTable, bson.M{"reportedPlayer": reported})
 	if err != nil {
 		log.Printf("Failed to check if player is already reported: %v", err)
 		return false
@@ -438,7 +428,7 @@ func (m *MongoConnection) IsAlreadyReported(reported database.Player) bool {
 }
 
 func (m *MongoConnection) GetReportedPlayer(reported database.Player) (database.ReportData, bool) {
-	cursor, err := m.Read(reportCollection, bson.M{"reportedPlayer": reported})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.ReportTable, bson.M{"reportedPlayer": reported})
 	if err != nil {
 		log.Printf("Failed to get reported player: %v", err)
 		return database.ReportData{}, false
@@ -454,7 +444,7 @@ func (m *MongoConnection) GetReportedPlayer(reported database.Player) (database.
 }
 
 func (m *MongoConnection) NumberWhitelistedPlayers(user database.UserID) int {
-	cursor, err := m.Read(whitelistCollection, bson.M{"userID": user})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"userID": user})
 	if err != nil {
 		log.Printf("Failed to get number of whitelisted players: %v", err)
 		return 0
@@ -464,7 +454,7 @@ func (m *MongoConnection) NumberWhitelistedPlayers(user database.UserID) int {
 }
 
 func (m *MongoConnection) GetWhitelistedPlayer(player database.Player) (database.WhitelistedPlayerData, bool) {
-	cursor, err := m.Read(whitelistCollection, bson.M{"player": player})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"player": player})
 	if err != nil {
 		log.Printf("Failed to get whitelisted player: %v", err)
 		return database.WhitelistedPlayerData{}, false
@@ -480,7 +470,7 @@ func (m *MongoConnection) GetWhitelistedPlayer(player database.Player) (database
 }
 
 func (m *MongoConnection) GetAllWhitelistedPlayers() []database.WhitelistedPlayerData {
-	cursor, err := m.Read(whitelistCollection, bson.M{})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.WhitelistTable, bson.M{})
 	if err != nil {
 		log.Printf("Failed to get all whitelisted players: %v", err)
 	}
@@ -495,7 +485,7 @@ func (m *MongoConnection) GetAllWhitelistedPlayers() []database.WhitelistedPlaye
 }
 
 func (m *MongoConnection) GetAccountsOf(user database.UserID) []database.Player {
-	cursor, err := m.Read(whitelistCollection, bson.M{"userID": user})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.WhitelistTable, bson.M{"userID": user})
 	if err != nil {
 		log.Printf("Failed to get accounts of user: %v", err)
 	}
@@ -510,7 +500,7 @@ func (m *MongoConnection) GetAccountsOf(user database.UserID) []database.Player 
 }
 
 func (m *MongoConnection) GetBan(user database.UserID) (string, bool) {
-	cursor, err := m.Read(banCollection, bson.M{"userID": user})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.BanTable, bson.M{"userID": user})
 	if err != nil {
 		log.Printf("Failed to get ban: %v", err)
 		return "", false
@@ -530,7 +520,7 @@ func (m *MongoConnection) GetBan(user database.UserID) (string, bool) {
 }
 
 func (m *MongoConnection) GetPlayerBan(player database.Player) (database.PlayerBan, bool) {
-	cursor, err := m.Read(banCollection, bson.M{"players": player})
+	cursor, err := m.Read(conf.Config.Whitelist.Database.BanTable, bson.M{"players": player})
 	if err != nil {
 		log.Printf("Failed to get player ban: %v", err)
 		return database.PlayerBan{}, false

@@ -9,20 +9,18 @@ import (
 	"log"
 )
 
-var config = conf.Config
-
 func Start() {
 
-	if config.SRV.Enabled {
+	if conf.Config.SRV.Enabled {
 		go api.Start()
 	}
 
-	for _, server := range config.Pterodactyl.Servers {
+	for _, server := range conf.Config.Pterodactyl.Servers {
 		go func(server conf.Server) {
 			ctx := context.Background()
 			s := pterodactyl.New(&ctx, &server) //TODO: this probably should not be in the srv package
 
-			if !config.SRV.Enabled {
+			if !conf.Config.SRV.Enabled {
 				return
 			}
 

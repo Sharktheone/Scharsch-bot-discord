@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"fmt"
+	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/discord/bot"
 	"github.com/Sharktheone/ScharschBot/srv/playersrv"
@@ -31,7 +32,7 @@ func (h *Handler) DecodePlayer(e *types.WebsocketEvent) (*PSRVEvent, error) {
 		pSrv.userID = &owner.ID
 		if member, err := s.GetUserProfile(owner.ID); err != nil {
 			errMsg = fmt.Errorf("failed to get user profile: %v", err)
-			pSrv.footerIcon = &config.Discord.EmbedErrorIcon
+			pSrv.footerIcon = &conf.Config.Discord.EmbedErrorIcon
 			pSrv.username = &e.Data.Player
 			pSrv.member = member
 		} else {
@@ -43,7 +44,7 @@ func (h *Handler) DecodePlayer(e *types.WebsocketEvent) (*PSRVEvent, error) {
 		}
 	} else {
 		pSrv.onWhitelist = &owner.Whitelisted
-		pSrv.footerIcon = &config.Discord.EmbedErrorIcon
+		pSrv.footerIcon = &conf.Config.Discord.EmbedErrorIcon
 	}
 	playersrv.CheckAccount(database.Player(strings.ToLower(string(e.Data.Player))))
 

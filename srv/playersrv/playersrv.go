@@ -9,17 +9,13 @@ import (
 	"log"
 )
 
-var (
-	config = conf.Config
-)
-
 func CheckAccount(name database.Player) ([]database.Player, []database.Player) {
 	owner := whitelist.GetOwner(name, nil)
-	if config.Whitelist.KickUnWhitelisted {
+	if conf.Config.Whitelist.KickUnWhitelisted {
 		if !owner.Whitelisted {
-			command := fmt.Sprintf(config.Whitelist.KickCommand, name)
-			for _, listedServer := range config.Whitelist.Servers {
-				for _, server := range config.Pterodactyl.Servers {
+			command := fmt.Sprintf(conf.Config.Whitelist.KickCommand, name)
+			for _, listedServer := range conf.Config.Whitelist.Servers {
+				for _, server := range conf.Config.Pterodactyl.Servers {
 					if server.ServerName == listedServer {
 						if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
 							log.Printf("Failed to send command to server %v: %v", server.ServerID, err)

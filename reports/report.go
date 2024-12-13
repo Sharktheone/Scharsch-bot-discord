@@ -9,10 +9,6 @@ import (
 	"log"
 )
 
-var (
-	config = conf.Config
-)
-
 type ReportData struct {
 	ReporterID     string `bson:"reporterID"`
 	ReportedPlayer string `bson:"reportedPlayer"`
@@ -24,9 +20,9 @@ func Report(name database.Player, reason string, i *discordgo.InteractionCreate,
 		allowed   = false
 		dataFound bool
 	)
-	if config.Whitelist.Report.Enabled {
+	if conf.Config.Whitelist.Report.Enabled {
 		for _, role := range i.Member.Roles {
-			for _, requiredRole := range config.Whitelist.Report.Roles {
+			for _, requiredRole := range conf.Config.Whitelist.Report.Roles {
 				if role == requiredRole {
 					allowed = true
 					break
@@ -40,11 +36,11 @@ func Report(name database.Player, reason string, i *discordgo.InteractionCreate,
 				database.DB.Report(database.UserID(i.Member.User.ID), database.Player(name), reason)
 
 				var roleMessage string
-				for _, role := range config.Whitelist.Report.PingRoleID {
+				for _, role := range conf.Config.Whitelist.Report.PingRoleID {
 					ping := fmt.Sprintf("<@&%s> ", role)
 					roleMessage += ping
 				}
-				for _, channel := range config.Whitelist.Report.ChannelID {
+				for _, channel := range conf.Config.Whitelist.Report.ChannelID {
 					_, err := s.ChannelMessageSendComplex(channel, &discordgo.MessageSend{
 						Content: roleMessage,
 						Embed:   &messageEmbed,
@@ -56,17 +52,17 @@ func Report(name database.Player, reason string, i *discordgo.InteractionCreate,
 			}
 		}
 	}
-	return allowed, dataFound, config.Whitelist.Report.Enabled
+	return allowed, dataFound, conf.Config.Whitelist.Report.Enabled
 }
 
 func Reject(name string, i *discordgo.InteractionCreate, s *session.Session, notifyReporter bool, messageEmbed *discordgo.MessageEmbed, messageEmbedDMFailed *discordgo.MessageEmbed) (rejectAllowed bool, enabled bool) {
 	var (
 		allowed  = false
-		notifyDM = config.Whitelist.Report.PlayerNotifyDM
+		notifyDM = conf.Config.Whitelist.Report.PlayerNotifyDM
 	)
-	if config.Whitelist.Report.Enabled {
+	if conf.Config.Whitelist.Report.Enabled {
 		for _, role := range i.Member.Roles {
-			for _, requiredRole := range config.Whitelist.Report.Roles {
+			for _, requiredRole := range conf.Config.Whitelist.Report.Roles {
 				if role == requiredRole {
 					allowed = true
 					break
@@ -88,7 +84,7 @@ func Reject(name string, i *discordgo.InteractionCreate, s *session.Session, not
 					_, err = s.ChannelMessageSendEmbed(channel.ID, messageEmbed)
 					if err != nil {
 						log.Printf("Failed to send DM for reporter: %v, sending Message in normal Channels", err)
-						for _, channelID := range config.Whitelist.Report.ChannelID {
+						for _, channelID := range conf.Config.Whitelist.Report.ChannelID {
 							_, err = s.ChannelMessageSendEmbed(channelID, messageEmbedDMFailed)
 							if err != nil {
 								log.Printf("Failed to send Report message in normal Channel: %v", err)
@@ -99,7 +95,7 @@ func Reject(name string, i *discordgo.InteractionCreate, s *session.Session, not
 				}
 			} else {
 				if notifyReporter {
-					for _, channelID := range config.Whitelist.Report.ChannelID {
+					for _, channelID := range conf.Config.Whitelist.Report.ChannelID {
 						_, err := s.ChannelMessageSendEmbed(channelID, messageEmbed)
 						if err != nil {
 							log.Printf("Failed to send Report message : %v", err)
@@ -112,16 +108,16 @@ func Reject(name string, i *discordgo.InteractionCreate, s *session.Session, not
 		}
 	}
 
-	return allowed, config.Whitelist.Report.Enabled
+	return allowed, conf.Config.Whitelist.Report.Enabled
 }
 func Accept(name string, i *discordgo.InteractionCreate, s *session.Session, notifyreporter bool, messageEmbed *discordgo.MessageEmbed, messageEmbedDMFailed *discordgo.MessageEmbed) (acceptAllowed bool, enabled bool) {
 	var (
 		allowed  = false
-		notifyDM = config.Whitelist.Report.PlayerNotifyDM
+		notifyDM = conf.Config.Whitelist.Report.PlayerNotifyDM
 	)
-	if config.Whitelist.Report.Enabled {
+	if conf.Config.Whitelist.Report.Enabled {
 		for _, role := range i.Member.Roles {
-			for _, requiredRole := range config.Whitelist.Report.Roles {
+			for _, requiredRole := range conf.Config.Whitelist.Report.Roles {
 				if role == requiredRole {
 					allowed = true
 					break
@@ -147,7 +143,7 @@ func Accept(name string, i *discordgo.InteractionCreate, s *session.Session, not
 				}
 			} else {
 				if notifyreporter {
-					for _, channelID := range config.Whitelist.Report.ChannelID {
+					for _, channelID := range conf.Config.Whitelist.Report.ChannelID {
 						_, err := s.ChannelMessageSendEmbed(channelID, messageEmbed)
 						if err != nil {
 							log.Printf("Failed to send Report message : %v", err)
@@ -159,7 +155,7 @@ func Accept(name string, i *discordgo.InteractionCreate, s *session.Session, not
 			DeleteReport(name)
 		}
 	}
-	return allowed, config.Whitelist.Report.Enabled
+	return allowed, conf.Config.Whitelist.Report.Enabled
 }
 
 func DeleteReport(name string) {

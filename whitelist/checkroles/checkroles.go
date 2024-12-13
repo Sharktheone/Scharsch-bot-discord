@@ -9,20 +9,13 @@ import (
 	"log"
 )
 
-var (
-	config            = conf.Config
-	reWhitelist       = config.Whitelist.Roles.ReWhitelistWith
-	removeWithout     = config.Whitelist.Roles.RemoveUserWithout
-	kickUnWhitelisted = config.Whitelist.KickUnWhitelisted
-)
-
 func CheckRoles() {
-	if kickUnWhitelisted {
+	if conf.Config.Whitelist.KickUnWhitelisted {
 		for _, server := range pterodactyl.Servers {
 			for _, player := range server.OnlinePlayers.Players {
 				found := database.DB.IsWhitelisted(database.Player(*player))
 				if !found {
-					command := fmt.Sprintf(config.Whitelist.KickCommand, player)
+					command := fmt.Sprintf(conf.Config.Whitelist.KickCommand, player)
 					if err := pterodactyl.SendCommand(command, server.Config.ServerID); err != nil {
 						log.Printf("Failed to kick %v from server %v: %v", player, server.Config.ServerID, err)
 					} else {
@@ -43,7 +36,7 @@ func CheckRoles() {
 			}
 		}
 	}
-	if removeWithout {
+	if conf.Config.Whitelist.Roles.RemoveUserWithout {
 		//entries, found := mongodb.Read(whitelistCollection, bson.M{
 		//	"dcUserID":  bson.M{"$exists": true},
 		//	"mcAccount": bson.M{"$exists": true},
@@ -63,7 +56,7 @@ func CheckRoles() {
 				}
 			}
 			if checkID {
-				user, _ := session.GuildMember(config.Discord.ServerID, userID)
+				user, _ := session.GuildMember(conf.Config.Discord.ServerID, userID)
 				if user == nil {
 
 					removedIDs = append(removedIDs, userID)
@@ -72,7 +65,7 @@ func CheckRoles() {
 				} else {
 					serverPerms := false
 					for _, role := range user.Roles {
-						for _, neededRole := range config.Whitelist.Roles.ServerRoleID {
+						for _, neededRole := range conf.Config.Whitelist.Roles.ServerRoleID {
 							if database.Role(role) == neededRole {
 								serverPerms = true
 								break
@@ -91,7 +84,7 @@ func CheckRoles() {
 			log.Printf("Removing accounts of the id(s) %v from whitelist because they have not the server role", removedIDs)
 		}
 	}
-	if reWhitelist {
+	if conf.Config.Whitelist.Roles.ReWhitelistWith {
 		entries := database.DB.AllReWhitelists()
 
 		session := bot.Session
@@ -106,11 +99,11 @@ func CheckRoles() {
 				}
 			}
 			if checkID {
-				user, _ := session.GuildMember(config.Discord.ServerID, userID)
+				user, _ := session.GuildMember(conf.Config.Discord.ServerID, userID)
 				if user != nil {
 					serverPerms := false
 					for _, role := range user.Roles {
-						for _, neededRole := range config.Whitelist.Roles.ServerRoleID {
+						for _, neededRole := range conf.Config.Whitelist.Roles.ServerRoleID {
 							if database.Role(role) == neededRole {
 								serverPerms = true
 								break

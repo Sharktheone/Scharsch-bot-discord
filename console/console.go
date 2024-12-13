@@ -10,8 +10,6 @@ import (
 	"strings"
 )
 
-var config = conf.Config
-
 func Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 	for _, server := range conf.Config.Pterodactyl.Servers {
 		if server.Console.Reverse {
@@ -19,7 +17,7 @@ func Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				if neededChannelID == m.ChannelID {
 					command := strings.SplitAfter(m.Message.Content, server.Console.ReversePrefix)
 					if command[0] == server.Console.ReversePrefix {
-						if session.HasRole(m.Member, config.Whitelist.Roles.ServerRoleID) {
+						if session.HasRole(m.Member, conf.Config.Whitelist.Roles.ServerRoleID) {
 							var commandString string
 							for _, element := range command[1:] {
 								commandString += element
@@ -39,13 +37,13 @@ func Handler(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func ChatHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-	for _, server := range config.Pterodactyl.Servers {
+	for _, server := range conf.Config.Pterodactyl.Servers {
 		if server.Chat.Reverse {
 			for _, neededChannelID := range server.Chat.ChannelID {
 				if neededChannelID == m.ChannelID && m.Author.ID != s.State.User.ID {
-					if session.HasRole(m.Member, config.Whitelist.Roles.ServerRoleID) {
+					if session.HasRole(m.Member, conf.Config.Whitelist.Roles.ServerRoleID) {
 						message := fmt.Sprintf(" %v: %v", m.Author.Username, m.Message.Content)
-						command := fmt.Sprintf(config.Pterodactyl.ChatCommand, message)
+						command := fmt.Sprintf(conf.Config.Pterodactyl.ChatCommand, message)
 						if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
 							log.Printf("Failed to send chat message to server %v: %v", server.ServerID, err)
 						}

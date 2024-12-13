@@ -10,10 +10,6 @@ import (
 	"net/http"
 )
 
-var (
-	config = conf.Config
-)
-
 func HasFreeAccount(member *types.Member) bool {
 	num := database.DB.NumberWhitelistedPlayers(member.ID)
 
@@ -90,7 +86,7 @@ func AccountExists(username database.Player) bool {
 func GetMaxAccounts(member *types.Member) int {
 	m := 0
 
-	for _, entry := range config.Whitelist.RolesConfig {
+	for _, entry := range conf.Config.Whitelist.RolesConfig {
 		if CheckRole(member, entry.RoleID) {
 			if entry.Max > m {
 				m = entry.Max

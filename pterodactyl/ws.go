@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/fasthttp/websocket"
 	"log"
 )
@@ -58,7 +59,7 @@ func (s *Server) connectWS() error {
 			return fmt.Errorf("could not connect to websocket: %v", res.Status)
 		}
 	} else {
-		return fmt.Errorf("cannot reach pterodactyl instance with panel url %v", _panelURL)
+		return fmt.Errorf("cannot reach pterodactyl instance with panel url %v", conf.Config.Pterodactyl.PanelURL)
 	}
 }
 

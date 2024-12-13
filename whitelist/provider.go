@@ -8,14 +8,6 @@ import (
 	"github.com/Sharktheone/ScharschBot/whitelist/whitelist/utils"
 )
 
-var (
-	config        = conf.Config.Whitelist
-	AddCommand    = config.AddCommand
-	RemoveCommand = config.RemoveCommand
-	BanCommand    = config.BanCommand
-	Roles         = config.RolesConfig
-)
-
 type DefaultProvider struct {
 	ServerProvider server.ServerProvider
 }
@@ -123,9 +115,9 @@ func (p *DefaultProvider) RemoveAccount(player database.Player) {
 }
 
 func getWhitelistCommand(member *types.Member, serverID server.ServerID) string {
-	command := AddCommand
+	command := conf.Config.Whitelist.AddCommand
 
-	for _, rc := range config.RolesConfig {
+	for _, rc := range conf.Config.Whitelist.RolesConfig {
 		if utils.CheckRole(member, rc.RoleID) {
 			if rc.WhitelistCommand != "" {
 				command = rc.WhitelistCommand
@@ -145,9 +137,9 @@ func getWhitelistCommand(member *types.Member, serverID server.ServerID) string 
 }
 
 func getUnWhitelistCommand(member *types.Member, serverID server.ServerID) string {
-	command := RemoveCommand
+	command := conf.Config.Whitelist.RemoveCommand
 
-	for _, rc := range config.RolesConfig {
+	for _, rc := range conf.Config.Whitelist.RolesConfig {
 		if utils.CheckRole(member, rc.RoleID) {
 			if rc.UnWhitelistCommand != "" {
 				command = rc.UnWhitelistCommand
@@ -167,9 +159,9 @@ func getUnWhitelistCommand(member *types.Member, serverID server.ServerID) strin
 }
 
 func getBanCommand(member *types.Member, serverID server.ServerID) string {
-	command := BanCommand
+	command := conf.Config.Whitelist.BanCommand
 
-	for _, rc := range config.RolesConfig {
+	for _, rc := range conf.Config.Whitelist.RolesConfig {
 		if utils.CheckRole(member, rc.RoleID) {
 			if rc.BanCommand != "" {
 				command = rc.BanCommand
@@ -185,6 +177,16 @@ func getBanCommand(member *types.Member, serverID server.ServerID) string {
 		}
 	}
 
+	return command
+}
+
+type WhitelistInfo struct {
+	PlayerName database.Player
+	PlayerID   string
+	DiscordID  database.UserID
+}
+
+func formatCommand(command string, info WhitelistInfo) string {
 	return command
 }
 

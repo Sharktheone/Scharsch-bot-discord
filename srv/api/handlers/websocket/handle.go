@@ -9,10 +9,6 @@ import (
 	"strings"
 )
 
-var (
-	config = conf.Config
-)
-
 func (p *PSRVEvent) processEvent() {
 	if p.h.authenticated == false && p.e.Event != Auth {
 		return
@@ -138,7 +134,7 @@ func (p *PSRVEvent) playerAdvancement() {
 }
 
 func (p *PSRVEvent) auth() {
-	if p.e.Data.Password == config.SRV.API.Password && p.e.Data.User == config.SRV.API.User {
+	if p.e.Data.Password == conf.Config.SRV.API.Password && p.e.Data.User == conf.Config.SRV.API.User {
 		p.h.authenticated = true
 		p.h.send <- &types.WebsocketEvent{
 			Event: AuthSuccess,

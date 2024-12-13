@@ -13,10 +13,6 @@ import (
 	"strings"
 )
 
-var (
-	config = conf.Config
-)
-
 func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 	options := i.ApplicationCommandData().Options
 	optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
@@ -232,11 +228,11 @@ func Admin(s *session.Session, i *discordgo.InteractionCreate) {
 		var (
 			messageEmbed discordgo.MessageEmbed
 			allowed      bool
-			enabled      = config.Whitelist.Report.Enabled
+			enabled      = conf.Config.Whitelist.Report.Enabled
 		)
-		if config.Whitelist.Report.Enabled {
+		if conf.Config.Whitelist.Report.Enabled {
 			for _, role := range member.Roles {
-				for _, requiredRole := range config.Discord.WhitelistBanRoleID { // TODO: Add Report Admin Role
+				for _, requiredRole := range conf.Config.Discord.WhitelistBanRoleID { // TODO: Add Report Admin Role
 					if role == requiredRole {
 						allowed = true
 						break

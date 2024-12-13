@@ -10,13 +10,25 @@ import (
 )
 
 var (
-	config   = conf.Config
-	user     = flags.StringWithFallback("apiUser", &config.SRV.API.User)
-	password = flags.StringWithFallback("apiPassword", &config.SRV.API.Password)
-	port     = flags.IntWithFallback("apiPort", &config.SRV.API.Port)
+	user     = flags.String("apiUser")
+	password = flags.String("apiPassword")
+	port     = flags.Int("apiPort")
 )
 
 func Start() {
+
+	if *user == "" {
+		user = &conf.Config.SRV.API.User
+	}
+
+	if *password == "" {
+		password = &conf.Config.SRV.API.Password
+	}
+
+	if *port == 0 {
+		port = &conf.Config.SRV.API.Port
+	}
+
 	log.Printf("Starting http server on port %v", *port)
 	r := gin.Default()
 	gin.SetMode(gin.DebugMode)

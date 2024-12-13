@@ -11,13 +11,15 @@ import (
 )
 
 var (
-	config  = conf.Config
-	GuildID = flags.StringWithFallback("guild", &config.Discord.ServerID)
+	GuildID = flags.String("guild")
 	Session *session.Session
 )
 
 func Connect() {
-	var BotToken = flags.StringWithFallback("token", &config.Discord.Token)
+	if *GuildID == "" {
+		GuildID = &conf.Config.Discord.ServerID
+	}
+	var BotToken = flags.StringWithFallback("token", &conf.Config.Discord.Token)
 	s, err := discordgo.New("Bot " + *BotToken)
 	if err != nil {
 		log.Fatal("Invalid Bot Configuration:", err)
