@@ -20,10 +20,6 @@ func Start() {
 			ctx := context.Background()
 			s := pterodactyl.New(&ctx, &server) //TODO: this probably should not be in the srv package
 
-			if !conf.Config.SRV.Enabled {
-				return
-			}
-
 			if server.Console.Enabled {
 				s.AddConsoleListener(func(server *conf.Server, console chan string) {
 					listeners.ConsoleListener(ctx, server, console, nil)
