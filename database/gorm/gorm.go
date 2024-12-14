@@ -95,26 +95,18 @@ func (m *GormConnection) RemoveAllFrom(user database.UserID) {
 }
 
 func (m *GormConnection) Owner(player database.Player) database.UserID {
-	var entry WhitelistEntry
+	var entries []WhitelistEntry
 
-	data := m.DB.Where(WhitelistEntry{Player: player})
-	if data.Error != nil {
+	if err := m.DB.Where(WhitelistEntry{Player: player}).Find(&entries).Error; err != nil {
 		log.Printf("Failed to get owner: %v", data.Error)
 		return "<unknown>"
 	}
 
-	var count int64
-	data.Count(&count)
-
-	if count == 0 {
+	if len(entries) == 0 {
 		return "<unknown>"
 	}
 
-	if err := data.First(&entry).Error; err != nil {
-		log.Printf("Failed to get owner: %v", err)
-	}
-
-	return entry.UserID
+	return entries[0].UserID
 }
 
 func (m *GormConnection) Players(user database.UserID) []database.Player {
