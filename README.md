@@ -4,9 +4,7 @@ Discord Whitelist and SRV bot
 
 # Known Bugs
 
-- Memory Leaking
 - /power command showing servers multiple times
-- Players have no permission to execute the /whitelist myaccounts command without the adminRemove role
 
 # Other Issues
 
