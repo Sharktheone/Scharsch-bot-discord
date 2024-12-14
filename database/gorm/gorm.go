@@ -480,25 +480,18 @@ func (m *GormConnection) NumberWhitelistedPlayers(user database.UserID) int {
 }
 
 func (m *GormConnection) GetWhitelistedPlayer(player database.Player) (database.WhitelistedPlayerData, bool) {
-	var entry WhitelistEntry
+	var entries []WhitelistEntry
 
-	data := m.DB.Where(WhitelistEntry{Player: player})
-
-	if data.Error != nil {
-		log.Printf("Failed to get whitelisted player: %v", data.Error)
+	if err := m.DB.Where(WhitelistEntry{Player: player}).Find(&entries).Error; err != nil {
+		log.Printf("Failed to get whitelisted player: %v", err)
 		return database.WhitelistedPlayerData{}, false
 	}
 
-	var count int64
-	data.Count(&count)
-
-	if count == 0 {
+	if len(entries) == 0 {
 		return database.WhitelistedPlayerData{}, false
 	}
 
-	if err := data.First(&entry).Error; err != nil {
-		return database.WhitelistedPlayerData{}, false
-	}
+	entry := entries[0]
 
 	return database.WhitelistedPlayerData{
 		ID:   entry.UserID,
