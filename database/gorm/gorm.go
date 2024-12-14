@@ -98,7 +98,7 @@ func (m *GormConnection) Owner(player database.Player) database.UserID {
 	var entries []WhitelistEntry
 
 	if err := m.DB.Where(WhitelistEntry{Player: player}).Find(&entries).Error; err != nil {
-		log.Printf("Failed to get owner: %v", data.Error)
+		log.Printf("Failed to get owner: %v", err)
 		return "<unknown>"
 	}
 
