@@ -95,18 +95,14 @@ func (m *GormConnection) RemoveAllFrom(user database.UserID) {
 }
 
 func (m *GormConnection) Owner(player database.Player) database.UserID {
-	var entries []WhitelistEntry
+	var entry WhitelistEntry
 
-	if err := m.DB.Where(WhitelistEntry{Player: player}).Find(&entries).Error; err != nil {
+	if err := m.DB.Where(WhitelistEntry{Player: player}).Find(&entry).Error; err != nil {
 		log.Printf("Failed to get owner: %v", err)
 		return "<unknown>"
 	}
 
-	if len(entries) == 0 {
-		return "<unknown>"
-	}
-
-	return entries[0].UserID
+	return entry.UserID
 }
 
 func (m *GormConnection) Players(user database.UserID) []database.Player {
@@ -472,18 +468,12 @@ func (m *GormConnection) NumberWhitelistedPlayers(user database.UserID) int {
 }
 
 func (m *GormConnection) GetWhitelistedPlayer(player database.Player) (database.WhitelistedPlayerData, bool) {
-	var entries []WhitelistEntry
+	var entry WhitelistEntry
 
-	if err := m.DB.Where(WhitelistEntry{Player: player}).Find(&entries).Error; err != nil {
+	if err := m.DB.Where(WhitelistEntry{Player: player}).Find(&entry).Error; err != nil {
 		log.Printf("Failed to get whitelisted player: %v", err)
 		return database.WhitelistedPlayerData{}, false
 	}
-
-	if len(entries) == 0 {
-		return database.WhitelistedPlayerData{}, false
-	}
-
-	entry := entries[0]
 
 	return database.WhitelistedPlayerData{
 		ID:   entry.UserID,
