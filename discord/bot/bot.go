@@ -3,6 +3,7 @@ package bot
 import (
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/console"
+	"github.com/Sharktheone/ScharschBot/discord/bot/auth"
 	"github.com/Sharktheone/ScharschBot/discord/interactions"
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/Sharktheone/ScharschBot/flags"
@@ -10,23 +11,18 @@ import (
 	"log"
 )
 
-var (
-	GuildID = flags.String("guild")
-	Session *session.Session
-)
-
 func Connect() {
-	if *GuildID == "" {
-		GuildID = &conf.Config.Discord.ServerID
+	if *auth.GuildID == "" {
+		auth.GuildID = &conf.Config.Discord.ServerID
 	}
 	var BotToken = flags.StringWithFallback("token", &conf.Config.Discord.Token)
 	s, err := discordgo.New("Bot " + *BotToken)
 	if err != nil {
 		log.Fatal("Invalid Bot Configuration:", err)
 	}
-	Session = &session.Session{Session: s, Guild: *GuildID}
+	auth.Session = &session.Session{Session: s, Guild: *auth.GuildID}
 
-	if err := Session.Open(); err != nil {
+	if err := auth.Session.Open(); err != nil {
 		log.Fatal("Cannot open connection to discord:", err)
 	}
 }
@@ -34,18 +30,18 @@ func Connect() {
 func Registration() {
 	log.Println("Registering commands...")
 
-	Session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	auth.Session.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		switch i.Type {
 		case discordgo.InteractionApplicationCommand:
 			if h, ok := interactions.Handlers[i.ApplicationCommandData().Name]; ok {
-				h(&session.Session{Session: s, Guild: *GuildID}, i)
+				h(&session.Session{Session: s, Guild: *auth.GuildID}, i)
 			} else {
 				log.Printf("No handler for %v", i.ApplicationCommandData().Name)
 			}
 
 		case discordgo.InteractionMessageComponent:
 			if h, ok := interactions.Handlers[i.MessageComponentData().CustomID]; ok {
-				h(&session.Session{Session: s, Guild: *GuildID}, i)
+				h(&session.Session{Session: s, Guild: *auth.GuildID}, i)
 			} else {
 				log.Printf("No handler for %v", i.MessageComponentData().CustomID)
 			}
@@ -53,25 +49,25 @@ func Registration() {
 	})
 
 	for _, rawCommand := range interactions.Commands {
-		_, err := Session.ApplicationCommandCreate(Session.State.User.ID, *GuildID, rawCommand)
+		_, err := auth.Session.ApplicationCommandCreate(auth.Session.State.User.ID, *auth.GuildID, rawCommand)
 		if err != nil {
 			log.Fatalf("Failed to create %v: %v", rawCommand.Name, err)
 		}
 	}
-	Session.AddHandler(console.Handler)
-	Session.AddHandler(console.ChatHandler)
+	auth.Session.AddHandler(console.Handler)
+	auth.Session.AddHandler(console.ChatHandler)
 	log.Println("Commands registered")
 
 }
 
 func RemoveCommands() {
-	commands, err := Session.ApplicationCommands(Session.State.User.ID, *GuildID)
+	commands, err := auth.Session.ApplicationCommands(auth.Session.State.User.ID, *auth.GuildID)
 	if err != nil {
 		log.Fatalf("Failed to get commands: %v", err)
 	}
 
 	for _, command := range commands {
-		err := Session.ApplicationCommandDelete(Session.State.User.ID, *GuildID, command.ID)
+		err := auth.Session.ApplicationCommandDelete(auth.Session.State.User.ID, *auth.GuildID, command.ID)
 		if err != nil {
 			log.Printf("Failed to delete %v: %v", command.Name, err)
 		}

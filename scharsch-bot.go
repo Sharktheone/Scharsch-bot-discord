@@ -4,6 +4,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database/dbprovider"
 	"github.com/Sharktheone/ScharschBot/discord/bot"
+	"github.com/Sharktheone/ScharschBot/discord/bot/auth"
 	"github.com/Sharktheone/ScharschBot/discord/embed/wEmbed"
 	"github.com/Sharktheone/ScharschBot/srv"
 	"github.com/Sharktheone/ScharschBot/whitelist/checkroles"
@@ -24,7 +25,7 @@ func main() {
 	//pprof.Start()
 	dbprovider.Connect()
 	log.Println("Connected to MongoDB")
-	dcBot := bot.Session
+	dcBot := auth.Session
 	bot.Registration()
 	if conf.Config.Whitelist.Enabled {
 		checkroles.CheckRoles()

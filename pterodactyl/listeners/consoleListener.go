@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
-	"github.com/Sharktheone/ScharschBot/discord/bot"
+	"github.com/Sharktheone/ScharschBot/discord/bot/auth"
 	"log"
 )
 
@@ -49,7 +49,7 @@ func sendConsoleOutput(server *conf.Server, consoleOutput []string) {
 		message += fmt.Sprintf("\n%v", line)
 	}
 	for _, channelID := range server.Console.ChannelID {
-		_, err := bot.Session.ChannelMessageSend(channelID, fmt.Sprintf("```%v```", message))
+		_, err := auth.Session.ChannelMessageSend(channelID, fmt.Sprintf("```%v```", message))
 		if err != nil {
 			log.Printf("Failed to send console to discord: %v (ChannelID: %v)", err, channelID)
 		}

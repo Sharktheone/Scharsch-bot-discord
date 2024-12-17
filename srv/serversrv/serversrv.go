@@ -48,7 +48,7 @@ func ChannelStats(status *pterodactyl.ServerStatus, server *conf.Server) {
 	if server.ChannelInfo.InfoState != f.string {
 		server.ChannelInfo.InfoState = f.string
 		for _, channelID := range server.ChannelInfo.ChannelID {
-			if _, err := bot.Session.ChannelEditComplex(channelID, &discordgo.ChannelEdit{
+			if _, err := auth.Session.ChannelEditComplex(channelID, &discordgo.ChannelEdit{
 				Topic: f.string,
 			}); err != nil {
 				log.Printf("Failed to edit channel topic: %v (channelID %v)", err, channelID)
@@ -73,7 +73,7 @@ func (r *replacer) inject(variable string, value string) {
 func serverStarting(server *conf.Server) {
 	if server.StateMessages.StartEnabled {
 		for _, channelID := range server.StateMessages.ChannelID {
-			_, err := bot.Session.ChannelMessageSend(channelID, server.StateMessages.Start)
+			_, err := auth.Session.ChannelMessageSend(channelID, server.StateMessages.Start)
 			if err != nil {
 				log.Printf("Failed to send server start message to discord: %v, (channelID %v)", err, channelID)
 			}
@@ -84,7 +84,7 @@ func serverStarting(server *conf.Server) {
 func serverStopping(server *conf.Server) {
 	if server.StateMessages.StopEnabled {
 		for _, channelID := range server.StateMessages.ChannelID {
-			_, err := bot.Session.ChannelMessageSend(channelID, server.StateMessages.Stop)
+			_, err := auth.Session.ChannelMessageSend(channelID, server.StateMessages.Stop)
 			if err != nil {
 				log.Printf("Failed to send server stop message to discord: %v (channelID: %v)", err, channelID)
 			}
@@ -106,7 +106,7 @@ func serverOnline(server *conf.Server) {
 func serverOffline(server *conf.Server) {
 	if server.StateMessages.OfflineEnabled {
 		for _, channelID := range server.StateMessages.ChannelID {
-			_, err := bot.Session.ChannelMessageSend(channelID, server.StateMessages.Offline)
+			_, err := auth.Session.ChannelMessageSend(channelID, server.StateMessages.Offline)
 			if err != nil {
 				log.Printf("Failed to send server offline message to discord: %v (channelID: %v)", err, channelID)
 			}

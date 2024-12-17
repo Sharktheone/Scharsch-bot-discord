@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
-	"github.com/Sharktheone/ScharschBot/discord/bot"
+	"github.com/Sharktheone/ScharschBot/discord/bot/auth"
 	"github.com/Sharktheone/ScharschBot/srv/playersrv"
 	"github.com/Sharktheone/ScharschBot/types"
 	"github.com/Sharktheone/ScharschBot/whitelist/whitelist"
@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	s = bot.Session
+	s = auth.Session
 )
 
 func (h *Handler) DecodePlayer(e *types.WebsocketEvent) (*PSRVEvent, error) {

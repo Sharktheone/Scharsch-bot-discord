@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
-	"github.com/Sharktheone/ScharschBot/discord/bot"
+	"github.com/Sharktheone/ScharschBot/discord/bot/auth"
 	"github.com/Sharktheone/ScharschBot/pterodactyl"
 	"log"
 )
@@ -44,7 +44,7 @@ func CheckRoles() {
 
 		entries := database.DB.AllWhitelists()
 
-		session := bot.Session
+		session := auth.Session
 		var removedIDs []string
 		for _, entry := range entries {
 			userID := fmt.Sprintf("%v", entry.UserID)
@@ -87,7 +87,7 @@ func CheckRoles() {
 	if conf.Config.Whitelist.Roles.ReWhitelistWith {
 		entries := database.DB.AllReWhitelists()
 
-		session := bot.Session
+		session := auth.Session
 		var addedIDs []string
 		for _, entry := range entries {
 			userID := fmt.Sprintf("%v", entry.UserID)
