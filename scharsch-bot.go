@@ -7,6 +7,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/discord/bot/auth"
 	"github.com/Sharktheone/ScharschBot/discord/embed/wEmbed"
 	"github.com/Sharktheone/ScharschBot/srv"
+	"github.com/Sharktheone/ScharschBot/whitelist"
 	"github.com/Sharktheone/ScharschBot/whitelist/checkroles"
 	"github.com/robfig/cron"
 	"log"
@@ -21,6 +22,8 @@ func main() {
 
 	conf.LoadConf()
 	bot.Connect()
+
+	whitelist.SetupProvider()
 
 	//pprof.Start()
 	dbprovider.Connect()

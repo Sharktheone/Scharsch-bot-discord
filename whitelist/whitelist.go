@@ -19,4 +19,8 @@ type WhitelistProvider interface {
 	RemoveAccount(player database.Player)
 }
 
-var Provider = GetDefaultProvider()
+var Provider WhitelistProvider
+
+func SetupProvider() {
+	Provider = GetDefaultProvider()
+}
