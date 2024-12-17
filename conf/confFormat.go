@@ -98,8 +98,8 @@ type Format struct {
 }
 
 type Server struct {
-	ServerID      string `yaml:"serverID"`
-	ServerName    string `yaml:"serverName"`
+	ServerID      server.ServerID `yaml:"serverID"`
+	ServerName    string          `yaml:"serverName"`
 	StateMessages struct {
 		Enabled        bool     `yaml:"enabled"`
 		Start          string   `yaml:"start"`
