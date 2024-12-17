@@ -28,12 +28,12 @@ func Start() {
 			if server.StateMessages.Enabled {
 				s.AddListener(func(ctx *context.Context, server *conf.Server, data chan *pterodactyl.ChanData) {
 					listeners.StatusListener(*ctx, server, data)
-				}, server.ServerID+"_stateMessages")
+				}, string(server.ServerID+"_stateMessages"))
 			}
 			if server.ChannelInfo.Enabled {
 				s.AddListener(func(ctx *context.Context, server *conf.Server, data chan *pterodactyl.ChanData) {
 					listeners.StatsListener(*ctx, server, data)
-				}, server.ServerID+"_channelInfo")
+				}, string(server.ServerID+"_channelInfo"))
 			}
 			if err := s.Listen(); err != nil {
 				log.Printf("Error while listening to server %v: %v", server.ServerID, err)

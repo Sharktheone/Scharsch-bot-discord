@@ -3,6 +3,7 @@ package pterodactyl
 import (
 	"errors"
 	"github.com/Sharktheone/ScharschBot/database"
+	server2 "github.com/Sharktheone/ScharschBot/whitelist/server"
 )
 
 var (
@@ -14,7 +15,7 @@ func GetServer(serverID string) (*Server, error) {
 		server *Server
 	)
 	for _, s := range Servers {
-		if s.Config.ServerID == serverID {
+		if s.Config.ServerID == server2.ServerID(serverID) {
 			server = s
 			return server, nil
 		}

@@ -17,7 +17,7 @@ func CheckAccount(name database.Player) ([]database.Player, []database.Player) {
 			for _, listedServer := range conf.Config.Whitelist.Servers {
 				for _, server := range conf.Config.Pterodactyl.Servers {
 					if server.ServerName == listedServer {
-						if err := pterodactyl.SendCommand(command, server.ServerID); err != nil {
+						if err := pterodactyl.SendCommand(command, string(server.ServerID)); err != nil {
 							log.Printf("Failed to send command to server %v: %v", server.ServerID, err)
 						}
 					}

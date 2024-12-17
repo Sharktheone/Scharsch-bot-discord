@@ -13,10 +13,10 @@ func CheckRoles() {
 	if conf.Config.Whitelist.KickUnWhitelisted {
 		for _, server := range pterodactyl.Servers {
 			for _, player := range server.OnlinePlayers.Players {
-				found := database.DB.IsWhitelisted(database.Player(*player))
+				found := database.DB.IsWhitelisted(*player)
 				if !found {
 					command := fmt.Sprintf(conf.Config.Whitelist.KickCommand, player)
-					if err := pterodactyl.SendCommand(command, server.Config.ServerID); err != nil {
+					if err := pterodactyl.SendCommand(command, string(server.Config.ServerID)); err != nil {
 						log.Printf("Failed to kick %v from server %v: %v", player, server.Config.ServerID, err)
 					} else {
 						server.OnlinePlayers.Mu.Lock()

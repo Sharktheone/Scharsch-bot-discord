@@ -101,7 +101,7 @@ func getServerOptions(option string) []discordgo.SelectMenuOption {
 		}
 		fields = append(fields, discordgo.SelectMenuOption{
 			Label: server.Config.ServerName,
-			Value: server.Config.ServerID,
+			Value: string(server.Config.ServerID),
 		})
 	}
 	return fields
@@ -140,7 +140,7 @@ func powerSelect(s *session.Session, i *discordgo.InteractionCreate, action stri
 		messageEmbed = pEmbed.PowerNotAllowed(i.Member.User.AvatarURL("40"), i.Member.User.String(), action, serverConf.Config.ServerName)
 	} else {
 		messageEmbed = pEmbed.PowerAction(action, serverConf.Config.ServerName, i.Member.User.AvatarURL("40"), i.Member.User.Username)
-		s, err := pterodactyl.GetServer(serverConf.Config.ServerID)
+		s, err := pterodactyl.GetServer(string(serverConf.Config.ServerID))
 		if err != nil {
 			log.Printf("Failed to get server %s: %v", serverConf.Config.ServerName, err)
 			return
