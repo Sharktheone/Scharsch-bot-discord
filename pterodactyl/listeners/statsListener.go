@@ -4,15 +4,15 @@ import (
 	"context"
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
-	"github.com/Sharktheone/ScharschBot/pterodactyl"
+	"github.com/Sharktheone/ScharschBot/pterodactyl/types"
 	"github.com/Sharktheone/ScharschBot/srv/serversrv"
 	"github.com/robfig/cron"
 	"log"
 )
 
-func StatsListener(ctx context.Context, server *conf.Server, stats chan *pterodactyl.ChanData) {
+func StatsListener(ctx context.Context, server *conf.Server, stats chan *types.ChanData) {
 	var (
-		status *pterodactyl.ServerStatus
+		status *types.ServerStatus
 	)
 	c := cron.New()
 	if err := c.AddFunc(fmt.Sprintf("@every %v", server.ChannelInfo.Interval), func() {
@@ -26,7 +26,7 @@ func StatsListener(ctx context.Context, server *conf.Server, stats chan *pteroda
 	for {
 		select {
 		case stat := <-stats:
-			if stat.Event == pterodactyl.WebsocketStats {
+			if stat.Event == types.WebsocketStats {
 				status = stat.Data
 			}
 		case <-ctx.Done():

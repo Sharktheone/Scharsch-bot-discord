@@ -5,52 +5,15 @@ import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
+	"github.com/Sharktheone/ScharschBot/pterodactyl/types"
 	"github.com/fasthttp/websocket"
 	"sync"
-)
-
-//goland:noinspection GoUnusedConst
-const (
-	websocketAuthSuccess   = "auth success"
-	WebsocketStatus        = "status"
-	WebsocketConsoleOutput = "console output"
-	WebsocketStats         = "stats"
-	websocketTokenExpiring = "token expiring"
-	websocketTokenExpired  = "token expired"
-
-	PowerSignalStart   = "start"
-	PowerSignalStop    = "stop"
-	PowerSignalKill    = "kill"
-	PowerSignalRestart = "restart"
-
-	PowerStatusRunning  = "running"
-	PowerStatusOffline  = "offline"
-	PowerStatusStarting = "starting"
-	PowerStatusStopping = "stopping"
 )
 
 var (
 	Servers []*Server
 	mu      sync.RWMutex
 )
-
-type ServerStatus struct {
-	State   string  `json:"state"`
-	Ram     int     `json:"memory_bytes"`
-	RamMax  int     `json:"memory_limit_bytes"`
-	Cpu     float64 `json:"cpu_absolute"`
-	Network struct {
-		Rx int `json:"rx_bytes"`
-		Tx int `json:"tx_bytes"`
-	} `json:"network"`
-	Disk   int `json:"disk_bytes"`
-	Uptime int `json:"uptime"`
-}
-
-type ChanData struct {
-	Event string
-	Data  *ServerStatus
-}
 
 type listenerCtx struct {
 	id     string
@@ -64,9 +27,9 @@ type Server struct {
 		Mu      sync.Mutex
 	}
 	Config    *conf.Server
-	Data      chan *ChanData
+	Data      chan *types.ChanData
 	Console   chan string
-	Status    *ServerStatus
+	Status    *types.ServerStatus
 	socket    *websocket.Conn
 	connected bool
 	lCtx      struct {
@@ -80,9 +43,9 @@ func New(ctx *context.Context, config *conf.Server) *Server {
 	s := &Server{
 		ctx:       ctx,
 		Config:    config,
-		Data:      make(chan *ChanData),
+		Data:      make(chan *types.ChanData),
 		Console:   make(chan string),
-		Status:    &ServerStatus{},
+		Status:    &types.ServerStatus{},
 		connected: false,
 	}
 	mu.Lock()
@@ -99,7 +62,7 @@ func (s *Server) SendCommand(command string) error {
 	return s.socket.WriteMessage(websocket.TextMessage, commandAction)
 }
 
-func (s *Server) AddListener(listener func(ctx *context.Context, server *conf.Server, data chan *ChanData), name string) {
+func (s *Server) AddListener(listener func(ctx *context.Context, server *conf.Server, data chan *types.ChanData), name string) {
 	ctx, cancel := context.WithCancel(*s.ctx)
 	s.lCtx.ctx = append(s.lCtx.ctx, &listenerCtx{
 		id:     name,
@@ -126,19 +89,19 @@ func (s *Server) AddConsoleListener(listener func(server *conf.Server, console c
 }
 
 func (s *Server) Start() error {
-	return s.Power(PowerSignalStart)
+	return s.Power(types.PowerSignalStart)
 }
 
 func (s *Server) Stop() error {
-	return s.Power(PowerSignalStop)
+	return s.Power(types.PowerSignalStop)
 }
 
 func (s *Server) Kill() error {
-	return s.Power(PowerSignalKill)
+	return s.Power(types.PowerSignalKill)
 }
 
 func (s *Server) Restart() error {
-	return s.Power(PowerSignalRestart)
+	return s.Power(types.PowerSignalRestart)
 }
 
 func (s *Server) Power(signal string) error {

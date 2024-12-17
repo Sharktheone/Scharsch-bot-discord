@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/pterodactyl"
+	"github.com/Sharktheone/ScharschBot/pterodactyl/types"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -13,11 +14,11 @@ func Power(action string) *discordgo.MessageEmbed {
 		Fields = getServerFields()
 	)
 	switch action {
-	case pterodactyl.PowerSignalStart:
+	case types.PowerSignalStart:
 		color = 0x00FF00
-	case pterodactyl.PowerSignalStop:
+	case types.PowerSignalStop:
 		color = 0xFF0000
-	case pterodactyl.PowerSignalRestart:
+	case types.PowerSignalRestart:
 		color = 0xFFFF00
 	case "status":
 		color = 0x00AAFF
@@ -38,13 +39,13 @@ func getServerFields() []*discordgo.MessageEmbedField {
 	for _, server := range pterodactyl.Servers {
 		var StateMsg string
 		switch server.Status.State {
-		case pterodactyl.PowerStatusStarting:
+		case types.PowerStatusStarting:
 			StateMsg = conf.Config.SRV.States.Starting
-		case pterodactyl.PowerStatusStopping:
+		case types.PowerStatusStopping:
 			StateMsg = conf.Config.SRV.States.Stopping
-		case pterodactyl.PowerStatusRunning:
+		case types.PowerStatusRunning:
 			StateMsg = conf.Config.SRV.States.Online
-		case pterodactyl.PowerStatusOffline:
+		case types.PowerStatusOffline:
 			StateMsg = conf.Config.SRV.States.Offline
 		}
 		Fields = append(Fields, &discordgo.MessageEmbedField{

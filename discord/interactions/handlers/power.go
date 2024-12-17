@@ -5,6 +5,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/discord/embed/pEmbed"
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/Sharktheone/ScharschBot/pterodactyl"
+	"github.com/Sharktheone/ScharschBot/pterodactyl/types"
 	"github.com/bwmarrin/discordgo"
 	"log"
 )
@@ -13,13 +14,13 @@ func PowerMain(s *session.Session, i *discordgo.InteractionCreate) {
 	power(s, i, i.ApplicationCommandData().Options[0].Name)
 }
 func PowerStart(s *session.Session, i *discordgo.InteractionCreate) {
-	power(s, i, pterodactyl.PowerSignalStart)
+	power(s, i, types.PowerSignalStart)
 }
 func PowerRestart(s *session.Session, i *discordgo.InteractionCreate) {
-	power(s, i, pterodactyl.PowerSignalRestart)
+	power(s, i, types.PowerSignalRestart)
 }
 func PowerStop(s *session.Session, i *discordgo.InteractionCreate) {
-	power(s, i, pterodactyl.PowerSignalStop)
+	power(s, i, types.PowerSignalStop)
 }
 
 func power(s *session.Session, i *discordgo.InteractionCreate, option string) {
@@ -36,11 +37,11 @@ func power(s *session.Session, i *discordgo.InteractionCreate, option string) {
 	}
 
 	switch option {
-	case pterodactyl.PowerSignalStart:
+	case types.PowerSignalStart:
 		startDisabled = true
-	case pterodactyl.PowerSignalStop:
+	case types.PowerSignalStop:
 		stopDisabled = true
-	case pterodactyl.PowerSignalRestart:
+	case types.PowerSignalRestart:
 		restartDisabled = true
 	}
 
@@ -95,8 +96,8 @@ func power(s *session.Session, i *discordgo.InteractionCreate, option string) {
 func getServerOptions(option string) []discordgo.SelectMenuOption {
 	var fields []discordgo.SelectMenuOption
 	for _, server := range pterodactyl.Servers {
-		if option == pterodactyl.PowerSignalStart && server.Status.State == pterodactyl.PowerStatusRunning ||
-			option == pterodactyl.PowerSignalStop && server.Status.State == pterodactyl.PowerStatusOffline {
+		if option == types.PowerSignalStart && server.Status.State == types.PowerStatusRunning ||
+			option == types.PowerSignalStop && server.Status.State == types.PowerStatusOffline {
 			continue
 		}
 		fields = append(fields, discordgo.SelectMenuOption{

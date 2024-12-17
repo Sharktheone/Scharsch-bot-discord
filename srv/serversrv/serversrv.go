@@ -3,8 +3,8 @@ package serversrv
 import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
-	"github.com/Sharktheone/ScharschBot/discord/bot"
-	"github.com/Sharktheone/ScharschBot/pterodactyl"
+	"github.com/Sharktheone/ScharschBot/discord/bot/auth"
+	"github.com/Sharktheone/ScharschBot/pterodactyl/types"
 	"github.com/bwmarrin/discordgo"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -18,10 +18,10 @@ type replacer struct {
 	string string
 }
 
-func ChannelStats(status *pterodactyl.ServerStatus, server *conf.Server) {
+func ChannelStats(status *types.ServerStatus, server *conf.Server) {
 	f := replacer{
 		string: func(state string) string {
-			if state != pterodactyl.PowerStatusOffline {
+			if state != types.PowerStatusOffline {
 				return server.ChannelInfo.Format
 			} else {
 				return server.ChannelInfo.OfflineFormat
@@ -95,7 +95,7 @@ func serverStopping(server *conf.Server) {
 func serverOnline(server *conf.Server) {
 	if server.StateMessages.OnlineEnabled {
 		for _, channelID := range server.StateMessages.ChannelID {
-			_, err := bot.Session.ChannelMessageSend(channelID, server.StateMessages.Online)
+			_, err := auth.Session.ChannelMessageSend(channelID, server.StateMessages.Online)
 			if err != nil {
 				log.Printf("Failed to send server online message to discord: %v (channelID: %v)", err, channelID)
 			}
@@ -119,13 +119,13 @@ func HandlePower(status string, server *conf.Server) {
 		return
 	}
 	switch status {
-	case pterodactyl.PowerStatusStarting:
+	case types.PowerStatusStarting:
 		serverStarting(server)
-	case pterodactyl.PowerStatusStopping:
+	case types.PowerStatusStopping:
 		serverStopping(server)
-	case pterodactyl.PowerStatusRunning:
+	case types.PowerStatusRunning:
 		serverOnline(server)
-	case pterodactyl.PowerStatusOffline:
+	case types.PowerStatusOffline:
 		serverOffline(server)
 	default:
 		log.Printf("Unknown power state: %v", status)
