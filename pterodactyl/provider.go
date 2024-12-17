@@ -94,5 +94,5 @@ func GetProvider() server.ServerProvider {
 		}
 	}
 
-	return &Provider{}
+	return &Provider{servers: servers}
 }
