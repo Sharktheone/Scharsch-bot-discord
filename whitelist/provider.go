@@ -3,6 +3,7 @@ package whitelist
 import (
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
+	"github.com/Sharktheone/ScharschBot/pterodactyl"
 	"github.com/Sharktheone/ScharschBot/types"
 	"github.com/Sharktheone/ScharschBot/whitelist/server"
 	"github.com/Sharktheone/ScharschBot/whitelist/whitelist/utils"
@@ -191,5 +192,5 @@ func formatCommand(command string, info WhitelistInfo) string {
 }
 
 func GetDefaultProvider() WhitelistProvider {
-	return &DefaultProvider{}
+	return &DefaultProvider{pterodactyl.GetProvider()}
 }
