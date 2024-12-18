@@ -14,27 +14,31 @@ type Provider struct {
 	servers map[server.ServerID]*Server
 }
 
-func (p Provider) Whitelist(player database.Player, id server.ServerID) {
-	//TODO implement me
-	panic("implement me")
+func (p *Provider) Whitelist(player database.Player, id server.ServerID) {
+	command := conf.Config.Pterodactyl.WhitelistAddCommand
+
+	whitelistCommand := fmt.Sprintf(command, player)
+
+	p.SendCommand(whitelistCommand, id)
 }
 
 func (p Provider) UnWhitelist(player database.Player, id server.ServerID) {
 	//TODO implement me
 	panic("implement me")
+func (p *Provider) UnWhitelist(player database.Player, id server.ServerID) {
 }
 
-func (p Provider) Ban(player database.Player, reason string, id server.ServerID) {
+func (p *Provider) Ban(player database.Player, reason string, id server.ServerID) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p Provider) UnBan(player database.Player, id server.ServerID) {
+func (p *Provider) UnBan(player database.Player, id server.ServerID) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p Provider) SendCommand(command string, id server.ServerID) {
+func (p *Provider) SendCommand(command string, id server.ServerID) {
 	log.Printf("Sending command %v to server %v", command, id)
 	s, ok := p.servers[id]
 	if !ok {
@@ -47,7 +51,7 @@ func (p Provider) SendCommand(command string, id server.ServerID) {
 	}
 }
 
-func (p Provider) GetServers() []server.ServerID {
+func (p *Provider) GetServers() []server.ServerID {
 	ids := make([]server.ServerID, 0, len(p.servers))
 
 	for _, s := range p.servers {
@@ -58,7 +62,6 @@ func (p Provider) GetServers() []server.ServerID {
 }
 
 func GetProvider() server.ServerProvider {
-
 	servers := make(map[server.ServerID]*Server, len(conf.Config.Pterodactyl.Servers))
 
 	for _, s := range conf.Config.Pterodactyl.Servers {
