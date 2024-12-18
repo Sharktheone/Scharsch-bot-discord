@@ -2,6 +2,7 @@ package pterodactyl
 
 import (
 	"context"
+	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
 	"github.com/Sharktheone/ScharschBot/pterodactyl/listeners"
@@ -22,10 +23,12 @@ func (p *Provider) Whitelist(player database.Player, id server.ServerID) {
 	p.SendCommand(whitelistCommand, id)
 }
 
-func (p Provider) UnWhitelist(player database.Player, id server.ServerID) {
-	//TODO implement me
-	panic("implement me")
 func (p *Provider) UnWhitelist(player database.Player, id server.ServerID) {
+	command := conf.Config.Pterodactyl.WhitelistRemoveCommand
+
+	unWhitelistCommand := fmt.Sprintf(command, player)
+
+	p.SendCommand(unWhitelistCommand, id)
 }
 
 func (p *Provider) Ban(player database.Player, reason string, id server.ServerID) {
