@@ -40,7 +40,7 @@ type Server struct {
 }
 
 func New(ctx *context.Context, config *conf.Server) *Server {
-	s := &Server{
+	return &Server{
 		ctx:       ctx,
 		Config:    config,
 		Data:      make(chan *types.ChanData),
@@ -48,11 +48,6 @@ func New(ctx *context.Context, config *conf.Server) *Server {
 		Status:    &types.ServerStatus{},
 		connected: false,
 	}
-	mu.Lock()
-	Servers = append(Servers, s)
-	mu.Unlock()
-
-	return s
 }
 
 func (s *Server) SendCommand(command string) error {
