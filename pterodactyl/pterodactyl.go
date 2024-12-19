@@ -12,7 +12,6 @@ import (
 
 var (
 	Servers []*Server
-	mu      sync.RWMutex
 )
 
 type listenerCtx struct {
@@ -54,6 +53,13 @@ func (s *Server) SendCommand(command string) error {
 	var (
 		commandAction = []byte(fmt.Sprintf(`{"event":"set command", "args": "%s"}`, command))
 	)
+
+	if !s.connected || s.socket == nil {
+		if err := s.connectWS(); err != nil {
+			return err
+		}
+	}
+
 	return s.socket.WriteMessage(websocket.TextMessage, commandAction)
 }
 
