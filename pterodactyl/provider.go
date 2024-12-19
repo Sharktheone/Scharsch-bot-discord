@@ -67,36 +67,33 @@ func (p *Provider) GetServers() []server.ServerID {
 func GetProvider() server.ServerProvider {
 	servers := make(map[server.ServerID]*Server, len(conf.Config.Pterodactyl.Servers))
 
-	for _, s := range conf.Config.Pterodactyl.Servers {
+	for _, cnf := range conf.Config.Pterodactyl.Servers {
+		go func(server conf.Server) {
+			ctx := context.Background()
+			s := New(&ctx, &server) //TODO: this probably should not be in the srv package
 
-		for _, cnf := range conf.Config.Pterodactyl.Servers {
-			go func(server conf.Server) {
-				ctx := context.Background()
-				s := New(&ctx, &server) //TODO: this probably should not be in the srv package
-
-				if server.Console.Enabled {
-					s.AddConsoleListener(func(server *conf.Server, console chan string) {
-						listeners.ConsoleListener(ctx, server, console, nil)
-					})
-				}
-				if server.StateMessages.Enabled {
-					s.AddListener(func(ctx *context.Context, server *conf.Server, data chan *types.ChanData) {
-						listeners.StatusListener(*ctx, server, data)
-					}, string(server.ServerID+"_stateMessages"))
-				}
-				if server.ChannelInfo.Enabled {
-					s.AddListener(func(ctx *context.Context, server *conf.Server, data chan *types.ChanData) {
-						listeners.StatsListener(*ctx, server, data)
-					}, string(server.ServerID+"_channelInfo"))
-				}
-				if err := s.Listen(); err != nil {
-					log.Printf("Error while listening to server %v: %v", server.ServerID, err)
-				}
-
-			}(cnf)
-			servers[s.ServerID] = &Server{
-				Config: &cnf,
+			if server.Console.Enabled {
+				s.AddConsoleListener(func(server *conf.Server, console chan string) {
+					listeners.ConsoleListener(ctx, server, console, nil)
+				})
 			}
+			if server.StateMessages.Enabled {
+				s.AddListener(func(ctx *context.Context, server *conf.Server, data chan *types.ChanData) {
+					listeners.StatusListener(*ctx, server, data)
+				}, string(server.ServerID+"_stateMessages"))
+			}
+			if server.ChannelInfo.Enabled {
+				s.AddListener(func(ctx *context.Context, server *conf.Server, data chan *types.ChanData) {
+					listeners.StatsListener(*ctx, server, data)
+				}, string(server.ServerID+"_channelInfo"))
+			}
+			if err := s.Listen(); err != nil {
+				log.Printf("Error while listening to server %v: %v", server.ServerID, err)
+			}
+
+		}(cnf)
+		servers[cnf.ServerID] = &Server{
+			Config: &cnf,
 		}
 	}
 
