@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
+	"github.com/Sharktheone/ScharschBot/pterodactyl/types"
 	"github.com/fasthttp/websocket"
 	"log"
 )
