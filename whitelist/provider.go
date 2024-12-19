@@ -17,12 +17,12 @@ func (p *DefaultProvider) AddToWhitelist(player database.Player, member *types.M
 	database.DB.WhitelistPlayer(member.ID, player)
 
 	if p.ServerProvider != nil {
-
 		for _, serverID := range p.ServerProvider.GetServers() {
 			command := getWhitelistCommand(member, serverID)
 
 			if command == "" || command == "<default>" {
 				p.ServerProvider.Whitelist(player, serverID)
+				continue
 			}
 
 			if command == "<none>" {
@@ -43,6 +43,7 @@ func (p *DefaultProvider) UnWhitelistPlayer(player database.Player, member *type
 
 			if command == "" || command == "<default>" {
 				p.ServerProvider.UnWhitelist(player, serverID)
+				continue
 			}
 
 			if command == "<none>" {
