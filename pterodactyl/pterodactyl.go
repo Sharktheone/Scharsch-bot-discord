@@ -51,7 +51,7 @@ func New(ctx *context.Context, config *conf.Server) *Server {
 
 func (s *Server) SendCommand(command string) error {
 	var (
-		commandAction = []byte(fmt.Sprintf(`{"event":"set command", "args": "%s"}`, command))
+		commandAction = []byte(fmt.Sprintf(`{"event":"send command", "args": ["%s"]}`, command))
 	)
 
 	if !s.connected || s.socket == nil {
