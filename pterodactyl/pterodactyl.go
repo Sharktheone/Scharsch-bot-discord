@@ -54,12 +54,6 @@ func (s *Server) SendCommand(command string) error {
 		commandAction = []byte(fmt.Sprintf(`{"event":"send command", "args": ["%s"]}`, command))
 	)
 
-	if !s.connected || s.socket == nil {
-		if err := s.connectWS(); err != nil {
-			return err
-		}
-	}
-
 	return s.socket.WriteMessage(websocket.TextMessage, commandAction)
 }
 
