@@ -9,6 +9,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/pterodactyl/types"
 	"github.com/Sharktheone/ScharschBot/whitelist/server"
 	"log"
+	"sync"
 )
 
 type Provider struct {
@@ -67,7 +68,12 @@ func (p *Provider) GetServers() []server.ServerID {
 func GetProvider() server.ServerProvider {
 	servers := make(map[server.ServerID]*Server, len(conf.Config.Pterodactyl.Servers))
 
+	mu := &sync.Mutex{}
+
+	wg := &sync.WaitGroup{}
+
 	for _, cnf := range conf.Config.Pterodactyl.Servers {
+		wg.Add(1)
 		go func(server conf.Server) {
 			ctx := context.Background()
 			s := New(&ctx, &server) //TODO: this probably should not be in the srv package
@@ -87,15 +93,19 @@ func GetProvider() server.ServerProvider {
 					listeners.StatsListener(*ctx, server, data)
 				}, string(server.ServerID+"_channelInfo"))
 			}
+			mu.Lock()
+			servers[server.ServerID] = s
+			mu.Unlock()
+			wg.Done()
+
 			if err := s.Listen(); err != nil {
 				log.Printf("Error while listening to server %v: %v", server.ServerID, err)
 			}
 
 		}(cnf)
-		servers[cnf.ServerID] = &Server{
-			Config: &cnf,
-		}
 	}
+
+	wg.Wait()
 
 	return &Provider{servers: servers}
 }
