@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
+	"github.com/Sharktheone/ScharschBot/discord/bot/auth"
 	"github.com/Sharktheone/ScharschBot/discord/embed/banEmbed"
 	"github.com/Sharktheone/ScharschBot/discord/session"
 	"github.com/Sharktheone/ScharschBot/types"
@@ -85,7 +86,7 @@ func Remove(username database.Player, member *types.Member) (allowed bool, onWhi
 		}
 	}
 
-	whitelist.Provider.RemoveAccount(username)
+	whitelist.Provider.UnWhitelistPlayer(username, member)
 
 	log.Printf("%v is removing %v from whitelist", member.ID, username)
 	return true, true
@@ -102,7 +103,17 @@ func RemoveAll(member *types.Member) (allowed bool, onWhitelist bool) {
 	for _, entry := range entries {
 		database.DB.RemoveAccount(entry.Name)
 
-		whitelist.Provider.RemoveAccount(entry.Name)
+		m, err := types.MemberFromID(entry.ID, auth.Session)
+
+		if err != nil {
+			log.Printf("Error while getting member: %v", err)
+
+			whitelist.Provider.UnWhitelistPlayer(entry.Name, member)
+
+			continue
+		}
+
+		whitelist.Provider.UnWhitelistPlayer(entry.Name, m)
 	}
 
 	return true, len(entries) > 0
@@ -303,7 +314,19 @@ func UnBanAccount(member *types.Member, account database.Player, s *session.Sess
 
 func RemoveMyAccounts(userID database.UserID) *[]database.Player {
 	log.Printf("%v is removing his own accounts from the whitelist", userID)
-	return whitelist.Provider.RemoveAccounts(userID)
+
+	member, err := types.MemberFromID(userID, auth.Session)
+	if err != nil {
+		log.Printf("Error while getting member: %v", err)
+		return nil
+	}
+
+	entries := database.DB.Players(userID)
+
+	whitelist.Provider.UnWhitelistAccount(member)
+
+	return &entries
+
 }
 
 func GetOwner(Account database.Player, s *session.Session) *Player {

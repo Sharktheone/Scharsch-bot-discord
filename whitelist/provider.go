@@ -101,20 +101,6 @@ func (p *DefaultProvider) UnBanPlayer(player database.Player) {
 func (p *DefaultProvider) UnBanPlayerFrom(user database.UserID, player database.Player) {
 	database.DB.UnBanPlayerFrom(user, player)
 }
-func (p *DefaultProvider) RemoveAccounts(user database.UserID) *[]database.Player {
-	players := database.DB.Players(user)
-
-	for _, player := range players {
-		database.DB.UnWhitelistPlayer(player)
-	}
-
-	database.DB.RemoveAccounts(user)
-	return &players
-}
-
-func (p *DefaultProvider) RemoveAccount(player database.Player) {
-	database.DB.UnWhitelistPlayer(player)
-}
 
 func getWhitelistCommand(member *types.Member, serverID server.ServerID) string {
 	command := conf.Config.Whitelist.AddCommand
