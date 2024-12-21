@@ -65,6 +65,17 @@ func (p *DefaultProvider) UnWhitelistAccount(member *types.Member) {
 		p.UnWhitelistPlayer(player, member)
 	}
 }
+
+func (p *DefaultProvider) UnWhitelistAccounts(members []*types.Member) {
+	for _, member := range members {
+		players := database.DB.Players(member.ID)
+
+		for _, player := range players {
+			p.UnWhitelistPlayer(player, member)
+		}
+	}
+}
+
 func (p *DefaultProvider) BanUser(member *types.Member, reason string) {
 	players := database.DB.Players(member.ID)
 

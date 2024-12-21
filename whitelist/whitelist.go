@@ -10,6 +10,7 @@ type WhitelistProvider interface {
 	UnWhitelistPlayer(player database.Player, member *types.Member)
 	MoveToReWhitelist(missingRole database.Role, member *types.Member)
 	UnWhitelistAccount(member *types.Member)
+	UnWhitelistAccounts(members []*types.Member)
 	BanUser(member *types.Member, reason string)
 	BanPlayer(player database.Player, member *types.Member, reason string)
 	UnBanUser(user database.UserID)
