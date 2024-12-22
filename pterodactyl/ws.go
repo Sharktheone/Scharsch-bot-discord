@@ -72,6 +72,21 @@ func (s *Server) Listen() error {
 			s.connected = true
 		}
 	}
+
+	if s.Config.Console.Enabled {
+		if err := s.requestConsoleOutput(); err != nil {
+			log.Printf("failed to request console output: %s", err)
+		}
+	}
+
+	if s.Config.ChannelInfo.Enabled {
+		if err := s.requestStats(); err != nil {
+			log.Printf("failed to request stats: %s", err)
+		}
+	}
+
+	defer log.Printf("Server %v is no longer listening", s.Config.ServerName)
+
 	for {
 		var (
 			event eventType
@@ -80,6 +95,7 @@ func (s *Server) Listen() error {
 			log.Printf("failed to read websocket message: %s", err)
 			continue
 		}
+
 		if event.Event == types.WebsocketTokenExpired || event.Event == types.WebsocketTokenExpiring {
 			if event.Event == types.WebsocketTokenExpired {
 				s.connected = false
@@ -97,8 +113,10 @@ func (s *Server) Listen() error {
 			}
 			continue
 		}
+
 		s.setStats(&event)
 	}
+
 }
 
 func (s *Server) setStats(data *eventType) {

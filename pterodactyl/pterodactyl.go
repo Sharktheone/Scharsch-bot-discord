@@ -105,3 +105,15 @@ func (s *Server) Power(signal string) error {
 	)
 	return s.socket.WriteMessage(websocket.TextMessage, powerAction)
 }
+
+func (s *Server) requestConsoleOutput() error {
+	msg := []byte(`{"event":"send logs","args":[null]}`)
+
+	return s.socket.WriteMessage(websocket.TextMessage, msg)
+}
+
+func (s *Server) requestStats() error {
+	msg := []byte(`{"event":"send stats", "args": []}`)
+
+	return s.socket.WriteMessage(websocket.TextMessage, msg)
+}
