@@ -122,5 +122,7 @@ func (s *Server) setStats(data *eventType) {
 			Event: types.WebsocketStats,
 			Data:  s.Status,
 		}
+	default:
+		return
 	}
 }
