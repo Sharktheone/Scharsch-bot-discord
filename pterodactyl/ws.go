@@ -107,9 +107,12 @@ func (s *Server) setStats(data *eventType) {
 		s.Console <- data.Args[0]
 	case types.WebsocketStatus:
 		s.Status.State = data.Args[0]
-		s.Data <- &types.ChanData{
+		select {
+		case s.Data <- types.ChanData{
 			Event: types.WebsocketStatus,
 			Data:  s.Status,
+		}:
+		default:
 		}
 	case types.WebsocketStats:
 		var stats types.ServerStatus
@@ -118,9 +121,12 @@ func (s *Server) setStats(data *eventType) {
 			return
 		}
 		s.Status = &stats
-		s.Data <- &types.ChanData{
+		select {
+		case s.Data <- types.ChanData{
 			Event: types.WebsocketStats,
 			Data:  s.Status,
+		}:
+		default:
 		}
 	default:
 		return
