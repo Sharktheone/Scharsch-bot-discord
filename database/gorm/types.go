@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/database"
+	"strings"
 )
 
 type WhitelistEntry struct {
@@ -82,12 +83,12 @@ func (pl PlayerList) Value() (driver.Value, error) {
 }
 
 func (pl *PlayerList) Scan(value interface{}) error {
-	str, ok := value.([]byte)
+	str, ok := value.(string)
 	if !ok {
 		return fmt.Errorf("PlayerList.Scan: expected string, got %T", value)
 	}
 
-	players := bytes.Split(str, []byte(","))
+	players := strings.Split(str, ",")
 	*pl = make([]database.Player, len(players))
 
 	for i, p := range players {
