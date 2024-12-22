@@ -6,6 +6,11 @@ import (
 	"github.com/Sharktheone/ScharschBot/conf"
 	"github.com/Sharktheone/ScharschBot/discord/bot/auth"
 	"log"
+	"regexp"
+)
+
+var (
+	StripRegex *regexp.Regexp = nil
 )
 
 func ConsoleListener(ctx context.Context, server *conf.Server, console chan string, commandSent chan bool) {
@@ -48,10 +53,20 @@ func sendConsoleOutput(server *conf.Server, consoleOutput []string) {
 	for _, line := range consoleOutput {
 		message += fmt.Sprintf("\n%v", line)
 	}
+
+	message = getRegex().ReplaceAllString(message, "")
+
 	for _, channelID := range server.Console.ChannelID {
 		_, err := auth.Session.ChannelMessageSend(channelID, fmt.Sprintf("```%v```", message))
 		if err != nil {
 			log.Printf("Failed to send console to discord: %v (ChannelID: %v)", err, channelID)
 		}
 	}
+}
+
+func getRegex() *regexp.Regexp {
+	if StripRegex == nil {
+		StripRegex = regexp.MustCompile(conf.Config.Pterodactyl.RegexRemoveAnsi)
+	}
+	return StripRegex
 }
