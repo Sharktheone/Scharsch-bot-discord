@@ -15,7 +15,6 @@ type Format struct {
 		WhitelistRemoveRoleID []database.Role `yaml:"adminWhitelistRemoveRoleID"`
 		WhitelistWhoisRoleID  []database.Role `yaml:"adminWhitelistWhoisRoleID"`
 		WhitelistBanRoleID    []database.Role `yaml:"adminWhitelistBanRoleID"`
-		WhitelistServerRoleID []database.Role `yaml:"whitelistServerRoleID"`
 		EmbedErrorIcon        string          `yaml:"embedErrorIcon"`
 		EmbedErrorAuthorURL   string          `yaml:"embedErrorAuthorURL"`
 		FooterIcon            bool            `yaml:"footerIcon"`
