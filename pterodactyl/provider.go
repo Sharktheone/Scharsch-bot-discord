@@ -84,12 +84,12 @@ func GetProvider() server.ServerProvider {
 				})
 			}
 			if server.StateMessages.Enabled {
-				s.AddListener(func(ctx *context.Context, server *conf.Server, data chan *types.ChanData) {
+				s.AddListener(func(ctx *context.Context, server *conf.Server, data chan types.ChanData) {
 					listeners.StatusListener(*ctx, server, data)
 				}, string(server.ServerID+"_stateMessages"))
 			}
 			if server.ChannelInfo.Enabled {
-				s.AddListener(func(ctx *context.Context, server *conf.Server, data chan *types.ChanData) {
+				s.AddListener(func(ctx *context.Context, server *conf.Server, data chan types.ChanData) {
 					listeners.StatsListener(*ctx, server, data)
 				}, string(server.ServerID+"_channelInfo"))
 			}

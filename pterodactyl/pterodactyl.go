@@ -26,7 +26,7 @@ type Server struct {
 		Mu      sync.Mutex
 	}
 	Config    *conf.Server
-	Data      chan *types.ChanData
+	Data      chan types.ChanData
 	Console   chan string
 	Status    *types.ServerStatus
 	socket    *websocket.Conn
@@ -42,7 +42,7 @@ func New(ctx *context.Context, config *conf.Server) *Server {
 	return &Server{
 		ctx:       ctx,
 		Config:    config,
-		Data:      make(chan *types.ChanData),
+		Data:      make(chan types.ChanData),
 		Console:   make(chan string),
 		Status:    &types.ServerStatus{},
 		connected: false,
@@ -57,7 +57,7 @@ func (s *Server) SendCommand(command string) error {
 	return s.socket.WriteMessage(websocket.TextMessage, commandAction)
 }
 
-func (s *Server) AddListener(listener func(ctx *context.Context, server *conf.Server, data chan *types.ChanData), name string) {
+func (s *Server) AddListener(listener func(ctx *context.Context, server *conf.Server, data chan types.ChanData), name string) {
 	ctx, cancel := context.WithCancel(*s.ctx)
 	s.lCtx.ctx = append(s.lCtx.ctx, &listenerCtx{
 		id:     name,

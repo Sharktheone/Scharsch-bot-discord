@@ -7,7 +7,7 @@ import (
 	"github.com/Sharktheone/ScharschBot/srv/serversrv"
 )
 
-func StatusListener(ctx context.Context, server *conf.Server, data chan *types.ChanData) {
+func StatusListener(ctx context.Context, server *conf.Server, data chan types.ChanData) {
 	for {
 		select {
 		case d := <-data:

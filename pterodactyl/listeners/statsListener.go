@@ -10,7 +10,7 @@ import (
 	"log"
 )
 
-func StatsListener(ctx context.Context, server *conf.Server, stats chan *types.ChanData) {
+func StatsListener(ctx context.Context, server *conf.Server, stats chan types.ChanData) {
 	var (
 		status *types.ServerStatus
 	)
