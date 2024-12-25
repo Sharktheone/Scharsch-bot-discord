@@ -26,6 +26,8 @@ type Format struct {
 		PanelURL               string   `yaml:"panelURL"`
 		WhitelistAddCommand    string   `yaml:"whitelistAddCommand"`
 		WhitelistRemoveCommand string   `yaml:"whitelistRemoveCommand"`
+		BanCommand             string   `yaml:"banCommand"`
+		UnBanCommand           string   `yaml:"unBanCommand"`
 		ChatCommand            string   `yaml:"chatCommand"`
 		Servers                []Server `yaml:"servers"`
 	} `yaml:"pterodactyl"`

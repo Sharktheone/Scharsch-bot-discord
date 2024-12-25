@@ -33,13 +33,19 @@ func (p *Provider) UnWhitelist(player database.Player, id server.ServerID) {
 }
 
 func (p *Provider) Ban(player database.Player, reason string, id server.ServerID) {
-	//TODO implement me
-	panic("implement me")
+	command := conf.Config.Pterodactyl.BanCommand
+
+	banCommand := fmt.Sprintf(command, player, reason)
+
+	p.SendCommand(banCommand, id)
 }
 
 func (p *Provider) UnBan(player database.Player, id server.ServerID) {
-	//TODO implement me
-	panic("implement me")
+	command := conf.Config.Pterodactyl.UnBanCommand
+
+	unBanCommand := fmt.Sprintf(command, player)
+
+	p.SendCommand(unBanCommand, id)
 }
 
 func (p *Provider) SendCommand(command string, id server.ServerID) {
